@@ -6,4 +6,4 @@
 
 
 //함수 처리부 (Process)
-bool Load(Neuron* target, Signal* signal);
+bool Load(Neuron (*target)[SectorSize][SectorSize], Signal* signal);

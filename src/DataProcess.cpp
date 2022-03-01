@@ -5,7 +5,7 @@
 #define END_CHRONO std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin).count() << "[ms]" << std::endl;
 
 
-bool Load(Neuron* target, Signal* signal)
-{
+bool Load(Neuron (*target)[SectorSize][SectorSize], Signal* signal){
+    
     return true;
 }

@@ -1,15 +1,25 @@
 #pragma once
 #include <stdio.h>
-#define SectorLayer 5
-#define SectorSize 10
+#define SectorLayer 3
+#define SectorSize 3
 
 #define Path "resource/"
+
+#define D1 0x01
+#define D2 0x02
+#define D3 0x04
+#define D4 0x08
+#define D5 0x10
+#define D6 0x20
+#define D7 0x40
+#define D8 0x80
 
 #define EPSILON 0.0001
 
 typedef unsigned char BYTE;
 typedef unsigned char BIT;
 typedef unsigned char FLAG;
+typedef unsigned char DIRECTION;
 typedef float TIMESTAMP;
 
 struct Signal
@@ -31,6 +41,7 @@ struct Neuron
     // 7 bit :
     // 8 bit : 전달로
     FLAG specificity; // 수용기에 대한 정보
+    DIRECTION direction;
     TIMESTAMP timestamp;
     float value;
     //Value
