@@ -7,3 +7,6 @@
 
 //함수 처리부 (Process)
 bool Load(Neuron (*target)[SectorSize][SectorSize],int i, int j, int k,  Signal* signal);
+
+//Threading
+void TLoad(Neuron (*target)[SectorSize][SectorSize], int i, int j, int k, Signal *signal);

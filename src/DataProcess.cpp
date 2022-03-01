@@ -6,37 +6,41 @@
 
 bool Load(Neuron (*target)[SectorSize][SectorSize], int i, int j, int k, Signal *signal)
 {
-    if (i >= SectorLayer || j >= SectorSize || k >= SectorSize || i < 0 || j < 0 || k < 0)
+    BEGIN_CHRONO
+    if (i >= SectorLayer || j >= SectorSize || k >= SectorSize)
     {
-        std::cout << "end" << std::endl;
         return false;
     }
-    printf("Load[%i,%i,%i]", i, j, k);
+    if (i < 0 || j < 0 || k < 0)
+    {
+        return false;
+    }
+    //printf("Load[%i,%i,%i]", i, j, k);
 
     if (((target[i][j][k].direction) & 1) == 1)
     {
-        Load(target, i, j, k + 1, signal);
+        TLoad(target, i, j, k + 1, signal);
     }
     if (((target[i][j][k].direction >> 1) & 1) == 1)
     {
-        Load(target, i, j, k - 1, signal);
+        TLoad(target, i, j, k - 1, signal);
     }
     if (((target[i][j][k].direction >> 2) & 1) == 1)
     {
-        Load(target, i, j + 1, k, signal);
+        TLoad(target, i, j + 1, k, signal);
     }
     if (((target[i][j][k].direction >> 3) & 1) == 1)
     {
-        Load(target, i, j - 1, k, signal);
+        TLoad(target, i, j - 1, k, signal);
     }
     if (((target[i][j][k].direction >> 4) & 1) == 1)
     {
-        Load(target, i + 1, j, k, signal);
+        TLoad(target, i + 1, j, k, signal);
     }
     if (((target[i][j][k].direction >> 5) & 1) == 1)
     {
-        Load(target, i - 1, j, k, signal);
+        TLoad(target, i - 1, j, k, signal);
     }
-
+    END_CHRONO
     return true;
 }
