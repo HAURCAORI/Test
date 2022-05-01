@@ -10,6 +10,60 @@
 #include "DataProcess.h"
 
 
+#include "stdlib.h"
+#include "stdio.h"
+#include "string.h"
+
+static unsigned long long lastTotalUser, lastTotalUserLow, lastTotalSys, lastTotalIdle;
+static double usage;
+
+
+void init(){
+    FILE* file = fopen("/proc/stat", "r");
+    fscanf(file, "cpu %llu %llu %llu %llu", &lastTotalUser, &lastTotalUserLow,
+        &lastTotalSys, &lastTotalIdle);
+    fclose(file);
+}
+
+double getCurrentValue(){
+    double percent;
+    FILE* file;
+    unsigned long long totalUser, totalUserLow, totalSys, totalIdle, total;
+
+    file = fopen("/proc/stat", "r");
+    fscanf(file, "cpu %llu %llu %llu %llu", &totalUser, &totalUserLow,
+        &totalSys, &totalIdle);
+    fclose(file);
+
+
+    if (totalUser < lastTotalUser || totalUserLow < lastTotalUserLow ||
+        totalSys < lastTotalSys || totalIdle < lastTotalIdle){
+        //오버플로우 detection
+        percent = -1.0;
+    }
+    else{
+        total = (totalUser - lastTotalUser) + (totalUserLow - lastTotalUserLow) +
+            (totalSys - lastTotalSys);
+        percent = total;
+        total += (totalIdle - lastTotalIdle);
+        percent /= total;
+        percent *= 100;
+    }
+
+    lastTotalUser = totalUser;
+    lastTotalUserLow = totalUserLow;
+    lastTotalSys = totalSys;
+    lastTotalIdle = totalIdle;
+
+    return percent;
+}
+
+void Usage() {
+  while(true) {
+    usage = getCurrentValue();
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
+}
 namespace ThreadPool {
 class ThreadPool {
  public:
@@ -40,6 +94,9 @@ class ThreadPool {
 
 ThreadPool::ThreadPool(size_t num_threads): num_threads_(num_threads), stop_all(false) {
   worker_threads_.reserve(num_threads_);
+  init();
+  std::thread t(Usage);
+  t.detach();
   for (size_t i = 0; i < num_threads_; ++i) {
     worker_threads_.emplace_back([this]() { this->WorkerThread(); });
   }
@@ -91,9 +148,6 @@ void ThreadPool::EnqueueJob(Args&&... args) {
 ThreadPool::ThreadPool pool(3);
 
 void TLoad(Neuron (*target)[SectorSize][SectorSize], int i, int j, int k, Signal *signal) {
-    //std::future<bool> future;
-    //future = pool.EnqueueJob(Load, target, i, j, k, signal);
-    //future.wait();
     pool.EnqueueJob(target, i, j, k, signal);
 }
 
@@ -101,5 +155,8 @@ void Load(Neuron (*target)[SectorSize][SectorSize], int i, int j, int k, Signal 
   
   printf("task : %d\r\n", i);
   if(i > 100) { return; }
+  if(usage > 80) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  }
   TLoad(target,i+1,1,1, signal);
 }
