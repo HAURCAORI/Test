@@ -117,6 +117,9 @@ void ThreadPool::WorkerThread() {
 
     // 해당 job 을 수행한다 :)
     job();
+    if(usage > 80) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
   }
 }
 
@@ -153,10 +156,8 @@ void TLoad(Neuron (*target)[SectorSize][SectorSize], int i, int j, int k, Signal
 
 void Load(Neuron (*target)[SectorSize][SectorSize], int i, int j, int k, Signal *signal) {
   
-  printf("task : %d\r\n", i);
-  if(i > 100) { return; }
-  if(usage > 80) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-  }
+  printf("%f task : %d\r\n", usage, i);
+  if(i > 20) { return; }
+  TLoad(target,i+1,1,1, signal);
   TLoad(target,i+1,1,1, signal);
 }
