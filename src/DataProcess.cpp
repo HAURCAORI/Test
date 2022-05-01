@@ -3,9 +3,10 @@
 #include <chrono>
 #define BEGIN_CHRONO std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 #define END_CHRONO std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin).count() << "[ms]" << std::endl;
-
+/*
 bool Load(Neuron (*target)[SectorSize][SectorSize], int i, int j, int k, Signal *signal)
 {
+    
     BEGIN_CHRONO
     if (i >= SectorLayer || j >= SectorSize || k >= SectorSize)
     {
@@ -42,5 +43,7 @@ bool Load(Neuron (*target)[SectorSize][SectorSize], int i, int j, int k, Signal 
         TLoad(target, i - 1, j, k, signal);
     }
     END_CHRONO
+    
     return true;
 }
+*/

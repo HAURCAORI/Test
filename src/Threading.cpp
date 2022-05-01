@@ -17,9 +17,8 @@ class ThreadPool {
   ~ThreadPool();
 
   // job 을 추가한다.
-  template <class F, class... Args>
-  std::future<typename std::result_of<F(Args...)>::type> EnqueueJob(
-    F&& f, Args&&... args);
+  template <class... Args>
+  void EnqueueJob(Args&&... args);
 
  private:
   // 총 Worker 쓰레드의 개수.
@@ -74,24 +73,19 @@ ThreadPool::~ThreadPool() {
   }
 }
 
-template <class F, class... Args>
-std::future<typename std::result_of<F(Args...)>::type> ThreadPool::EnqueueJob(
-  F&& f, Args&&... args) {
+template <class... Args>
+void ThreadPool::EnqueueJob(Args&&... args) {
   if (stop_all) {
     throw std::runtime_error("ThreadPool 사용 중지됨");
   }
 
-  using return_type = typename std::result_of<F(Args...)>::type;
-  auto job = std::make_shared<std::packaged_task<return_type()>>(
-    std::bind(std::forward<F>(f), std::forward<Args>(args)...));
-  std::future<return_type> job_result_future = job->get_future();
+  auto job = [&]() { Load(args...); };
+
   {
     std::lock_guard<std::mutex> lock(m_job_q_);
-    jobs_.push([job]() { (*job)(); });
+    jobs_.push(job);
   }
   cv_job_q_.notify_one();
-
-  return job_result_future;
 }
 
 }  // namespace ThreadPool
@@ -102,4 +96,9 @@ void TLoad(Neuron (*target)[SectorSize][SectorSize], int i, int j, int k, Signal
     //std::future<bool> future;
     //future = pool.EnqueueJob(Load, target, i, j, k, signal);
     //future.wait();
+    pool.EnqueueJob(target, i, j, k, signal);
+}
+
+bool Load(Neuron (*target)[SectorSize][SectorSize], int i, int j, int k, Signal *signal) {
+  printf("task : %d\r\n", i);
 }
