@@ -66,7 +66,6 @@ double getCurrentValue(){
 }
 
 void Usage() {
-  
   while(true) {
     usage = getCurrentValue();
     sysinfo (&memInfo);
@@ -172,13 +171,21 @@ ThreadPool::ThreadPool pool(5);
 void TLoad(int i, int j, int k, Signal *signal) {
     pool.EnqueueJob(i, j, k, signal);
 }
-
+static double sum = 0;
+static double mean = 0;
+static std::atomic<int> count(0);
 void Load(int i, int j, int k, Signal *signal) {
-  //std::this_thread::sleep_for(std::chrono::nanoseconds(10));
-  printf("%f task : %d\r\n", ram, i);
+  std::this_thread::sleep_for(std::chrono::nanoseconds(3));
+  ++count;
+  sum += ram;
+  if(count >= 100000) {
+    mean = sum / (double) count;
+    printf("%f\r\n", mean);
+    count = 0;
+    sum = 0;
+  }
+  //printf("%f task : %d\r\n", ram, i);
   if(i > 20) { return; }
-  TLoad(i+1,1,1, signal);
-  TLoad(i+1,1,1, signal);
-  TLoad(i+1,1,1, signal);
+  if(ram > 0.95) { return; }
   TLoad(i+1,1,1, signal);
 }

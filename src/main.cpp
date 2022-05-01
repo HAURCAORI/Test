@@ -15,8 +15,12 @@ int main(){
     neuron[2][1][0] = CreateNeuron(D1);
 
     Signal signal = {1.0f, 0xff};
-    for(int i = 0; i < 2; i++) {
+    for(int i = 0; i < 100000; i++) {
         TLoad(0,1,1, &signal);
+        TLoad(0,1,1, &signal);
+        TLoad(0,1,1, &signal);
+        TLoad(0,1,1, &signal);
+        printf("num : %d\r\n", i);
     }
     std::this_thread::sleep_for(std::chrono::minutes(5));
     return 0;
