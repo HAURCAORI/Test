@@ -2,6 +2,7 @@
 #include "DataProcess.h"
 #include "Mapping.h"
 
+#include <thread>
 
 int main(){
     Neuron neuron[SectorLayer][SectorSize][SectorSize] = {0};
@@ -15,7 +16,8 @@ int main(){
 
     Signal signal = {1.0f, 0xff};
     for(int i = 0; i < 2; i++) {
-        TLoad(neuron,0,1,1, &signal);
+        TLoad(0,1,1, &signal);
     }
+    std::this_thread::sleep_for(std::chrono::minutes(5));
     return 0;
 }

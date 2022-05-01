@@ -73,7 +73,6 @@ void Usage() {
     physMemUsed = (memInfo.totalram - memInfo.freeram);
     totalPhysMem = memInfo.totalram;
     ram = (double) physMemUsed / (double) totalPhysMem;
-    printf("%f \r\n", ram);
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
 }
@@ -134,9 +133,11 @@ void ThreadPool::WorkerThread() {
       printf("pause");
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    if(ram > 0.9) {
-      printf("ram");
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    if(ram > 0.95) {
+      printf("RAM OVER\r\n");
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+      //worker_threads_.emplace_back([this]() { this->WorkerThread(); });
+      //return;
     }
   }
 }
@@ -168,14 +169,16 @@ void ThreadPool::EnqueueJob(Args&&... args) {
 
 ThreadPool::ThreadPool pool(5);
 
-void TLoad(Neuron (*target)[SectorSize][SectorSize], int i, int j, int k, Signal *signal) {
-    pool.EnqueueJob(target, i, j, k, signal);
+void TLoad(int i, int j, int k, Signal *signal) {
+    pool.EnqueueJob(i, j, k, signal);
 }
 
-void Load(Neuron (*target)[SectorSize][SectorSize], int i, int j, int k, Signal *signal) {
-  std::this_thread::sleep_for(std::chrono::nanoseconds(10));
-  printf("%f task : %d\r\n", usage, i);
+void Load(int i, int j, int k, Signal *signal) {
+  //std::this_thread::sleep_for(std::chrono::nanoseconds(10));
+  printf("%f task : %d\r\n", ram, i);
   if(i > 20) { return; }
-  TLoad(target,i+1,1,1, signal);
-  TLoad(target,i+1,1,1, signal);
+  TLoad(i+1,1,1, signal);
+  TLoad(i+1,1,1, signal);
+  TLoad(i+1,1,1, signal);
+  TLoad(i+1,1,1, signal);
 }
