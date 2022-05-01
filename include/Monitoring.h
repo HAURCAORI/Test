@@ -1,5 +1,4 @@
 #pragma once
-
 #include <thread>
 
 #ifdef __linux__
@@ -10,27 +9,28 @@
 #include "sys/sysinfo.h"
 #endif
 
-namespace Monitoring {
-    double calUsageCPU();
-    double calUsageRAM();
-    class Monitoring {
-        private:
-        unsigned long long lastTotalUser, lastTotalUserLow, lastTotalSys, lastTotalIdle; //CPU
-        long long physMemUsed, totalPhysMem; //메모리
+namespace Monitoring
+{
+class Monitoring
+{
+private:
+    unsigned long long lastTotalUser, lastTotalUserLow, lastTotalSys, lastTotalIdle; //CPU
+    long long physMemUsed, totalPhysMem;                                             //메모리
+    struct sysinfo memInfo;
 
-        double memoryUsage, cpuUsage;
-        bool running = false;
-        std::thread local_thread;
-        
-        public:
-        Monitoring();
-        ~Monitoring();
-        
-        void Update();
-        double calCurrentCpu();
-        double calCurrentMemory();
-        inline double getMemoryUsage() {return memoryUsage;}
-        inline double getCpuUsage() {return cpuUsage;}
-    };
-}
+    double cpuUsage, memoryUsage;
+    bool running;
+    const int interval = 100; //ms
+    std::thread local_thread;
 
+public:
+    Monitoring();
+    ~Monitoring();
+
+    void Update();
+    double calCurrentCpu();
+    double calCurrentMemory();
+    inline double getCpuUsage() { return cpuUsage; }
+    inline double getMemoryUsage() { return memoryUsage; }
+};
+} // namespace Monitoring

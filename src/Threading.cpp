@@ -8,73 +8,10 @@
 #include <thread>
 #include <vector>
 #include "DataProcess.h"
+#include "Monitoring.h"
 
+Monitoring::Monitoring monitoring;
 
-#include "stdlib.h"
-#include "stdio.h"
-#include "string.h"
-#include "sys/types.h"
-#include "sys/sysinfo.h"
-
-struct sysinfo memInfo;
-
-static unsigned long long lastTotalUser, lastTotalUserLow, lastTotalSys, lastTotalIdle;
-static double usage;
-static double ram;
-long long physMemUsed;
-long long totalPhysMem;
-
-
-void init(){
-    FILE* file = fopen("/proc/stat", "r");
-    fscanf(file, "cpu %llu %llu %llu %llu", &lastTotalUser, &lastTotalUserLow,
-        &lastTotalSys, &lastTotalIdle);
-    fclose(file);
-}
-
-double getCurrentValue(){
-    double percent;
-    FILE* file;
-    unsigned long long totalUser, totalUserLow, totalSys, totalIdle, total;
-
-    file = fopen("/proc/stat", "r");
-    fscanf(file, "cpu %llu %llu %llu %llu", &totalUser, &totalUserLow,
-        &totalSys, &totalIdle);
-    fclose(file);
-
-
-    if (totalUser < lastTotalUser || totalUserLow < lastTotalUserLow ||
-        totalSys < lastTotalSys || totalIdle < lastTotalIdle){
-        //오버플로우 detection
-        percent = -1.0;
-    }
-    else{
-        total = (totalUser - lastTotalUser) + (totalUserLow - lastTotalUserLow) +
-            (totalSys - lastTotalSys);
-        percent = total;
-        total += (totalIdle - lastTotalIdle);
-        percent /= total;
-        percent *= 100;
-    }
-
-    lastTotalUser = totalUser;
-    lastTotalUserLow = totalUserLow;
-    lastTotalSys = totalSys;
-    lastTotalIdle = totalIdle;
-
-    return percent;
-}
-
-void Usage() {
-  while(true) {
-    usage = getCurrentValue();
-    sysinfo (&memInfo);
-    physMemUsed = (memInfo.totalram - memInfo.freeram);
-    totalPhysMem = memInfo.totalram;
-    ram = (double) physMemUsed / (double) totalPhysMem;
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  }
-}
 namespace ThreadPool {
 class ThreadPool {
  public:
@@ -105,9 +42,6 @@ class ThreadPool {
 
 ThreadPool::ThreadPool(size_t num_threads): num_threads_(num_threads), stop_all(false) {
   worker_threads_.reserve(num_threads_);
-  init();
-  std::thread t(Usage);
-  t.detach();
   for (size_t i = 0; i < num_threads_; ++i) {
     worker_threads_.emplace_back([this]() { this->WorkerThread(); });
   }
@@ -128,11 +62,11 @@ void ThreadPool::WorkerThread() {
 
     // 해당 job 을 수행한다 :)
     job();
-    if(usage > 70) {
+    if(monitoring.getCpuUsage() > 70) {
       printf("pause");
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    if(ram > 0.95) {
+    if(monitoring.getMemoryUsage() > 0.95) {
       printf("RAM OVER\r\n");
       std::this_thread::sleep_for(std::chrono::seconds(1));
       //worker_threads_.emplace_back([this]() { this->WorkerThread(); });
@@ -177,7 +111,7 @@ static std::atomic<int> count(0);
 void Load(int i, int j, int k, Signal *signal) {
   std::this_thread::sleep_for(std::chrono::nanoseconds(3));
   ++count;
-  sum += ram;
+  sum += monitoring.getMemoryUsage();
   if(count >= 100000) {
     mean = sum / (double) count;
     printf("%f\r\n", mean);
@@ -186,6 +120,6 @@ void Load(int i, int j, int k, Signal *signal) {
   }
   //printf("%f task : %d\r\n", ram, i);
   if(i > 20) { return; }
-  if(ram > 0.95) { return; }
+  if(monitoring.getMemoryUsage() > 0.95) { return; }
   TLoad(i+1,1,1, signal);
 }
