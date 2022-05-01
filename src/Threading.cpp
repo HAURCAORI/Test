@@ -78,10 +78,10 @@ void ThreadPool::EnqueueJob(Args&&... args) {
   if (stop_all) {
     //throw std::runtime_error("ThreadPool 사용 중지됨");
   }
-  auto job = [args...]{ Load(args...); };
+  auto job = [args...](){ Load(args...); };
   {
     std::lock_guard<std::mutex> lock(m_job_q_);
-    jobs_.push(job);
+    jobs_.emplace(std::move(job));
   }
   cv_job_q_.notify_one();
 }
