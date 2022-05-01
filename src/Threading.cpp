@@ -38,8 +38,7 @@ class ThreadPool {
   void WorkerThread();
 };
 
-ThreadPool::ThreadPool(size_t num_threads)
-    : num_threads_(num_threads), stop_all(false) {
+ThreadPool::ThreadPool(size_t num_threads): num_threads_(num_threads), stop_all(false) {
   worker_threads_.reserve(num_threads_);
   for (size_t i = 0; i < num_threads_; ++i) {
     worker_threads_.emplace_back([this]() { this->WorkerThread(); });
@@ -65,6 +64,7 @@ void ThreadPool::WorkerThread() {
 }
 
 ThreadPool::~ThreadPool() {
+  std::cout << "소멸자 호출\r\n";
   stop_all = true;
   cv_job_q_.notify_all();
 
@@ -76,11 +76,9 @@ ThreadPool::~ThreadPool() {
 template <class... Args>
 void ThreadPool::EnqueueJob(Args&&... args) {
   if (stop_all) {
-    throw std::runtime_error("ThreadPool 사용 중지됨");
+    //throw std::runtime_error("ThreadPool 사용 중지됨");
   }
-
-  auto job = [&]() { Load(args...); };
-
+  auto job = [args...]{ Load(args...); };
   {
     std::lock_guard<std::mutex> lock(m_job_q_);
     jobs_.push(job);
@@ -99,6 +97,9 @@ void TLoad(Neuron (*target)[SectorSize][SectorSize], int i, int j, int k, Signal
     pool.EnqueueJob(target, i, j, k, signal);
 }
 
-bool Load(Neuron (*target)[SectorSize][SectorSize], int i, int j, int k, Signal *signal) {
+void Load(Neuron (*target)[SectorSize][SectorSize], int i, int j, int k, Signal *signal) {
+  
   printf("task : %d\r\n", i);
+  if(i > 100) { return; }
+  TLoad(target,i+1,1,1, signal);
 }
