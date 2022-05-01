@@ -2,6 +2,7 @@
 #include "DataProcess.h"
 #include "Mapping.h"
 
+
 int main(){
     Neuron neuron[SectorLayer][SectorSize][SectorSize] = {0};
     
@@ -13,8 +14,8 @@ int main(){
     neuron[2][1][0] = CreateNeuron(D1);
 
     Signal signal = {1.0f, 0xff};
-    //for(int i = 0; i < 100; i++) {
+    for(int i = 0; i < 2; i++) {
         TLoad(neuron,0,1,1, &signal);
-    //}
+    }
     return 0;
 }

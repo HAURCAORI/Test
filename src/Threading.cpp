@@ -13,9 +13,16 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "sys/types.h"
+#include "sys/sysinfo.h"
+
+struct sysinfo memInfo;
 
 static unsigned long long lastTotalUser, lastTotalUserLow, lastTotalSys, lastTotalIdle;
 static double usage;
+static double ram;
+long long physMemUsed;
+long long totalPhysMem;
 
 
 void init(){
@@ -59,8 +66,14 @@ double getCurrentValue(){
 }
 
 void Usage() {
+  
   while(true) {
     usage = getCurrentValue();
+    sysinfo (&memInfo);
+    physMemUsed = (memInfo.totalram - memInfo.freeram);
+    totalPhysMem = memInfo.totalram;
+    ram = (double) physMemUsed / (double) totalPhysMem;
+    printf("%f \r\n", ram);
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
 }
@@ -117,8 +130,13 @@ void ThreadPool::WorkerThread() {
 
     // 해당 job 을 수행한다 :)
     job();
-    if(usage > 80) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    if(usage > 70) {
+      printf("pause");
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    if(ram > 0.9) {
+      printf("ram");
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
   }
 }
@@ -148,14 +166,14 @@ void ThreadPool::EnqueueJob(Args&&... args) {
 
 }  // namespace ThreadPool
 
-ThreadPool::ThreadPool pool(3);
+ThreadPool::ThreadPool pool(5);
 
 void TLoad(Neuron (*target)[SectorSize][SectorSize], int i, int j, int k, Signal *signal) {
     pool.EnqueueJob(target, i, j, k, signal);
 }
 
 void Load(Neuron (*target)[SectorSize][SectorSize], int i, int j, int k, Signal *signal) {
-  
+  std::this_thread::sleep_for(std::chrono::nanoseconds(10));
   printf("%f task : %d\r\n", usage, i);
   if(i > 20) { return; }
   TLoad(target,i+1,1,1, signal);
