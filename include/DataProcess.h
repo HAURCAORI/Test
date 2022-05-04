@@ -4,4 +4,5 @@
 #include <iostream>
 #include <time.h>
 
-void Load(int i, int j, int k, Signal *signal);
+void TLoad(Signal *signal, int i, int j, int k);
+void Load(Signal *signal, int i, int j, int k);

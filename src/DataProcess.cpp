@@ -17,16 +17,16 @@ void ThreadPool::ThreadPool::EnqueueJob(Args&&... args) {
 
 ThreadPool::ThreadPool pool(5);
 
-void TLoad() {
-    //pool.EnqueueJob();
+void TLoad(Signal *signal, int i, int j, int k) {
+    pool.EnqueueJob(signal, i,j,k);
 }
 
-void Load(int i, int j, int k, Signal *signal) {
+void Load(Signal *signal, int i, int j, int k) {
     std::this_thread::sleep_for(std::chrono::nanoseconds(3));
     printf("%f task : %d\r\n", monitoring.getMemoryUsage() , i);
     if(i > 20) { return; }
     if(monitoring.getMemoryUsage() > 0.95) { return; }
-    pool.EnqueueJob(i,j,k, signal);
+    pool.EnqueueJob(signal, i+1,j,k);
 }
 /*
 bool Load(Neuron (*target)[SectorSize][SectorSize], int i, int j, int k, Signal *signal)
