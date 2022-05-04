@@ -1,9 +1,15 @@
 #include "main.h"
 #include "DataProcess.h"
 #include "Mapping.h"
-
+#include "DataIO.h"
 
 int main(){
+    std::string file = "text";
+    saveData(file,10.1);
+
+    auto i = readData<float>(file);
+    std::cout << i;
+    /*
     Neuron neuron[SectorLayer][SectorSize][SectorSize] = {0};
     
     neuron[0][1][1] = CreateNeuron(0X10);
@@ -18,6 +24,7 @@ int main(){
         TLoad(&signal, 0,1,1);
         printf("num : %d\r\n", i);
     }
+    */
     //std::this_thread::sleep_for(std::chrono::minutes(5));
     return 0;
 }
