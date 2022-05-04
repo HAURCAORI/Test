@@ -1,5 +1,5 @@
 obj/Threading.o: src/Threading.cpp /usr/include/stdc-predef.h \
- /usr/include/c++/7/chrono /usr/include/c++/7/ratio \
+ include/Threading.h /usr/include/c++/7/chrono /usr/include/c++/7/ratio \
  /usr/include/c++/7/type_traits \
  /usr/include/x86_64-linux-gnu/c++/7/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/7/bits/os_defines.h \
@@ -134,8 +134,7 @@ obj/Threading.o: src/Threading.cpp /usr/include/stdc-predef.h \
  /usr/include/c++/7/bits/shared_ptr_base.h \
  /usr/include/c++/7/bits/allocated_ptr.h \
  /usr/include/c++/7/bits/refwrap.h \
- /usr/include/c++/7/ext/aligned_buffer.h /usr/include/c++/7/functional \
- /usr/include/c++/7/bits/std_function.h /usr/include/c++/7/future \
+ /usr/include/c++/7/ext/aligned_buffer.h /usr/include/c++/7/future \
  /usr/include/c++/7/mutex /usr/include/c++/7/thread \
  /usr/include/c++/7/memory /usr/include/c++/7/bits/stl_construct.h \
  /usr/include/c++/7/bits/stl_uninitialized.h \
@@ -145,28 +144,13 @@ obj/Threading.o: src/Threading.cpp /usr/include/stdc-predef.h \
  /usr/include/c++/7/bits/atomic_base.h \
  /usr/include/c++/7/bits/atomic_lockfree_defines.h \
  /usr/include/c++/7/backward/auto_ptr.h /usr/include/c++/7/atomic \
- /usr/include/c++/7/bits/atomic_futex.h /usr/include/c++/7/queue \
+ /usr/include/c++/7/bits/atomic_futex.h \
+ /usr/include/c++/7/bits/std_function.h /usr/include/c++/7/queue \
  /usr/include/c++/7/deque /usr/include/c++/7/bits/stl_deque.h \
  /usr/include/c++/7/bits/deque.tcc /usr/include/c++/7/vector \
  /usr/include/c++/7/bits/stl_vector.h \
  /usr/include/c++/7/bits/stl_bvector.h /usr/include/c++/7/bits/vector.tcc \
  /usr/include/c++/7/bits/stl_heap.h /usr/include/c++/7/bits/stl_queue.h \
- include/DataProcess.h include/NStruct.h /usr/include/c++/7/iostream \
- /usr/include/c++/7/ostream /usr/include/c++/7/ios \
- /usr/include/c++/7/bits/ios_base.h \
- /usr/include/c++/7/bits/locale_classes.h \
- /usr/include/c++/7/bits/locale_classes.tcc /usr/include/c++/7/streambuf \
- /usr/include/c++/7/bits/streambuf.tcc \
- /usr/include/c++/7/bits/basic_ios.h \
- /usr/include/c++/7/bits/locale_facets.h /usr/include/c++/7/cwctype \
- /usr/include/wctype.h /usr/include/x86_64-linux-gnu/bits/wctype-wchar.h \
- /usr/include/x86_64-linux-gnu/c++/7/bits/ctype_base.h \
- /usr/include/c++/7/bits/streambuf_iterator.h \
- /usr/include/x86_64-linux-gnu/c++/7/bits/ctype_inline.h \
- /usr/include/c++/7/bits/locale_facets.tcc \
- /usr/include/c++/7/bits/basic_ios.tcc \
- /usr/include/c++/7/bits/ostream.tcc /usr/include/c++/7/istream \
- /usr/include/c++/7/bits/istream.tcc include/Calculate.h \
  include/Monitoring.h /usr/include/c++/7/stdlib.h /usr/include/string.h \
  /usr/include/strings.h \
  /usr/include/x86_64-linux-gnu/bits/strings_fortified.h \
