@@ -4,8 +4,18 @@
 #include <unordered_set>
 
 #define PATH "resource/"
-
-static std::unordered_set<PageFile,PageFile::HashFunction> pagefile;
+#define DefaultReserve 10
+class IOManager {
+    private:
+        std::unordered_set<PageFile,PageFile::HashFunction> pagefiles;
+    public:
+        IOManager();
+        ~IOManager();
+        bool createPage(PAGE id);
+        bool loadPage(PAGE id);
+        bool unloadPage(PAGE id);
+        void printPage();
+};
 
 template<typename T>
 void saveData(std::string file_name, T data) {
@@ -27,7 +37,5 @@ T readData(std::string file_name) {
     return data;
 }
 
-bool loadPage(PAGE id);
 
-bool unloadPage(PAGE id);
-void printPage();
+

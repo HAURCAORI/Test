@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 #include <fstream>
-#define SectorLayer 3
+#define SectorDimension 3
 #define SectorSize 3
 
 #define Path "resource/"
@@ -55,9 +55,12 @@ struct Neuron
 struct PageFile
 {
     PAGE id;
+    FILE *stream;
+    Neuron map[10][10][10];
 
     PageFile(PAGE id) : id(id) {}
-    //FILE *stream;
+    PageFile(PAGE id, FILE* stream) : id(id), stream(std::move(stream)) {}
+    
 
     bool operator==(const PageFile &pf) const
     {

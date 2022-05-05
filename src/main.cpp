@@ -3,12 +3,19 @@
 #include "DataIO.h"
 
 int main(){
-    loadPage(2);
-    loadPage(2);
-    loadPage(3);
-    loadPage(4);
-    unloadPage(2);
-    printPage();
+    IOManager a;
+    cout << a.loadPage(0);
+    a.printPage();
+
+    /*
+    cout << dio.createPage(0);
+     DataIO::loadPage(2);
+     DataIO::loadPage(2);
+     DataIO::loadPage(3);
+     DataIO::loadPage(4);
+     DataIO::unloadPage(2);
+     DataIO::printPage();
+     */
     /*
     Neuron neuron[SectorLayer][SectorSize][SectorSize] = {0};
     
