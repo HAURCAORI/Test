@@ -1,14 +1,14 @@
 #include "main.h"
 #include "DataProcess.h"
-#include "Mapping.h"
 #include "DataIO.h"
 
 int main(){
-    std::string file = "text";
-    saveData(file,10.1);
-
-    auto i = readData<float>(file);
-    std::cout << i;
+    loadPage(2);
+    loadPage(2);
+    loadPage(3);
+    loadPage(4);
+    unloadPage(2);
+    printPage();
     /*
     Neuron neuron[SectorLayer][SectorSize][SectorSize] = {0};
     

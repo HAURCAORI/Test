@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Calculate.h"
 #include <iostream>
 #include <time.h>

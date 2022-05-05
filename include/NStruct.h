@@ -1,5 +1,7 @@
 #pragma once
+
 #include <stdio.h>
+#include <fstream>
 #define SectorLayer 3
 #define SectorSize 3
 
@@ -16,6 +18,7 @@
 
 #define EPSILON 0.0001
 
+typedef int PAGE;
 typedef unsigned char BYTE;
 typedef unsigned char BIT;
 typedef unsigned char FLAG;
@@ -32,12 +35,12 @@ struct Neuron
 {
     //Header
     BYTE type;
-    // 1 bit : 
-    // 2 bit : 
-    // 3 bit : 
+    // 1 bit :
+    // 2 bit :
+    // 3 bit :
     // 4 bit :
-    // 5 bit : 
-    // 6 bit : 
+    // 5 bit :
+    // 6 bit :
     // 7 bit :
     // 8 bit : 전달로
     FLAG specificity; // 수용기에 대한 정보
@@ -48,3 +51,25 @@ struct Neuron
     float threshold;
     float weight;
 };
+
+struct PageFile
+{
+    PAGE id;
+
+    PageFile(PAGE id) : id(id) {}
+    //FILE *stream;
+
+    bool operator==(const PageFile &pf) const
+    {
+        if (this->id == pf.id)
+            return true;
+        return false;
+    }
+    struct HashFunction {
+    size_t operator()(const PageFile &pf) const
+    {
+        return std::hash<int>()(pf.id);
+    }
+    };
+};
+

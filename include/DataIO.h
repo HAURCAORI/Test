@@ -1,8 +1,11 @@
 #pragma once
 #include "NStruct.h"
 #include <fstream>
+#include <unordered_set>
 
 #define PATH "resource/"
+
+static std::unordered_set<PageFile,PageFile::HashFunction> pagefile;
 
 template<typename T>
 void saveData(std::string file_name, T data) {
@@ -23,3 +26,8 @@ T readData(std::string file_name) {
     fclose(stream);
     return data;
 }
+
+bool loadPage(PAGE id);
+
+bool unloadPage(PAGE id);
+void printPage();
