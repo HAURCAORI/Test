@@ -55,12 +55,13 @@ struct Neuron
 struct PageFile
 {
     PAGE id;
-    FILE *stream;
-    Neuron map[10][10][10];
+    FILE* stream;
+    int fd;
+    void* memory_area;
+    size_t size_mapped;
 
     PageFile(PAGE id) : id(id) {}
-    PageFile(PAGE id, FILE* stream) : id(id), stream(std::move(stream)) {}
-    
+    PageFile(PAGE id, int fd, void* memory_area, size_t length_to_map) : id(id), fd(fd), memory_area(std::move(memory_area)), size_mapped(length_to_map){}
 
     bool operator==(const PageFile &pf) const
     {
