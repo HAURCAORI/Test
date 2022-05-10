@@ -1,5 +1,30 @@
 #include "DataIO.h"
 
+#include <fcntl.h>
+
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+
+bool memoryMap(std::string file_name) {
+    std::string address = (std::string)PATH + file_name;
+    int fd = open(address.c_str(), O_RDONLY);
+    if(fd == -1) {
+        return false;
+    }
+
+    struct stat buf;
+    if (fstat(fd, &buf) < 0) {
+        return false;
+    }
+
+    off_t offset_to_map(0);
+	size_t length_to_map(buf.st_size);
+
+    void* memory_area = mmap(address)
+}
+
 IOManager::IOManager() {
     pagefiles.reserve(DefaultReserve);
 }
