@@ -4,9 +4,13 @@
 
 int main(){
     IOManager a;
-    cout << a.loadPage(0);
-    a.printPage();
-
+    for(int i = 0; i < 1000; i++) {
+        BEGIN_CHRONO
+        a.loadPage(0);
+        a.unloadPage(0);
+        END_CHRONO
+    }
+    
     /*
     cout << dio.createPage(0);
      DataIO::loadPage(2);

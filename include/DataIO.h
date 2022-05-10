@@ -6,8 +6,6 @@
 #define PATH "resource/"
 #define DefaultReserve 10
 
-void* memoryMap(std::string file_name);
-
 class IOManager {
     private:
         std::unordered_set<PageFile,PageFile::HashFunction> pagefiles;
@@ -17,6 +15,7 @@ class IOManager {
         bool createPage(PAGE id);
         bool loadPage(PAGE id);
         bool unloadPage(PAGE id);
+        bool unloadPage(PageFile pf);
         void printPage();
 };
 

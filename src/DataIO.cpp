@@ -7,38 +7,14 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-void* memoryMap(std::string file_name) {
-    std::string address = (std::string)PATH + file_name;
-    int fd = open(address.c_str(), O_RDONLY);
-    if(fd == -1) {
-        return nullptr;
-    }
-
-    struct stat buf;
-    if (fstat(fd, &buf) < 0) {
-        return nullptr;
-    }
-
-    off_t offset_to_map(0);
-	size_t length_to_map(buf.st_size);
-
-    void* memory_area = mmap(0,length_to_map, PROT_READ | PROT_WRITE,MAP_SHARED,fd, offset_to_map);
-    if (memory_area == MAP_FAILED) {
-        return nullptr;
-    }
-
-    return memory_area;
-}
-
 IOManager::IOManager() {
     pagefiles.reserve(DefaultReserve);
 }
 IOManager::~IOManager() {
-    /*
+    printf("[Process] : Remove Pages\r\n");
     for(auto it = pagefiles.begin(); it != pagefiles.end(); it++) {
-        fclose(it->stream);
+        unloadPage(*it);
     }
-    */
 }
 bool IOManager::createPage(PAGE id) {
     std::string address = (std::string)PATH + std::to_string(id);
@@ -48,6 +24,7 @@ bool IOManager::createPage(PAGE id) {
     int dim = SectorDimension;
     int temp = SectorSize;
 
+    fwrite(&id, sizeof(int),1,stream);
     fwrite(&dim, sizeof(int),1,stream);
     for(int i = 0 ; i < dim; i++)
     {
@@ -58,21 +35,24 @@ bool IOManager::createPage(PAGE id) {
 }
 bool IOManager::loadPage(PAGE id) {
     std::string address = (std::string)PATH + std::to_string(id);
-    int fd = open(address.c_str(), O_RDONLY);
+    int fd = open(address.c_str(), O_RDWR);
     if(fd == -1) {
+        printf("error : opening file.\r\n");
         return false;
     }
 
     struct stat buf;
     if (fstat(fd, &buf) < 0) {
+        printf("error : stat file.\r\n");
         return false;
     }
 
     off_t offset_to_map(0);
 	size_t length_to_map(buf.st_size);
 
-    void* memory_area = mmap(0,length_to_map, PROT_READ | PROT_WRITE,MAP_SHARED,fd, offset_to_map);
+    void* memory_area = mmap(0, length_to_map, PROT_READ | PROT_WRITE, MAP_SHARED, fd, offset_to_map);
     if (memory_area == MAP_FAILED) {
+        printf("error : map failed.\r\n");
         return false;
     }
 
@@ -92,12 +72,31 @@ bool IOManager::unloadPage(PAGE id) {
     //fclose(pages.find({id,nullptr})->stream);
     auto temp = pagefiles.find(id);
     if(munmap(temp->memory_area, temp->size_mapped) < 0) {
+        printf("error : munmap.\r\n");
         return false;
     }
     if(close(temp->fd)) {
+        printf("error : closing file.\r\n");
         return false;
     }
     pagefiles.erase(PageFile(id));
+    return true;
+}
+
+bool IOManager::unloadPage(PageFile pf) {
+    if(pf.memory_area) {
+        if(munmap(pf.memory_area,pf.size_mapped) < 0) {
+            printf("error : munmap.\r\n");
+            return false;
+        }
+    }
+    if(pf.fd != -1) {
+        if(close(pf.fd)) {
+            printf("error : closing file.\r\n");
+            return false;
+        }
+    }
+    pagefiles.erase(pf);
     return true;
 }
 
