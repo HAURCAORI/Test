@@ -69,6 +69,7 @@ bool IOManager::loadPage(PAGE id) {
         return false;
     }
 
+    
     off_t offset_header = 0;
 	size_t length_to_map(buf.st_size);
     int dimension = 0;
@@ -90,7 +91,13 @@ bool IOManager::loadPage(PAGE id) {
         return false;
     }
 
-    auto it = pagefiles.insert(PageFile(id, fd,std::move(memory_area),length_to_map,dimension,dimSizes));
+    FileStruct fs;
+    fs.fd = fd;
+    fs.memory_area = std::move(memory_area);
+    fs.size_header = offset_header;
+    fs.size_mapped = length_to_map;
+
+    auto it = pagefiles.insert(PageFile(id, std::move(fs), dimension, dimSizes));
     return (it.second ? true : false);
     /*
     if(pagefiles.find(PageFile(id)) != pagefiles.end()) { return false; }
@@ -105,11 +112,11 @@ bool IOManager::loadPage(PAGE id) {
 bool IOManager::unloadPage(PAGE id) {
     //fclose(pages.find({id,nullptr})->stream);
     auto temp = pagefiles.find(id);
-    if(munmap(temp->memory_area, temp->size_mapped) < 0) {
+    if(munmap(temp->fs.memory_area, temp->fs.size_mapped) < 0) {
         printf("error : munmap.\r\n");
         return false;
     }
-    if(close(temp->fd)) {
+    if(close(temp->fs.fd)) {
         printf("error : closing file.\r\n");
         return false;
     }
@@ -118,14 +125,14 @@ bool IOManager::unloadPage(PAGE id) {
 }
 
 bool IOManager::unloadPage(PageFile pf) {
-    if(pf.memory_area) {
-        if(munmap(pf.memory_area,pf.size_mapped) < 0) {
+    if(pf.fs.memory_area) {
+        if(munmap(pf.fs.memory_area,pf.fs.size_mapped) < 0) {
             printf("error : munmap.\r\n");
             return false;
         }
     }
-    if(pf.fd != -1) {
-        if(close(pf.fd)) {
+    if(pf.fs.fd != -1) {
+        if(close(pf.fs.fd)) {
             printf("error : closing file.\r\n");
             return false;
         }

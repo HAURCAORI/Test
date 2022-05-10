@@ -54,18 +54,27 @@ struct Neuron
     float weight;
 };
 
-struct PageFile
-{
-    PAGE id;
+struct FileStruct {
     int fd;
     void* memory_area;
     size_t size_mapped;
+    size_t size_header;
+};
+
+struct PageFile
+{
+    PAGE id;
+    int* data_area;
+    FileStruct fs;
     
     int dimension;
     std::vector<int> dimSizes;
 
     PageFile(PAGE id) : id(id) {}
-    PageFile(PAGE id, int fd, void* memory_area, size_t length_to_map, int dimension, std::vector<int> dimSizes) : id(id), fd(fd), memory_area(std::move(memory_area)), size_mapped(length_to_map), dimension(dimension), dimSizes(std::move(dimSizes)) {}
+    PageFile(PAGE id, FileStruct fs, int dimension, std::vector<int> dimSizes) : id(id), fs(std::move(fs)), dimension(dimension), dimSizes(std::move(dimSizes)) {
+        data_area = reinterpret_cast<int*>(this->fs.memory_area);
+        data_area += fs.size_header;
+    }
 
     bool operator==(const PageFile &pf) const
     {

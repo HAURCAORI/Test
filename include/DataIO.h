@@ -20,8 +20,8 @@ class IOManager {
         bool unloadPage(PageFile pf);
         void printPage();
 
-        inline void* getPointer(PAGE id) { return pagefiles.find(id)->memory_area; }
-        inline void* getPointer(PageFile pf) { return pf.memory_area; }
+        inline void* getPointer(PAGE id) { return pagefiles.find(id)->fs.memory_area; }
+        inline void* getPointer(PageFile pf) { return pf.fs.memory_area; }
         inline PageFile getPageFile(PAGE id) { return *pagefiles.find(id); }
 };
 
