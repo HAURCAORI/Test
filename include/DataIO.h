@@ -3,6 +3,7 @@
 #include <fstream>
 #include <unordered_set>
 
+
 #define PATH "resource/"
 #define DefaultReserve 10
 
@@ -13,10 +14,15 @@ class IOManager {
         IOManager();
         ~IOManager();
         bool createPage(PAGE id);
+        bool deletePage(PAGE id);
         bool loadPage(PAGE id);
         bool unloadPage(PAGE id);
         bool unloadPage(PageFile pf);
         void printPage();
+
+        inline void* getPointer(PAGE id) { return pagefiles.find(id)->memory_area; }
+        inline void* getPointer(PageFile pf) { return pf.memory_area; }
+        inline PageFile getPageFile(PAGE id) { return *pagefiles.find(id); }
 };
 
 template<typename T>

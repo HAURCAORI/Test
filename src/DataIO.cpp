@@ -1,36 +1,58 @@
 #include "DataIO.h"
 
-#include <fcntl.h>
+#include <vector>
 
+#include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
+void writeFileData(FILE *stream) {
+    int header = 4; 
+    fwrite(&header, sizeof(int),1,stream);
+    for(int i = 0 ; i < 1000; i++) {
+        fwrite(&i, sizeof(int),1,stream);
+    }
+    /*
+    int dim = SectorDimension;
+    int temp = SectorSize;
+
+    fwrite(&dim, sizeof(int),1,stream);
+    for(int i = 0 ; i < dim; i++)
+    {
+        fwrite(&temp, sizeof(int),1,stream);
+    }
+    */
+}
+
 IOManager::IOManager() {
     pagefiles.reserve(DefaultReserve);
 }
 IOManager::~IOManager() {
-    printf("[Process] : Remove Pages\r\n");
     for(auto it = pagefiles.begin(); it != pagefiles.end(); it++) {
         unloadPage(*it);
     }
+    printf("[Process] : Remove Pages\r\n");
 }
 bool IOManager::createPage(PAGE id) {
     std::string address = (std::string)PATH + std::to_string(id);
     FILE *stream = fopen(address.c_str(), "wb");
     if(!stream) { return false; }
 
-    int dim = SectorDimension;
-    int temp = SectorSize;
+    writeFileData(stream);
 
-    fwrite(&id, sizeof(int),1,stream);
-    fwrite(&dim, sizeof(int),1,stream);
-    for(int i = 0 ; i < dim; i++)
-    {
-        fwrite(&temp, sizeof(int),1,stream);
-    }
     fclose(stream);
+    
+    return true;
+}
+
+bool IOManager::deletePage(PAGE id) {
+    std::string address = (std::string)PATH + std::to_string(id);
+    if(remove(address.c_str()) < 0) {
+        printf("error : delete file.\r\n");
+        return false;
+    }
     return true;
 }
 bool IOManager::loadPage(PAGE id) {
@@ -47,16 +69,28 @@ bool IOManager::loadPage(PAGE id) {
         return false;
     }
 
-    off_t offset_to_map(0);
+    off_t offset_header = 0;
 	size_t length_to_map(buf.st_size);
+    int dimension = 0;
+    std::vector<int> dimSizes;
+    if(read(fd, &offset_header, sizeof(int)) > 0) {
+        dimension = offset_header - 1;
+        dimSizes.reserve(dimension);
+        int temp;
+        for(int i = 0; i < dimension; i++) {
+            if(read(fd, &temp, sizeof(int)) > 0) {
+                dimSizes.push_back(temp);
+            }
+        }
+    }
 
-    void* memory_area = mmap(0, length_to_map, PROT_READ | PROT_WRITE, MAP_SHARED, fd, offset_to_map);
+    void* memory_area = mmap(0, length_to_map, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (memory_area == MAP_FAILED) {
         printf("error : map failed.\r\n");
         return false;
     }
 
-    auto it = pagefiles.insert(PageFile(id, fd,std::move(memory_area),length_to_map));
+    auto it = pagefiles.insert(PageFile(id, fd,std::move(memory_area),length_to_map,dimension,dimSizes));
     return (it.second ? true : false);
     /*
     if(pagefiles.find(PageFile(id)) != pagefiles.end()) { return false; }

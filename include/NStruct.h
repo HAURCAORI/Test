@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 #include <fstream>
+#include <vector>
+
 #define SectorDimension 3
 #define SectorSize 3
 
@@ -55,13 +57,15 @@ struct Neuron
 struct PageFile
 {
     PAGE id;
-    FILE* stream;
     int fd;
     void* memory_area;
     size_t size_mapped;
+    
+    int dimension;
+    std::vector<int> dimSizes;
 
     PageFile(PAGE id) : id(id) {}
-    PageFile(PAGE id, int fd, void* memory_area, size_t length_to_map) : id(id), fd(fd), memory_area(std::move(memory_area)), size_mapped(length_to_map){}
+    PageFile(PAGE id, int fd, void* memory_area, size_t length_to_map, int dimension, std::vector<int> dimSizes) : id(id), fd(fd), memory_area(std::move(memory_area)), size_mapped(length_to_map), dimension(dimension), dimSizes(std::move(dimSizes)) {}
 
     bool operator==(const PageFile &pf) const
     {

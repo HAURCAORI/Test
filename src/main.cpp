@@ -2,14 +2,19 @@
 #include "DataProcess.h"
 #include "DataIO.h"
 
+
+
 int main(){
     IOManager a;
-    for(int i = 0; i < 1000; i++) {
-        BEGIN_CHRONO
-        a.loadPage(0);
-        a.unloadPage(0);
-        END_CHRONO
+    a.deletePage(0);
+    a.createPage(0);
+    a.loadPage(0);
+    cout << "page : " << a.getPageFile(0).dimSizes.size() << std::endl;
+    int* p = static_cast<int*>(a.getPointer(0));
+    for(int i = 0; i < 10; i++) {
+        std::cout << *(p+i) << std::endl;
     }
+    a.unloadPage(0);
     
     /*
     cout << dio.createPage(0);
