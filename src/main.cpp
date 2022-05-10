@@ -9,12 +9,15 @@ int main(){
     a.deletePage(0);
     a.createPage(0);
     a.loadPage(0);
-    int* t = a.getPageFile(0).data_area;
-    cout << "page : " << *(t) << endl;
+    Neuron* t = a.getPageFile(0).data_area;
+    //cout << "page : " << *(t) << endl;
     int* p = static_cast<int*>(a.getPointer(0));
+    
     for(int i = 0; i < 10; i++) {
-        std::cout << *(p+i) << std::endl;
+        //std::cout << *(p+i) << std::endl;
+        std::cout << (*(t+i)).a << std::endl;
     }
+    
     a.unloadPage(0);
     
     

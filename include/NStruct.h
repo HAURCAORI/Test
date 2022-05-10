@@ -35,6 +35,10 @@ struct Signal
 
 struct Neuron
 {
+    int a;
+    int b;
+
+    /*
     //Header
     BYTE type;
     // 1 bit :
@@ -52,6 +56,7 @@ struct Neuron
     //Value
     float threshold;
     float weight;
+    */
 };
 
 struct FileStruct {
@@ -64,7 +69,7 @@ struct FileStruct {
 struct PageFile
 {
     PAGE id;
-    int* data_area;
+    Neuron* data_area;
     FileStruct fs;
     
     int dimension;
@@ -72,8 +77,7 @@ struct PageFile
 
     PageFile(PAGE id) : id(id) {}
     PageFile(PAGE id, FileStruct fs, int dimension, std::vector<int> dimSizes) : id(id), fs(std::move(fs)), dimension(dimension), dimSizes(std::move(dimSizes)) {
-        data_area = reinterpret_cast<int*>(this->fs.memory_area);
-        data_area += fs.size_header;
+        data_area = reinterpret_cast<Neuron*>(((unsigned char*) this->fs.memory_area) + fs.size_header);
     }
 
     bool operator==(const PageFile &pf) const
