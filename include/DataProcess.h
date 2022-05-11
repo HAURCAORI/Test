@@ -12,5 +12,5 @@
 
 DataIO::IOManager* m_IOManager();
 
-void TLoad(DataStruct& ds, Signal *signal, int i, int j, int k);
-void Load(DataStruct& ds, Signal *signal, int i, int j, int k);
+void TLoad(const DataStruct* ds, Signal *signal, unsigned int i, unsigned int j, unsigned int k);
+void Load(const DataStruct* ds, Signal *signal, unsigned int i, unsigned int j, unsigned int k);

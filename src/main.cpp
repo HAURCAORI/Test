@@ -1,6 +1,8 @@
 #include "main.h"
 #include "DataProcess.h"
 
+#include <thread>
+
 int main(){
     
     m_IOManager()->deletePage(0);
@@ -16,13 +18,13 @@ int main(){
     }
     */
     Signal signal = {1.0f, 0xff};
-    for(int i = 0; i < 1; i++) {
+    for(int i = 0; i < 100; i++) {
         TLoad(m_IOManager()->getDataStruct(0), &signal, 0,0,0);
         printf("num : %d\r\n", i);
     }
-    
+    //std::this_thread::sleep_for(std::chrono::minutes(5));
 
-    m_IOManager()->unloadPage(0);
+    //m_IOManager()->unloadPage(0);
     
     
     /*
@@ -50,6 +52,5 @@ int main(){
         printf("num : %d\r\n", i);
     }
     */
-    //std::this_thread::sleep_for(std::chrono::minutes(5));
     return 0;
 }

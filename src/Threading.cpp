@@ -24,11 +24,11 @@ void ThreadPool::WorkerThread() {
     // 해당 job 을 수행한다 :)
     job();
     if(m_Monitoring()->getCpuUsage() > 70) {
-      printf("pause");
+      printf("!!PAUSE!!\r\n");
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     if(m_Monitoring()->getMemoryUsage() > 0.95) {
-      printf("RAM OVER\r\n");
+      printf("!!RAM OVER!!\r\n");
       std::this_thread::sleep_for(std::chrono::seconds(1));
     }
   }

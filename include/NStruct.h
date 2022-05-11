@@ -68,8 +68,8 @@ struct FileStruct {
 
 struct DataStruct {
     Neuron* data_area = nullptr;
-    int dimension;
-    std::vector<int> dimSizes;
+    unsigned int dimension;
+    std::vector<unsigned int> dimSizes;
 };
 
 struct PageFile

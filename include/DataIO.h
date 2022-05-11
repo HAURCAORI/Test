@@ -25,7 +25,7 @@ class IOManager {
         inline void* getPointer(PAGE id) { return pagefiles.find(id)->fs.memory_area; }
         inline void* getPointer(PageFile pf) { return pf.fs.memory_area; }
         inline PageFile getPageFile(PAGE id) { return *pagefiles.find(id); }
-        DataStruct& getDataStruct(PAGE id) { return ((*pagefiles.find(id)).ds); }
+        const DataStruct* getDataStruct(PAGE id) { return &((*pagefiles.find(id)).ds); }
 };
 
 template<typename T>

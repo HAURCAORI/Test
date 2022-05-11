@@ -11,12 +11,12 @@ namespace DataIO
 {
 void writeFileData(FILE *stream) {
     int header = 16;
-    int size = 10;
+    int size = 50;
     fwrite(&header, sizeof(int),1,stream);
     fwrite(&size, sizeof(int), 1, stream);
     fwrite(&size, sizeof(int), 1, stream);
     fwrite(&size, sizeof(int), 1, stream);
-    for(int i = 0 ; i < 1000; i++) {
+    for(int i = 0 ; i < 400000; i++) {
         fwrite(&i, sizeof(int),1,stream);
     }
 }
@@ -67,14 +67,14 @@ bool IOManager::loadPage(PAGE id) {
     
     off_t offset_header = 0;
 	size_t length_to_map(buf.st_size);
-    int dimension = 0;
-    std::vector<int> dimSizes;
-    if(read(fd, &offset_header, sizeof(int)) > 0) {
+    unsigned int dimension = 0;
+    std::vector<unsigned int> dimSizes;
+    if(read(fd, &offset_header, sizeof(unsigned int)) > 0) {
         dimension = (offset_header - 4) / 4; //bytes
         dimSizes.reserve(dimension);
-        int temp;
-        for(int i = 0; i < dimension; i++) {
-            if(read(fd, &temp, sizeof(int)) > 0) {
+        unsigned int temp;
+        for(unsigned int i = 0; i < dimension; i++) {
+            if(read(fd, &temp, sizeof(unsigned int)) > 0) {
                 dimSizes.push_back(temp);
             }
         }
