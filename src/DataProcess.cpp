@@ -21,18 +21,17 @@ void ThreadPool::ThreadPool::EnqueueJob(Args&&... args) {
 
 ThreadPool::ThreadPool pool(5);
 
-void TLoad(const DataStruct* ds, Signal *signal, int i, int j, int k) {
+void TLoad(DataStruct& ds, Signal *signal, int i, int j, int k) {
     pool.EnqueueJob(ds, signal, i,j,k);
 }
 
-void Load(const DataStruct* ds,Signal *signal, int i, int j, int k) {
+void Load(DataStruct& ds,Signal *signal, int i, int j, int k) {
     if(!ds->data_area) { return; }
-    Neuron data = *(ds->data_area + ds->dimSizes[0] * i + ds->dimSizes[1] * i + ds->dimSizes[2] * i);
-
-    printf("data : %d", data.a);
+    
+    std::cout << ds->data_area->a << std::endl;
 
     //std::this_thread::sleep_for(std::chrono::nanoseconds(3));
-    //printf("%f task : %d\r\n", monitoring.getMemoryUsage() , i);
+    printf("%f task : %d\r\n", m_Monitoring()->getMemoryUsage() , i);
     if(i > 20) { return; }
 
     if(m_Monitoring()->getMemoryUsage() > 0.95) { return; }

@@ -15,15 +15,14 @@ int main(){
         std::cout << (*(t+i)).b << std::endl;
     }
     */
-   /*
     Signal signal = {1.0f, 0xff};
     for(int i = 0; i < 1; i++) {
-        TLoad(iom.getDataStruct(0), &signal, 0,1,1);
+        TLoad(m_IOManager()->getDataStruct(0), &signal, 0,0,0);
         printf("num : %d\r\n", i);
     }
-    */
+    
 
-    //iom.unloadPage(0);
+    m_IOManager()->unloadPage(0);
     
     
     /*
