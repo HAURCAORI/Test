@@ -7,6 +7,8 @@
 #define PATH "resource/"
 #define DefaultReserve 10
 
+namespace DataIO
+{
 class IOManager {
     private:
         std::unordered_set<PageFile,PageFile::HashFunction> pagefiles;
@@ -23,6 +25,7 @@ class IOManager {
         inline void* getPointer(PAGE id) { return pagefiles.find(id)->fs.memory_area; }
         inline void* getPointer(PageFile pf) { return pf.fs.memory_area; }
         inline PageFile getPageFile(PAGE id) { return *pagefiles.find(id); }
+        const DataStruct* getDataStruct(PAGE id) { return &((*pagefiles.find(id)).ds); }
 };
 
 template<typename T>
@@ -45,5 +48,4 @@ T readData(std::string file_name) {
     return data;
 }
 
-
-
+}

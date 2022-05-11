@@ -1,24 +1,29 @@
 #include "main.h"
 #include "DataProcess.h"
-#include "DataIO.h"
-
 
 int main(){
     
-    IOManager a;
-    a.deletePage(0);
-    a.createPage(0);
-    a.loadPage(0);
-    Neuron* t = a.getPageFile(0).data_area;
+    m_IOManager()->deletePage(0);
+    m_IOManager()->createPage(0);
+    m_IOManager()->loadPage(0);
+    //Neuron* t = a.getPageFile(0).ds.data_area;
     //cout << "page : " << *(t) << endl;
-    int* p = static_cast<int*>(a.getPointer(0));
-    
+    //int* p = static_cast<int*>(a.getPointer(0));
+    /*
     for(int i = 0; i < 10; i++) {
         //std::cout << *(p+i) << std::endl;
-        std::cout << (*(t+i)).a << std::endl;
+        std::cout << (*(t+i)).b << std::endl;
     }
-    
-    a.unloadPage(0);
+    */
+   /*
+    Signal signal = {1.0f, 0xff};
+    for(int i = 0; i < 1; i++) {
+        TLoad(iom.getDataStruct(0), &signal, 0,1,1);
+        printf("num : %d\r\n", i);
+    }
+    */
+
+    //iom.unloadPage(0);
     
     
     /*

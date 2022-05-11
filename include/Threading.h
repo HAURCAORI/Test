@@ -8,8 +8,6 @@
 #include <vector>
 #include "Monitoring.h"
 
-static Monitoring::Monitoring monitoring;
-
 namespace ThreadPool {
 class ThreadPool {
  public:

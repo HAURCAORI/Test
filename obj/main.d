@@ -144,13 +144,13 @@ obj/main.o: src/main.cpp /usr/include/stdc-predef.h include/main.h \
  /usr/include/c++/7/bits/stl_uninitialized.h \
  /usr/include/c++/7/bits/stl_vector.h \
  /usr/include/c++/7/bits/stl_bvector.h /usr/include/c++/7/bits/vector.tcc \
- /usr/include/c++/7/chrono /usr/include/c++/7/ratio \
- /usr/include/c++/7/limits /usr/include/c++/7/ctime \
- /usr/include/c++/7/bits/parse_numbers.h include/DataIO.h \
- /usr/include/c++/7/unordered_set /usr/include/c++/7/utility \
- /usr/include/c++/7/bits/stl_relops.h /usr/include/c++/7/tuple \
- /usr/include/c++/7/array /usr/include/c++/7/bits/uses_allocator.h \
+ include/DataIO.h /usr/include/c++/7/unordered_set \
+ /usr/include/c++/7/utility /usr/include/c++/7/bits/stl_relops.h \
+ /usr/include/c++/7/tuple /usr/include/c++/7/array \
+ /usr/include/c++/7/bits/uses_allocator.h \
  /usr/include/c++/7/bits/invoke.h /usr/include/c++/7/ext/aligned_buffer.h \
  /usr/include/c++/7/bits/hashtable.h \
  /usr/include/c++/7/bits/hashtable_policy.h \
- /usr/include/c++/7/bits/unordered_set.h
+ /usr/include/c++/7/bits/unordered_set.h /usr/include/c++/7/chrono \
+ /usr/include/c++/7/ratio /usr/include/c++/7/limits \
+ /usr/include/c++/7/ctime /usr/include/c++/7/bits/parse_numbers.h

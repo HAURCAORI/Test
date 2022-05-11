@@ -1,29 +1,24 @@
 #include "DataIO.h"
 
 #include <vector>
-
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
+namespace DataIO
+{
 void writeFileData(FILE *stream) {
-    int header = 4; 
+    int header = 16;
+    int size = 10;
     fwrite(&header, sizeof(int),1,stream);
+    fwrite(&size, sizeof(int), 1, stream);
+    fwrite(&size, sizeof(int), 1, stream);
+    fwrite(&size, sizeof(int), 1, stream);
     for(int i = 0 ; i < 1000; i++) {
         fwrite(&i, sizeof(int),1,stream);
     }
-    /*
-    int dim = SectorDimension;
-    int temp = SectorSize;
-
-    fwrite(&dim, sizeof(int),1,stream);
-    for(int i = 0 ; i < dim; i++)
-    {
-        fwrite(&temp, sizeof(int),1,stream);
-    }
-    */
 }
 
 IOManager::IOManager() {
@@ -75,7 +70,7 @@ bool IOManager::loadPage(PAGE id) {
     int dimension = 0;
     std::vector<int> dimSizes;
     if(read(fd, &offset_header, sizeof(int)) > 0) {
-        dimension = offset_header - 1;
+        dimension = (offset_header - 4) / 4; //bytes
         dimSizes.reserve(dimension);
         int temp;
         for(int i = 0; i < dimension; i++) {
@@ -94,10 +89,14 @@ bool IOManager::loadPage(PAGE id) {
     FileStruct fs;
     fs.fd = fd;
     fs.memory_area = std::move(memory_area);
-    fs.size_header = offset_header;
+    fs.size_header = offset_header; //bytes
     fs.size_mapped = length_to_map;
 
-    auto it = pagefiles.insert(PageFile(id, std::move(fs), dimension, dimSizes));
+    DataStruct ds;
+    ds.dimension = dimension;
+    ds.dimSizes = std::move(dimSizes);
+
+    auto it = pagefiles.insert(PageFile(id, std::move(fs), std::move(ds)));
     return (it.second ? true : false);
     /*
     if(pagefiles.find(PageFile(id)) != pagefiles.end()) { return false; }
@@ -148,3 +147,4 @@ void IOManager::printPage() {
     }
 }
 
+} // namespace DataIO

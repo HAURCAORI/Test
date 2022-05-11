@@ -74,3 +74,9 @@ double Monitoring::calCurrentMemory()
     return percent;
 }
 } // namespace Monitoring
+
+static Monitoring::Monitoring monitoring;
+Monitoring::Monitoring* m_Monitoring() {
+    return &monitoring;
+}
+

@@ -66,18 +66,22 @@ struct FileStruct {
     size_t size_header;
 };
 
+struct DataStruct {
+    Neuron* data_area = nullptr;
+    int dimension;
+    std::vector<int> dimSizes;
+};
+
 struct PageFile
 {
     PAGE id;
-    Neuron* data_area;
-    FileStruct fs;
     
-    int dimension;
-    std::vector<int> dimSizes;
+    FileStruct fs;
+    DataStruct ds;
 
     PageFile(PAGE id) : id(id) {}
-    PageFile(PAGE id, FileStruct fs, int dimension, std::vector<int> dimSizes) : id(id), fs(std::move(fs)), dimension(dimension), dimSizes(std::move(dimSizes)) {
-        data_area = reinterpret_cast<Neuron*>(((unsigned char*) this->fs.memory_area) + fs.size_header);
+    PageFile(PAGE id, FileStruct fs, DataStruct ds) : id(id), fs(std::move(fs)), ds(std::move(ds)) {
+        this->ds.data_area = reinterpret_cast<Neuron*>(((unsigned char*) this->fs.memory_area) + fs.size_header);
     }
 
     bool operator==(const PageFile &pf) const

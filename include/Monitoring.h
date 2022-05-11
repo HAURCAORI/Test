@@ -34,3 +34,5 @@ public:
     inline double getMemoryUsage() { return memoryUsage; }
 };
 } // namespace Monitoring
+
+Monitoring::Monitoring* m_Monitoring();

@@ -3,7 +3,11 @@
 
 #include <math.h>
 
+static DataIO::IOManager iom;
 
+DataIO::IOManager* m_IOManager() {
+    return &iom;
+}
 
 template <class... Args>
 void ThreadPool::ThreadPool::EnqueueJob(Args&&... args) {
@@ -17,17 +21,22 @@ void ThreadPool::ThreadPool::EnqueueJob(Args&&... args) {
 
 ThreadPool::ThreadPool pool(5);
 
-void TLoad(Signal *signal, int i, int j, int k) {
-    pool.EnqueueJob(signal, i,j,k);
+void TLoad(const DataStruct* ds, Signal *signal, int i, int j, int k) {
+    pool.EnqueueJob(ds, signal, i,j,k);
 }
 
-void Load(Signal *signal, int i, int j, int k) {
+void Load(const DataStruct* ds,Signal *signal, int i, int j, int k) {
+    if(!ds->data_area) { return; }
+    Neuron data = *(ds->data_area + ds->dimSizes[0] * i + ds->dimSizes[1] * i + ds->dimSizes[2] * i);
 
-    std::this_thread::sleep_for(std::chrono::nanoseconds(3));
-    printf("%f task : %d\r\n", monitoring.getMemoryUsage() , i);
+    printf("data : %d", data.a);
+
+    //std::this_thread::sleep_for(std::chrono::nanoseconds(3));
+    //printf("%f task : %d\r\n", monitoring.getMemoryUsage() , i);
     if(i > 20) { return; }
-    if(monitoring.getMemoryUsage() > 0.95) { return; }
-    pool.EnqueueJob(signal, i+1,j,k);
+
+    if(m_Monitoring()->getMemoryUsage() > 0.95) { return; }
+    pool.EnqueueJob(ds, signal, i+1,j,k);
 
 }
 /*
