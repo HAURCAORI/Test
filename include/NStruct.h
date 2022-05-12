@@ -35,10 +35,6 @@ struct Signal
 
 struct Neuron
 {
-    int a;
-    int b;
-
-    /*
     //Header
     BYTE type;
     // 1 bit :
@@ -56,7 +52,6 @@ struct Neuron
     //Value
     float threshold;
     float weight;
-    */
 };
 
 struct FileStruct {
@@ -97,4 +92,3 @@ struct PageFile
     }
     };
 };
-
