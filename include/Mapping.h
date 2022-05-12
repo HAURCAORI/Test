@@ -1,6 +1,13 @@
 #pragma once
-#include "DataProcess.h"
+#include "NStruct.h"
 
-Neuron CreateNeuron(DIRECTION direction);
-Neuron CreateNeuron(DIRECTION direction, float threshold);
-Neuron CreateNeuron(DIRECTION direction, float threshold, float weight);
+namespace Mapping {
+Neuron createNeuron();
+Neuron createNeuron(DIRECTION direction);
+Neuron createNeuron(DIRECTION direction, float threshold);
+Neuron createNeuron(DIRECTION direction, float threshold, float weight);
+
+void writeDataStruct(FILE* stream, long pos, Neuron&& sender);
+void errorMsg();
+bool Mapping();
+}

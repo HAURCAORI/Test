@@ -1,0 +1,13 @@
+#DIMENSION {3, 5, 10}
+
+$PAGE 0
+[0,0,0] => type(a) | specificity(d1,d8) | direction(1+,1-,2+) | 
+[0,0,1]
+
+BYTE type;
+FLAG specificity; // 수용기에 대한 정보
+DIRECTION direction;
+TIMESTAMP timestamp;
+float value;
+float threshold;
+float weight;
