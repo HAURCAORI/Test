@@ -3,25 +3,25 @@
 
 #include <thread>
 
+#define Point(i,j,k) (ds->data_area + i + ds->dimSizes[0] * j + ds->dimSizes[0] * ds->dimSizes[1] * k)
+
 int main(){
     
     m_IOManager()->deletePage(0);
     m_IOManager()->createPage(0);
     m_IOManager()->loadPage(0);
-    //Neuron* t = a.getPageFile(0).ds.data_area;
-    //cout << "page : " << *(t) << endl;
-    //int* p = static_cast<int*>(a.getPointer(0));
-    /*
-    for(int i = 0; i < 10; i++) {
-        //std::cout << *(p+i) << std::endl;
-        std::cout << (*(t+i)).b << std::endl;
-    }
-    */
+
+    //const DataStruct* ds = (m_IOManager()->getDataStruct(0));
+    //Neuron* temp = (ds->data_area);//Point(0,0,0);
+    //cout << "page : " << temp->value << endl;
+   
     Signal signal = {1.0f, 0xff};
-    for(int i = 0; i < 100; i++) {
+    for(int i = 0; i < 1; i++) {
         TLoad(m_IOManager()->getDataStruct(0), &signal, 0,0,0);
         printf("num : %d\r\n", i);
     }
+    
+
     //std::this_thread::sleep_for(std::chrono::minutes(5));
 
     //m_IOManager()->unloadPage(0);

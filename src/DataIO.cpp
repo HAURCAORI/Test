@@ -1,5 +1,5 @@
 #include "DataIO.h"
-
+#include "Calculate.h"
 #include <vector>
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -7,18 +7,62 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#define Point(i,j,k) (header + sizeof(Neuron)*(i + dimSizes[0]*j + dimSizes[0]*dimSizes[1]*k))
+
 namespace DataIO
 {
+
+Neuron createNeuron() {
+    Neuron n;
+    n.type = 0;
+    n.specificity = 1;
+    n.direction = 0;
+    n.timestamp = 0;
+    n.value = 0.0f;
+    n.threshold = random_threshold();
+    n.weight = random_weight();
+    return std::move(n);
+}
+
+Neuron createNeuron(DIRECTION direction) {
+    Neuron n;
+    n.type = 0;
+    n.specificity = 1;
+    n.direction = direction;
+    n.timestamp = 0;
+    n.value = 0.0f;
+    n.threshold = random_threshold();
+    n.weight = random_weight();
+    return std::move(n);
+}
+
+
+void writeDataStruct(FILE* stream, long pos, Neuron&& sender) {
+    fseek(stream, pos, SEEK_SET);
+    fwrite(&sender, sizeof(Neuron), 1, stream);
+}
+
 void writeFileData(FILE *stream) {
-    int header = 16;
-    int size = 50;
+    const int header = 16; //4byte(사이즈 1, 차원 3)
+    std::vector<unsigned int> dimSizes{10,10,10}; //첫 번째 원소가 첫번째 차원 값
+
     fwrite(&header, sizeof(int),1,stream);
-    fwrite(&size, sizeof(int), 1, stream);
-    fwrite(&size, sizeof(int), 1, stream);
-    fwrite(&size, sizeof(int), 1, stream);
-    for(int i = 0 ; i < 400000; i++) {
-        fwrite(&i, sizeof(int),1,stream);
+    for(unsigned int x : dimSizes) {
+        fwrite(&x, sizeof(unsigned int), 1, stream);
     }
+    
+
+    Neuron temp = createNeuron();
+    fwrite(&temp, sizeof(Neuron), dimSizes[0]*dimSizes[1]*dimSizes[2], stream);
+    /*
+    for(unsigned int k = 0; k < dimSizes[2]; k++) {
+        for(unsigned int j = 0; j < dimSizes[1]; j++) {
+            for(unsigned int i = 0; i < dimSizes[0]; i++) {
+                
+            }
+        }
+    }
+    */
 }
 
 IOManager::IOManager() {
