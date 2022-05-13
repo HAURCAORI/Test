@@ -36,7 +36,7 @@ bool Mapping() {
         while (!file.eof())
         {
             order.clear();
-
+            
 			std::getline(file, str);
             if(str.empty()) { continue; }
 
@@ -63,6 +63,7 @@ bool Mapping() {
                 break;
             }
         }
+        //map을 만들어서 page-sector 데이터 저장 후 있는지 판단
     }
     //transform(str.begin(), str.end(),str.begin(), ::toupper);//대문자로 치환
     

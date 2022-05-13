@@ -1,13 +1,22 @@
 #DIMENSION {3, 5, 10}
-#DEFAULT 
-#
+#DEFAULT threshold(10)
+
+#DEFINE UPDOWN 1+|1-
+
+#Function fun(x,y,z) { x+y+z }
 
 $PAGE 0
-[0,0,0] => type(a) | specificity(d1,d8) | direction(1+,1-,2+)
-[0,0,1]
-[1,1,1]
+[0,0,0] => type(a) / specificity(d1|d8) / direction(1+|1-|2+)
+[0,0,1] => type(b) / target(1:[1,1,1])
+[1,1,1] => direction(fun)
 [1~2,10~15,0~3] => 
+[*,1,1] => direction(UPDOWN)
+[*,*,*] => 
+// type, specificity, direction, threshold, weight, target, out
 
+$PAGE 1
+[1,1,1] => out(print['a'])
+[1,2,1] => out(value[0x01,100])
 
 
 BYTE type;
