@@ -1,6 +1,5 @@
 #include "DataIO.h"
 #include "Calculate.h"
-#include "Mapping.h"
 #include <vector>
 #include <fcntl.h>
 #include <sys/mman.h>

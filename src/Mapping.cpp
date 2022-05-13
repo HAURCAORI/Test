@@ -31,10 +31,37 @@ bool Mapping() {
     if (file.is_open())
     {
         std::string str;
+        std::string order;
+        char token;
         while (!file.eof())
         {
-			//pos = file.tellg();
+            order.clear();
+
 			std::getline(file, str);
+            if(str.empty()) { continue; }
+
+            token = str.front();
+            switch(token) {
+                case '#': //dimension
+                order = str.substr(1,str.find_first_of(' '));
+                break;
+
+                case '$':
+                order = str.substr(1,str.find_first_of(' '));
+                break;
+
+                case '[':
+                order = "data";
+                break;
+
+                case '/':
+                if(str.at(1) == '/') { continue; }
+                break;
+
+                default:
+                order = "";
+                break;
+            }
         }
     }
     //transform(str.begin(), str.end(),str.begin(), ::toupper);//대문자로 치환

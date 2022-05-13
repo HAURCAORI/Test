@@ -1,8 +1,14 @@
 #DIMENSION {3, 5, 10}
+#DEFAULT 
+#
 
 $PAGE 0
-[0,0,0] => type(a) | specificity(d1,d8) | direction(1+,1-,2+) | 
+[0,0,0] => type(a) | specificity(d1,d8) | direction(1+,1-,2+)
 [0,0,1]
+[1,1,1]
+[1~2,10~15,0~3] => 
+
+
 
 BYTE type;
 FLAG specificity; // 수용기에 대한 정보

@@ -1,5 +1,6 @@
 #pragma once
 #include "NStruct.h"
+#include "Mapping.h"
 #include <fstream>
 #include <unordered_set>
 

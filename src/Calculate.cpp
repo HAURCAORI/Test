@@ -41,3 +41,4 @@ float random_weight()
     std::normal_distribution<float> dist(weight_mean, weight_stddev);
     return dist(gen);
 }
+

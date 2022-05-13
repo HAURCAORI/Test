@@ -6,7 +6,8 @@
 #define Point(i,j,k) (ds->data_area + i + ds->dimSizes[0] * j + ds->dimSizes[0] * ds->dimSizes[1] * k)
 
 int main(){
-    
+    Mapping::Mapping();
+    /*
     m_IOManager()->deletePage(0);
     m_IOManager()->createPage(0);
     m_IOManager()->loadPage(0);
@@ -20,7 +21,7 @@ int main(){
         TLoad(m_IOManager()->getDataStruct(0), &signal, 0,0,0);
         printf("num : %d\r\n", i);
     }
-    
+    */
 
     //std::this_thread::sleep_for(std::chrono::minutes(5));
 
