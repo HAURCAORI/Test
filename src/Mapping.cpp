@@ -11,6 +11,48 @@
 #define secondSplitString(x) x.substr(x.find_first_of(' ') + 1)
 
 namespace Mapping {
+
+enum class ErrorType {
+    GENERAL,
+    PREPROCESSING,
+    PROCESSING,
+    SYNTAX
+};
+
+inline void errorMsg(std::string&& e, int line = 0, ErrorType type = ErrorType::GENERAL) {
+    switch(type) {
+        case ErrorType::GENERAL:
+            std::cerr << "[Error]Mapping: " << e << std::endl;
+        break;
+        case ErrorType::PREPROCESSING:
+            std::cerr << "[Error]Preprocessing:" << line << ": " << e << std::endl;
+        break;
+        case ErrorType::PROCESSING:
+            std::cerr << "[Error]Processing:" << line << ": " << e << std::endl;
+        break;
+        case ErrorType::SYNTAX:
+            std::cerr << "[Error]Syntax:" << line << ": " << e << std::endl;
+        break;
+    }
+}
+
+inline void warningMsg(std::string&& e, int line = 0, ErrorType type = ErrorType::GENERAL) {
+    switch(type) {
+        case ErrorType::GENERAL:
+            std::cerr << "[Warning]Mapping: " << e << std::endl;
+        break;
+        case ErrorType::PREPROCESSING:
+            std::cerr << "[Warning]Preprocessing:" << line << ": " << e << std::endl;
+        break;
+        case ErrorType::PROCESSING:
+            std::cerr << "[Warning]Processing:" << line << ": " << e << std::endl;
+        break;
+        case ErrorType::SYNTAX:
+            std::cerr << "[Warning]Syntax:" << line << ": " << e << std::endl;
+        break;
+    }
+}
+
 Neuron createNeuron(){
     Neuron temp = {0x00, 0xff, 0x00, 0.0f, 0.0f, random_threshold(),random_weight()};
     return temp;
@@ -48,11 +90,13 @@ std::vector<unsigned int> getDimension(std::string str) {
                 vec.push_back(stoi(*it));
             }
         } catch (std::exception e) {
-            std::cout << "[ERROR]" << std::endl;
+            errorMsg("'{" + str + "}' Can't Convert to Vector.");
         }
     }
     return vec;
 }
+
+
 
 
 
@@ -112,6 +156,7 @@ struct codeLine {
     CommandType type;
     Command command;
     int group;
+    int line;
     std::string value;
 };
 
@@ -134,12 +179,14 @@ bool Mapping() {
         std::string str; //get text line
         char token; //first text
         int group = 0; //group
+        int line = 0;
         while (!file.eof())
         {
 			std::getline(file, str);
+            ++line;
             if(str.empty()) { continue; }
             codeLine tcl;
-
+            tcl.line = line;
             token = str.front();
             switch(token) {
                 case '#': {
@@ -147,6 +194,7 @@ bool Mapping() {
                 tcl.group = 0;
                 tcl.value = secondSplitString(str);
                 tcl.command = matchingCommand(firstSplitString(str));
+                m_cl.push_back(tcl);
                 }
                 break;
 
@@ -161,6 +209,7 @@ bool Mapping() {
                 } else {
                     //[ERROR]
                 }
+                m_cl.push_back(tcl);
                 }
 
                 break;
@@ -170,6 +219,7 @@ bool Mapping() {
                 tcl.group = group;
                 tcl.value = str;
                 tcl.command = Command::DATA;
+                m_cl.push_back(tcl);
                 break;
 
                 case '/':
@@ -177,16 +227,20 @@ bool Mapping() {
                 break;
 
                 default:
-
+                warningMsg("Can't encode line.", line, ErrorType::SYNTAX);
                 continue;
                 break;
             }
-            m_cl.push_back(tcl);
+            
         }
+    }
+    else {
+        errorMsg("Can't open 'mapping' file.");
     }
     file.close();
 
     if(error) {
+         errorMsg("Regularizing Fail.");
         return false;
     }
     error = false;
@@ -204,6 +258,7 @@ bool Mapping() {
                 m_dimsizes = getDimension(it->value);
                 if(m_dimsizes.empty()) {
                     error = true;
+                    errorMsg("Dimension is Empty.", it->line, ErrorType::PREPROCESSING);
                     break;
                 }
                 m_dimension = m_dimsizes.size();
@@ -226,31 +281,48 @@ bool Mapping() {
             break;
 
             default:
-            //[ERROR]
+            warningMsg("Undefined Command.", it->line, ErrorType::PREPROCESSING);
             break;
 
         }
-        
         it = m_cl.erase(it);           
     }
 
     // 유효성 판단
     for(auto it = m_dimsizes.begin(); it != m_dimsizes.end(); ++it) {
-        if(*it == 0 || *it > MAX_SECTOR) {
+        if(*it == 0) {
             valid = false;
+            errorMsg("Dimension is 0.");
+            break;
+        }
+        if(*it > MAX_SECTOR) {
+            valid = false;
+            errorMsg("Dimension Out of Range.");
             break;
         }
     }
     
     if(m_dimension == 0) {
         error = true;
-        //[ERROR]
+        errorMsg("Must define '#DIMENSION'.");
     }
 
     if(error || !valid) {
+        errorMsg("Preprocessing Fail.");
         return false;
     }
 
+    // 3. linking
+    std::unordered_map<int, std::string> sectors;
+    for(auto it = m_cl.begin(); it != m_cl.end();) {
+        if(it->type != CommandType::DATAPROCESSING) { continue; }
+        sectors.insert()
+    }
+/*
+    for(auto it = m_cl.begin(); it != m_cl.end(); ++it) {
+        std::cout << (*it).value << std::endl;
+    }
+    */
 
     //transform(str.begin(), str.end(),str.begin(), ::toupper);//대문자로 치환
     

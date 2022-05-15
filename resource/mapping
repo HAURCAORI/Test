@@ -1,4 +1,4 @@
-#DIMENSION {3, 5, 10}
+#DIMENSION {10,10,10}
 #DEFAULT threshold(10)
 
 #DEFINE UPDOWN 1+|1-
@@ -18,10 +18,10 @@ $PAGE 1
 [1,2,1] => out(value[0x01,100])
 
 
-BYTE type;
-FLAG specificity; // 수용기에 대한 정보
-DIRECTION direction;
-TIMESTAMP timestamp;
-float value;
-float threshold;
-float weight;
+//BYTE type;
+//FLAG specificity; // 수용기에 대한 정보
+//DIRECTION direction;
+//TIMESTAMP timestamp;
+//float value;
+//float threshold;
+//float weight;

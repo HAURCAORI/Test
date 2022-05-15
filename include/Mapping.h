@@ -8,6 +8,6 @@ Neuron createNeuron(DIRECTION direction, float threshold);
 Neuron createNeuron(DIRECTION direction, float threshold, float weight);
 
 void writeDataStruct(FILE* stream, long pos, Neuron&& sender);
-void errorMsg();
 bool Mapping();
+
 }
