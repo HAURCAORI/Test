@@ -19,6 +19,7 @@
 #define D8 0x80
 
 #define EPSILON 0.0001
+#define MAX_SECTOR 1000000
 
 typedef int PAGE;
 typedef unsigned char BYTE;

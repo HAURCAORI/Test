@@ -4,7 +4,6 @@
 #DEFINE UPDOWN 1+|1-
 
 #Function fun(x,y,z) { x+y+z }
-
 $PAGE 0
 [0,0,0] => type(a) / specificity(d1|d8) / direction(1+|1-|2+)
 [0,0,1] => type(b) / target(1:[1,1,1])
