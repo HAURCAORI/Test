@@ -6,6 +6,13 @@
 #define Point(i,j,k) (ds->data_area + i + ds->dimSizes[0] * j + ds->dimSizes[0] * ds->dimSizes[1] * k)
 
 int main(){
+    std::vector<std::string> strs = {"*","*","*"};
+    std::vector<unsigned int> dimsizes = {10,10,10};
+    std::vector<unsigned int> temp;
+    auto ret = Mapping::getD(strs,dimsizes,temp);
+    for(auto r : ret) {
+        printVector(r);
+    }
     Mapping::Mapping();
     /*
     m_IOManager()->deletePage(0);

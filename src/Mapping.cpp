@@ -122,6 +122,51 @@ std::vector<unsigned int> getDimension(std::string str) {
     return vec;
 }
 
+// '1,2~3,*'
+// 초기 조건 vecs 는 empty vector, strs와 dimsizes는 모두 n개의 원소 가짐
+std::vector<std::vector<unsigned int>> getD(std::vector<std::string>& strs, const std::vector<unsigned int>& dimsizes, std::vector<unsigned int> vec) {
+    std::vector<std::vector<unsigned int>> ret;
+    if(strs.empty()) { return ret; }
+    std::string str = strs.front();
+    strs.erase(strs.begin());
+
+/*
+    if(vec.empty() || vec.size() == dimsizes.size()) {
+        std::vector<unsigned int> temp;
+        
+        vecs.push_back(temp);
+    }
+    */
+    int index = vec.size();
+    size_t iter = index;
+    for(unsigned int i = index; i < dimsizes.size(); i++) {
+        if(isInteger(str)) {
+            unsigned int value = stoi(str);
+            if(value >= dimsizes[i]) { break; }
+            vec.push_back(value);
+            if(!strs.empty()) {
+                str = strs.front();
+                strs.erase(strs.begin());
+            }
+            ++iter;
+        } else if(str == "*") {
+            for(unsigned int j = 0; j < dimsizes[i]; j++) {
+                std::vector<std::string> temp = strs;
+                temp.insert(temp.begin(), std::to_string(j));
+                for(auto v : getD(temp,dimsizes,vec)) {
+                    ret.push_back(v);
+                }
+            }
+            break;
+        }
+    }
+    if(iter == dimsizes.size()) {
+        ret.push_back(vec);
+    }
+    return ret;
+}
+
+
 std::vector<std::vector<unsigned int>> getDimensions(std::string str, std::vector<unsigned int> dimsizes) {
     str.erase(remove(str.begin(), str.end(), ' '), str.end());
 
@@ -134,10 +179,10 @@ std::vector<std::vector<unsigned int>> getDimensions(std::string str, std::vecto
             vecs.clear();
             return vecs;
         }
-
+/*
         int index = 0;
         for(auto it = temp.begin(); it != temp.end(); ++it, ++index) {
-            std::vector<unsigned int> vec;
+            std::vector<unsigned int> vehac;
             if(isInteger(*it)) {
                 vec.push_back(stoi(*it));
             }else {
@@ -151,8 +196,9 @@ std::vector<std::vector<unsigned int>> getDimensions(std::string str, std::vecto
                 }
             }
         }
+        */
     }
-    return vecs
+    return vecs;
 }
 
 
