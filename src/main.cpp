@@ -6,13 +6,14 @@
 #define Point(i,j,k) (ds->data_area + i + ds->dimSizes[0] * j + ds->dimSizes[0] * ds->dimSizes[1] * k)
 
 int main(){
-    std::vector<std::string> strs = {"*","*","*"};
+    /*
+    std::string str = "{1~2,5,1}";
     std::vector<unsigned int> dimsizes = {10,10,10};
-    std::vector<unsigned int> temp;
-    auto ret = Mapping::getD(strs,dimsizes,temp);
+    auto ret = Mapping::getDimensions(str,dimsizes);
     for(auto r : ret) {
         printVector(r);
     }
+    */
     Mapping::Mapping();
     /*
     m_IOManager()->deletePage(0);
@@ -47,7 +48,7 @@ int main(){
     /*
     Neuron neuron[SectorLayer][SectorSize][SectorSize] = {0};
     
-    neuron[0][1][1] = CreateNeuron(0X10);
+    neuron[0][1][1] = CreateNeuron(0X10);s
     neuron[1][1][1] = CreateNeuron(D5 | 0X03);
     neuron[1][1][2] = CreateNeuron(D5);
     neuron[1][1][0] = CreateNeuron(D5);
