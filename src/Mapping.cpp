@@ -3,12 +3,38 @@
 #include <iostream>
 #include <fstream>
 #include <unordered_map>
+#include <unordered_set>
 #include <algorithm>
 #include <exception>
 
 #define cmap(arg) {#arg ,Command::arg}
 #define firstSplitString(x) x.substr(1,x.find_first_of(' ') - 1) 
 #define secondSplitString(x) x.substr(x.find_first_of(' ') + 1)
+
+struct MappingPoint {
+    PAGE id;
+    std::vector<unsigned int> point;
+
+    bool operator==(const MappingPoint &mp) const
+    {
+        if (this->id == mp.id)
+            if(this->point == mp.point)
+                return true;
+        return false;
+    }
+
+    struct HashFunction {
+    size_t operator()(const MappingPoint &mp) const
+    {
+        std::hash<unsigned int> hasher;
+        size_t seed = mp.id;
+        for (unsigned int i : mp.point) {
+            seed ^= hasher(i) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+        }
+        return seed;
+    }
+    };
+};
 
 namespace Mapping {
 
@@ -80,7 +106,7 @@ std::vector<unsigned int> getDimension(std::string str) {
     str.erase(remove(str.begin(), str.end(), ' '), str.end());
 
     std::vector<unsigned int> vec;  
-    if(str.front() == '{' && str.back() == '}') {
+    if((str.front() == '{' && str.back() == '}') || (str.front() == '[' && str.back() == ']')) {
         str = str.substr(1,str.size()-2);
         std::vector<std::string> temp = split(str,",");
         vec.reserve(temp.size());
@@ -96,6 +122,38 @@ std::vector<unsigned int> getDimension(std::string str) {
     return vec;
 }
 
+std::vector<std::vector<unsigned int>> getDimensions(std::string str, std::vector<unsigned int> dimsizes) {
+    str.erase(remove(str.begin(), str.end(), ' '), str.end());
+
+    std::vector<std::vector<unsigned int>> vecs; 
+    if((str.front() == '{' && str.back() == '}') || (str.front() == '[' && str.back() == ']')) {
+        str = str.substr(1,str.size()-2);
+        std::vector<std::string> temp = split(str,",");
+        if(temp.size() != dimsizes.size()) {
+            errorMsg("'{" + str + "}' size shold be " + std::to_string(dimsizes.size()) + ".");
+            vecs.clear();
+            return vecs;
+        }
+
+        int index = 0;
+        for(auto it = temp.begin(); it != temp.end(); ++it, ++index) {
+            std::vector<unsigned int> vec;
+            if(isInteger(*it)) {
+                vec.push_back(stoi(*it));
+            }else {
+                if((*it).find('*')) {
+                    for(unsigned int i = 0; i < dimsizes[index]; i++) {
+                        vec.push_back
+
+                    }
+                } else if ((*it).find('~')) {
+
+                }
+            }
+        }
+    }
+    return vecs
+}
 
 
 
@@ -311,13 +369,32 @@ bool Mapping() {
         errorMsg("Preprocessing Fail.");
         return false;
     }
+    error = false;
 
     // 3. linking
-    std::unordered_map<int, std::string> sectors;
-    for(auto it = m_cl.begin(); it != m_cl.end();) {
+    std::unordered_set<MappingPoint, MappingPoint::HashFunction> m_points;
+    std::string current_page;
+    for(auto it = m_cl.begin(); it != m_cl.end();++it) {
         if(it->type != CommandType::DATAPROCESSING) { continue; }
-        sectors.insert()
+        if(it->command == Command::PAGE) {
+            if(!isInteger(it->value)) {
+                error = true;
+                errorMsg("PAGE shold be Integer.", it->line, ErrorType::PROCESSING);
+                break;
+            }
+            current_page = it->value;
+            continue;
+        }
+        std::string sdim = it->value.substr(0,it->value.find_first_of('=') - 1);
+        if(sdim.find('*') || sdim.find('~')) {
+            
+        } else {
+            std::vector<unsigned int> temp = getDimension(sdim);
+            MappingPoint mp = {stoi(current_page), temp};
+            m_points.insert(mp);
+        }   
     }
+
 /*
     for(auto it = m_cl.begin(); it != m_cl.end(); ++it) {
         std::cout << (*it).value << std::endl;
