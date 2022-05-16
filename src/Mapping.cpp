@@ -3,7 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <unordered_map>
-#include <unordered_set>
+#include <map>
 #include <algorithm>
 #include <exception>
 
@@ -112,6 +112,20 @@ Neuron createNeuron(DIRECTION direction, float threshold, float weight)
 
 void writeDataStruct(FILE *stream, long pos, Neuron &&sender)
 {
+    fseek(stream, pos, SEEK_SET);
+    fwrite(&sender, sizeof(Neuron), 1, stream);
+}
+void writeDataStruct(FILE *stream, const std::vector<unsigned int>& point, const std::vector<unsigned int>& dimsizes, Neuron &sender)
+{
+    long pos = 0;
+    for(size_t i = 0; i < point.size(); i++) {
+        long temp = point[i];
+        for(size_t j = 0; j < i; j++) {
+            temp *= dimsizes[j];
+        }
+        pos+=temp;
+    }
+    pos += (dimsizes.size() + 1)*4; //header
     fseek(stream, pos, SEEK_SET);
     fwrite(&sender, sizeof(Neuron), 1, stream);
 }
@@ -346,7 +360,6 @@ bool Mapping()
     // 1. 코드 정형화
     {
         #ifdef TIME_ESTIMATE
-        std::cout << "[Time Estimate] 1. regulate";
         BEGIN_CHRONO
         #endif
         if (file.is_open())
@@ -433,6 +446,7 @@ bool Mapping()
         }
         error = false;
         #ifdef TIME_ESTIMATE
+        std::cout << "[Time Estimate] 1. regulate";
         END_CHRONO
         #endif
     }
@@ -444,7 +458,6 @@ bool Mapping()
     m_dimsizes.reserve(5);
     {
         #ifdef TIME_ESTIMATE
-        std::cout << "[Time Estimate] 2. preprocessing";
         BEGIN_CHRONO
         #endif
         for (auto it = m_cl.begin(); it != m_cl.end();)
@@ -522,23 +535,26 @@ bool Mapping()
         error = false;
 
         #ifdef TIME_ESTIMATE
+        std::cout << "[Time Estimate] 2. preprocessing";
         END_CHRONO
         #endif
     }
 
     // 3. linking
-    std::unordered_set<MappingPoint, MappingPoint::HashFunction> m_points;
+    std::multimap<std::string,MappingPoint> m_points;
+    //std::unordered_map<MappingPoint, std::string, MappingPoint::HashFunction> m_points;
+    //std::unordered_set<MappingPoint, MappingPoint::HashFunction> m_points;
     {
         #ifdef TIME_ESTIMATE
-        std::cout << "[Time Estimate] 3. linking";
         BEGIN_CHRONO
         #endif
         
-        std::string current_page;
-        for (auto it = m_cl.begin(); it != m_cl.end(); ++it)
+        std::string current_page = "0";
+        for (auto it = m_cl.begin(); it != m_cl.end();)
         {
             if (it->type != CommandType::DATAPROCESSING)
             {
+                ++it;
                 continue;
             }
             if (it->command == Command::PAGE)
@@ -550,11 +566,13 @@ bool Mapping()
                     break;
                 }
                 current_page = it->value;
+                ++it;
                 continue;
             }
-            if (it->value.find('=') == std::string::npos)
+            if (it->value.find("=>") == std::string::npos && it->value.find("==") == std::string::npos)
             {
                 warningMsg("'" + it->value + "' Not Defined Data.", it->line, ErrorType::PROCESSING);
+                it = m_cl.erase(it);
                 continue;
             }
             std::string sdim = it->value.substr(0, it->value.find_first_of('=') - 1);
@@ -564,15 +582,85 @@ bool Mapping()
                 //std::cout<< "point" << current_page << " / " << it->line << std::endl; printVector(t);
 
                 MappingPoint tmp({stoi(current_page), t});
-                m_points.insert(tmp);
+                m_points.insert(std::make_pair(it->value,tmp));
             }
+            ++it;
         }
+        if (error)
+        {
+            errorMsg("Linking Fail.");
+            return false;
+        }
+        error = false;
         #ifdef TIME_ESTIMATE
+        std::cout << "[Time Estimate] 3. linking";
         END_CHRONO
         #endif
     }
     // 4. dataprocessing
 
+    {
+        #ifdef TIME_ESTIMATE
+        BEGIN_CHRONO
+        #endif
+        std::string current_page;
+        FILE* stream = nullptr;
+        std::string address;
+        for (auto it = m_cl.begin(); it != m_cl.end(); ++it)
+        {
+            if (it->command == Command::PAGE)
+            {
+                current_page = it->value;
+                if(stream != nullptr) {
+                    fclose(stream);
+                }
+                address = (std::string)Path + current_page;
+                stream = fopen(address.c_str(), "wb");
+                if(!stream) { 
+                    errorMsg("'" + address + "' Fail to Open File." , 0,ErrorType::PROCESSING);
+                    error = true;
+                    break;
+                }
+                //파일 초기화
+                const int header = (m_dimsizes.size() + 1)*4;
+                unsigned int data_size = 1;
+                fwrite(&header, sizeof(int),1,stream);
+                for(unsigned int x : m_dimsizes) {
+                    fwrite(&x, sizeof(unsigned int), 1, stream);
+                    data_size *= x;
+                }
+                Neuron temp = Mapping::createNeuron();
+                fwrite(&temp, sizeof(Neuron), data_size, stream);
+
+                continue;
+            }
+            if(!stream) {
+                errorMsg("Data Must Included in the Page." , it->line,ErrorType::PROCESSING);
+                error = true;
+                break;
+            }
+            for (auto p_it = m_points.lower_bound(it->value); p_it != m_points.upper_bound(it->value); ++p_it)
+	        {
+                std::vector<unsigned int> tp = p_it->second.point;
+                
+                Neuron tn = createNeuron();
+                writeDataStruct(stream,tp,m_dimsizes, tn);
+		        //std::cout << "[" << p_it->first << "]" << std::endl;
+	        }
+        }
+
+        if(stream) { fclose(stream); }
+
+        if (error)
+        {
+            errorMsg("Processing Fail.");
+            return false;
+        }
+        #ifdef TIME_ESTIMATE
+        std::cout << "[Time Estimate] 4. dataprocessing";
+        END_CHRONO
+        #endif
+    }
     /*
     for(auto it = m_cl.begin(); it != m_cl.end(); ++it) {
         std::cout << (*it).value << std::endl;
