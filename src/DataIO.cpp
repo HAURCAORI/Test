@@ -37,7 +37,9 @@ bool IOManager::createPage(PAGE id) {
     }
 
     Neuron temp = Mapping::createNeuron();
-    fwrite(&temp, sizeof(Neuron), data_size, stream);
+    for(unsigned int i = 0; i < data_size; i++) {
+        fwrite(&temp, sizeof(Neuron), 1, stream);
+    }
 
     fclose(stream);
     return true;

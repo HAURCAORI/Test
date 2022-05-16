@@ -615,7 +615,7 @@ bool Mapping()
                     fclose(stream);
                 }
                 address = (std::string)Path + current_page;
-                stream = fopen(address.c_str(), "wb");
+                stream = fopen(address.c_str(), "w+");
                 if(!stream) { 
                     errorMsg("'" + address + "' Fail to Open File." , 0,ErrorType::PROCESSING);
                     error = true;
@@ -630,8 +630,9 @@ bool Mapping()
                     data_size *= x;
                 }
                 Neuron temp = Mapping::createNeuron();
-                fwrite(&temp, sizeof(Neuron), data_size, stream);
-
+                for(unsigned int i = 0; i < data_size; i++) {
+                    fwrite(&temp, sizeof(Neuron), 1, stream);
+                }
                 continue;
             }
             if(!stream) {
@@ -639,6 +640,7 @@ bool Mapping()
                 error = true;
                 break;
             }
+            /*
             for (auto p_it = m_points.lower_bound(it->value); p_it != m_points.upper_bound(it->value); ++p_it)
 	        {
                 std::vector<unsigned int> tp = p_it->second.point;
@@ -647,6 +649,7 @@ bool Mapping()
                 writeDataStruct(stream,tp,m_dimsizes, tn);
 		        //std::cout << "[" << p_it->first << "]" << std::endl;
 	        }
+            */
         }
 
         if(stream) { fclose(stream); }
