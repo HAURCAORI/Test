@@ -704,12 +704,13 @@ bool Mapping()
                     arg = arg.substr(0, arg.find(')'));
                     std::vector<std::string> arguments = split(arg,"|");
 
+                    try {
                     if(command.compare("TYPE") == 0) {
                         for(auto a : arguments) {
                             if(StringToByte(tn.type, a)) { continue; };
 
                             error = true;
-                            errorMsg("'" + a + "' Invalid Argument", it->line, ErrorType::SYNTAX);
+                            errorMsg("'" + p + "' Invalid Argument", it->line, ErrorType::SYNTAX);
                             break;
                         }
                     } else if(command.compare("SPECIFICITY") == 0) {
@@ -717,7 +718,7 @@ bool Mapping()
                             if(StringToFlag(tn.specificity, a)) { continue; };
 
                             error = true;
-                            errorMsg("'" + a + "' Invalid Argument", it->line, ErrorType::SYNTAX);
+                            errorMsg("'" + p + "' Invalid Argument", it->line, ErrorType::SYNTAX);
                             break;
                         }
                     } else if(command.compare("DIRECTION") == 0) {
@@ -725,7 +726,7 @@ bool Mapping()
                             if(StringToDirection(tn.direction, a)) { continue; };
                             
                             error = true;
-                            errorMsg("'" + a + "' Invalid Argument", it->line, ErrorType::SYNTAX);
+                            errorMsg("'" + p + "' Invalid Argument.", it->line, ErrorType::SYNTAX);
                             break;
                         }
                     } else if(command.compare("THRESHOLD") == 0) {
@@ -736,6 +737,10 @@ bool Mapping()
 
                     } else if(command.compare("OUT") == 0) {
 
+                    }
+                    } catch(std::exception e) {
+                        error = true;
+                        errorMsg("'" + p +"' Invalid Argument.", it->line, ErrorType::SYNTAX);
                     }
 
                     if(error) { break; }
