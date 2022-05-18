@@ -20,7 +20,7 @@ class IOManager {
         bool deletePage(PAGE id);
         bool loadPage(PAGE id);
         bool unloadPage(PAGE id);
-        bool unloadPage(PageFile pf);
+        bool unloadCheck(PageFile pf);
         void printPage();
 
         inline void* getPointer(PAGE id) { return pagefiles.find(id)->fs.memory_area; }

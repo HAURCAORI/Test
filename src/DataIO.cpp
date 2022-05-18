@@ -16,8 +16,12 @@ IOManager::IOManager() {
     pagefiles.reserve(DefaultReserve);
 }
 IOManager::~IOManager() {
-    for(auto it = pagefiles.begin(); it != pagefiles.end(); it++) {
-        unloadPage(*it);
+    for(auto it = pagefiles.begin(); it != pagefiles.end(); ) {
+        if(unloadCheck(*it)) {
+            it = pagefiles.erase(it);
+        } else {
+            it++;
+        }
     }
     printf("[Process] : Remove Pages\r\n");
 }
@@ -126,7 +130,7 @@ bool IOManager::unloadPage(PAGE id) {
     return true;
 }
 
-bool IOManager::unloadPage(PageFile pf) {
+bool IOManager::unloadCheck(PageFile pf) {
     if(pf.fs.memory_area) {
         if(munmap(pf.fs.memory_area,pf.fs.size_mapped) < 0) {
             printf("error : munmap.\r\n");
@@ -139,7 +143,6 @@ bool IOManager::unloadPage(PageFile pf) {
             return false;
         }
     }
-    pagefiles.erase(pf);
     return true;
 }
 

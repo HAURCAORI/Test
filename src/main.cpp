@@ -6,18 +6,8 @@
 #define Point(i,j,k) (ds->data_area + i + ds->dimSizes[0] * j + ds->dimSizes[0] * ds->dimSizes[1] * k)
 
 int main(){
-    /*
-    std::string str = "{1~2,5,1}";
-    std::vector<unsigned int> dimsizes = {10,10,10};
-    auto ret = Mapping::getDimensions(str,dimsizes);
-    for(auto r : ret) {
-        printVector(r);
-    }
-    */
-    Mapping::Mapping();
-    /*
-    m_IOManager()->deletePage(0);
-    m_IOManager()->createPage(0);
+    if(!Mapping::Mapping()) { return 0; }
+    
     m_IOManager()->loadPage(0);
 
     //const DataStruct* ds = (m_IOManager()->getDataStruct(0));
@@ -29,9 +19,9 @@ int main(){
         TLoad(m_IOManager()->getDataStruct(0), &signal, 0,0,0);
         printf("num : %d\r\n", i);
     }
-    */
+    
 
-    //std::this_thread::sleep_for(std::chrono::minutes(5));
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 
     //m_IOManager()->unloadPage(0);
     
