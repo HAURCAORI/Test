@@ -29,3 +29,5 @@ inline void printVector(std::vector<T> vec) {
     }
     std::cout << std::endl;
 }
+
+void printBits(size_t const size, void const * const ptr);

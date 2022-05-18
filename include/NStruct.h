@@ -38,14 +38,14 @@ struct Neuron
 {
     //Header
     BYTE type;
-    // 1 bit :
-    // 2 bit :
-    // 3 bit :
-    // 4 bit :
+    // 1 bit : 
+    // 2 bit : 
+    // 3 bit : 
+    // 4 bit : 
     // 5 bit :
-    // 6 bit :
-    // 7 bit :
-    // 8 bit : 전달로
+    // 6 bit : 타입(출력)
+    // 7 bit : 타입(페이지 이동)
+    // 8 bit : 활성화
     FLAG specificity; // 수용기에 대한 정보
     DIRECTION direction;
     TIMESTAMP timestamp;

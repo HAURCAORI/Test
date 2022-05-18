@@ -91,22 +91,22 @@ inline void warningMsg(std::string &&e, int line = 0, ErrorType type = ErrorType
 
 Neuron createNeuron()
 {
-    Neuron temp = {0x00, 0xff, 0x00, 0.0f, 0.0f, random_threshold(), random_weight()};
+    Neuron temp = {0x01, 0xff, 0x00, 0.0f, 0.0f, random_threshold(), random_weight()};
     return temp;
 }
 Neuron createNeuron(DIRECTION direction)
 {
-    Neuron temp = {0x00, 0xff, direction, 0.0f, 0.0f, random_threshold(), random_weight()};
+    Neuron temp = {0x01, 0xff, direction, 0.0f, 0.0f, random_threshold(), random_weight()};
     return temp;
 }
 Neuron createNeuron(DIRECTION direction, float threshold)
 {
-    Neuron temp = {0x00, 0xff, direction, 0.0f, 0.0f, threshold, random_weight()};
+    Neuron temp = {0x01, 0xff, direction, 0.0f, 0.0f, threshold, random_weight()};
     return temp;
 }
 Neuron createNeuron(DIRECTION direction, float threshold, float weight)
 {
-    Neuron temp = {0x00, 0xff, direction, 0.0f, 0.0f, threshold, weight};
+    Neuron temp = {0x01, 0xff, direction, 0.0f, 0.0f, threshold, weight};
     return temp;
 }
 
@@ -125,7 +125,9 @@ void writeDataStruct(FILE *stream, const std::vector<unsigned int>& point, const
         }
         pos+=temp;
     }
+    pos *= sizeof(Neuron);
     pos += (dimsizes.size() + 1)*4; //header
+    
     fseek(stream, pos, SEEK_SET);
     fwrite(&sender, sizeof(Neuron), 1, stream);
 }
@@ -276,6 +278,45 @@ std::vector<std::vector<unsigned int>> getDimensions(std::string &str, const std
     }
     std::vector<unsigned int> temp;
     return getDimensions(strs, dimsizes, temp);
+}
+
+bool StringToByte(BYTE& ret, std::string &str) {
+    if(str.compare("D1") == 0) { ret |= D1; }
+    else if(str.compare("D2") == 0) { ret |= D2; }
+    else if(str.compare("D3") == 0) { ret |= D3; }
+    else if(str.compare("D4") == 0) { ret |= D4; }
+    else if(str.compare("D5") == 0) { ret |= D5; }
+    else if(str.compare("D6") == 0) { ret |= D6; }
+    else if(str.compare("D7") == 0) { ret |= D7; }
+    else if(str.compare("D8") == 0) { ret |= D8; }
+    else { return false; }
+    return true;
+}
+
+bool StringToFlag(FLAG& ret, std::string &str) {
+    if(str.compare("D1") == 0) { ret |= D1; }
+    else if(str.compare("D2") == 0) { ret |= D2; }
+    else if(str.compare("D3") == 0) { ret |= D3; }
+    else if(str.compare("D4") == 0) { ret |= D4; }
+    else if(str.compare("D5") == 0) { ret |= D5; }
+    else if(str.compare("D6") == 0) { ret |= D6; }
+    else if(str.compare("D7") == 0) { ret |= D7; }
+    else if(str.compare("D8") == 0) { ret |= D8; }
+    else { return false; }
+    return true;
+}
+
+bool StringToDirection(DIRECTION& ret, std::string &str) {
+    if(isdigit(str.at(0))) {
+        if(str.at(1) == '+') {
+            ret |= ( 1 << (str.at(0) - '1')*2);
+            return true;       
+        } else if(str.at(1) == '-') {
+            ret |= ( 1 << ((str.at(0) - '1')*2 + 1));    
+            return true;
+        }
+    }
+    return false;
 }
 
 // 1. 모든 코드 라인을 읽고 정형화
@@ -640,16 +681,69 @@ bool Mapping()
                 error = true;
                 break;
             }
-            /*
+            
             for (auto p_it = m_points.lower_bound(it->value); p_it != m_points.upper_bound(it->value); ++p_it)
 	        {
                 std::vector<unsigned int> tp = p_it->second.point;
-                
+                std::string params = p_it->first.substr(p_it->first.find_first_of('=') + 2);
+                params.erase(remove(params.begin(), params.end(), ' '), params.end());
+
                 Neuron tn = createNeuron();
+
+                std::vector<std::string> para = split(params, "/");
+                for(auto p : para) {
+                    if(p.find('(') == std::string::npos || p.find(')') == std::string::npos) { 
+                        warningMsg("'" + p + "' Argument is Empty." , it->line, ErrorType::PROCESSING);
+                        continue;
+                    }
+
+                    transform(p.begin(), p.end(),p.begin(), ::toupper);
+
+                    std::string command = p.substr(0, p.find('('));
+                    std::string arg = p.substr(p.find('(')+1);
+                    arg = arg.substr(0, arg.find(')'));
+                    std::vector<std::string> arguments = split(arg,"|");
+
+                    if(command.compare("TYPE") == 0) {
+                        for(auto a : arguments) {
+                            if(StringToByte(tn.type, a)) { continue; };
+
+                            error = true;
+                            errorMsg("'" + a + "' Invalid Argument", it->line, ErrorType::SYNTAX);
+                            break;
+                        }
+                    } else if(command.compare("SPECIFICITY") == 0) {
+                        for(auto a : arguments) {
+                            if(StringToFlag(tn.specificity, a)) { continue; };
+
+                            error = true;
+                            errorMsg("'" + a + "' Invalid Argument", it->line, ErrorType::SYNTAX);
+                            break;
+                        }
+                    } else if(command.compare("DIRECTION") == 0) {
+                        for(auto a : arguments) {
+                            if(StringToDirection(tn.direction, a)) { continue; };
+                            
+                            error = true;
+                            errorMsg("'" + a + "' Invalid Argument", it->line, ErrorType::SYNTAX);
+                            break;
+                        }
+                    } else if(command.compare("THRESHOLD") == 0) {
+                        tn.threshold = std::stof(arguments.at(0));
+                    } else if(command.compare("WEIGHT") == 0) {
+                        tn.weight = std::stof(arguments.at(0));
+                    } else if(command.compare("TARGET") == 0) {
+
+                    } else if(command.compare("OUT") == 0) {
+
+                    }
+
+                    if(error) { break; }
+                }
+                if(error) { break; }
                 writeDataStruct(stream,tp,m_dimsizes, tn);
-		        //std::cout << "[" << p_it->first << "]" << std::endl;
 	        }
-            */
+            if(error) { break; }
         }
 
         if(stream) { fclose(stream); }
