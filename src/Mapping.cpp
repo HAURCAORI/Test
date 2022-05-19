@@ -91,7 +91,7 @@ inline void warningMsg(std::string &&e, int line = 0, ErrorType type = ErrorType
 
 Neuron createNeuron()
 {
-    Neuron temp = {0x01, 0xff, 0x00, 0.0f, 0.0f, random_threshold(), random_weight()};
+    Neuron temp = {0x00, 0xff, 0x00, 0.0f, 0.0f, random_threshold(), random_weight()};
     return temp;
 }
 Neuron createNeuron(DIRECTION direction)
@@ -319,6 +319,53 @@ bool StringToDirection(DIRECTION& ret, std::string &str) {
     return false;
 }
 
+bool CommandProcess(std::string& p, Neuron& tn)
+{
+    bool error = false;
+    if(p.find('(') == std::string::npos || p.find(')') == std::string::npos) { 
+        error = true;
+    }
+
+    std::string command = p.substr(0, p.find('('));
+    transform(command.begin(), command.end(),command.begin(), ::toupper);
+    std::string arg = p.substr(p.find('(')+1);
+    arg = arg.substr(0, arg.find(')'));
+    transform(arg.begin(), arg.end(),arg.begin(), ::toupper);
+    std::vector<std::string> arguments = split(arg,"|");
+    if (command.compare("TYPE") == 0) {
+        for (auto a : arguments) {
+            if (StringToByte(tn.type, a)){ continue; };
+            error = true;
+            break;
+        }
+    }
+    else if (command.compare("SPECIFICITY") == 0) {
+        for (auto a : arguments) {
+            if (StringToFlag(tn.specificity, a)){ continue; };
+            error = true;
+            break;
+        }
+    }
+    else if (command.compare("DIRECTION") == 0) {
+        for (auto a : arguments) {
+            if (StringToDirection(tn.direction, a)) { continue; };
+            error = true;
+            break;
+        }
+    }
+    else if (command.compare("THRESHOLD") == 0){
+        tn.threshold = std::stof(arguments.at(0));
+    }
+    else if (command.compare("WEIGHT") == 0) {
+        tn.weight = std::stof(arguments.at(0));
+    }
+    else if (command.compare("TARGET") == 0){
+    }
+    else if (command.compare("OUT") == 0){
+    }
+    return error;
+}
+
 // 1. 모든 코드 라인을 읽고 정형화
 // 2. 정형화된 코드 중 preprocessing 진행
 // 3. 정형화된 코드 중 dataprocessing을  링킹을 위해 목록화
@@ -496,6 +543,7 @@ bool Mapping()
     bool valid = true;
     unsigned int m_dimension = 0;
     std::vector<unsigned int> m_dimsizes;
+    Neuron default_neuron = createNeuron();
     m_dimsizes.reserve(5);
     {
         #ifdef TIME_ESTIMATE
@@ -525,6 +573,21 @@ bool Mapping()
 
             case Command::DEFAULT:
             {
+                it->value.erase(remove(it->value.begin(), it->value.end(), ' '), it->value.end());
+                std::vector<std::string> para = split(it->value, "/");
+                for(auto p : para) {
+                    try {      
+                        if(CommandProcess(p,default_neuron)) {
+                            error = true;
+                            errorMsg("'" + p + "' Invalid Argument", it->line, ErrorType::PREPROCESSING);
+                            break;
+                        }
+                    } catch(std::exception e) {
+                        error = true;
+                        errorMsg("'" + p +"' Invalid Argument.", it->line, ErrorType::PREPROCESSING);
+                        break;
+                    }
+                }
             }
             break;
 
@@ -583,8 +646,6 @@ bool Mapping()
 
     // 3. linking
     std::multimap<std::string,MappingPoint> m_points;
-    //std::unordered_map<MappingPoint, std::string, MappingPoint::HashFunction> m_points;
-    //std::unordered_set<MappingPoint, MappingPoint::HashFunction> m_points;
     {
         #ifdef TIME_ESTIMATE
         BEGIN_CHRONO
@@ -620,8 +681,6 @@ bool Mapping()
 
             for (auto t : getDimensions(sdim, m_dimsizes))
             {
-                //std::cout<< "point" << current_page << " / " << it->line << std::endl; printVector(t);
-
                 MappingPoint tmp({stoi(current_page), t});
                 m_points.insert(std::make_pair(it->value,tmp));
             }
@@ -687,63 +746,29 @@ bool Mapping()
                 std::vector<unsigned int> tp = p_it->second.point;
                 std::string params = p_it->first.substr(p_it->first.find_first_of('=') + 2);
                 params.erase(remove(params.begin(), params.end(), ' '), params.end());
+                
+                Neuron tn;
+                if(p_it->first.find("=>")) { 
+                    tn = default_neuron;
+                } else if(p_it->first.find("==")) {
+                    tn = createNeuron();
+                }
 
-                Neuron tn = createNeuron();
-
-                std::vector<std::string> para = split(params, "/");
-                for(auto p : para) {
-                    if(p.find('(') == std::string::npos || p.find(')') == std::string::npos) { 
-                        warningMsg("'" + p + "' Argument is Empty." , it->line, ErrorType::PROCESSING);
-                        continue;
-                    }
-
-                    transform(p.begin(), p.end(),p.begin(), ::toupper);
-
-                    std::string command = p.substr(0, p.find('('));
-                    std::string arg = p.substr(p.find('(')+1);
-                    arg = arg.substr(0, arg.find(')'));
-                    std::vector<std::string> arguments = split(arg,"|");
-
-                    try {
-                    if(command.compare("TYPE") == 0) {
-                        for(auto a : arguments) {
-                            if(StringToByte(tn.type, a)) { continue; };
-
+                if(!params.empty()) {
+                    std::vector<std::string> para = split(params, "/"); 
+                    for(auto p : para) {
+                        try {      
+                            if(CommandProcess(p,tn)) {
+                                error = true;
+                                errorMsg("'" + p + "' Invalid Argument", it->line, ErrorType::SYNTAX);
+                                break;
+                            }
+                        } catch(std::exception e) {
                             error = true;
-                            errorMsg("'" + p + "' Invalid Argument", it->line, ErrorType::SYNTAX);
+                            errorMsg("'" + p +"' Invalid Argument.", it->line, ErrorType::SYNTAX);
                             break;
                         }
-                    } else if(command.compare("SPECIFICITY") == 0) {
-                        for(auto a : arguments) {
-                            if(StringToFlag(tn.specificity, a)) { continue; };
-
-                            error = true;
-                            errorMsg("'" + p + "' Invalid Argument", it->line, ErrorType::SYNTAX);
-                            break;
-                        }
-                    } else if(command.compare("DIRECTION") == 0) {
-                        for(auto a : arguments) {
-                            if(StringToDirection(tn.direction, a)) { continue; };
-                            
-                            error = true;
-                            errorMsg("'" + p + "' Invalid Argument.", it->line, ErrorType::SYNTAX);
-                            break;
-                        }
-                    } else if(command.compare("THRESHOLD") == 0) {
-                        tn.threshold = std::stof(arguments.at(0));
-                    } else if(command.compare("WEIGHT") == 0) {
-                        tn.weight = std::stof(arguments.at(0));
-                    } else if(command.compare("TARGET") == 0) {
-
-                    } else if(command.compare("OUT") == 0) {
-
                     }
-                    } catch(std::exception e) {
-                        error = true;
-                        errorMsg("'" + p +"' Invalid Argument.", it->line, ErrorType::SYNTAX);
-                    }
-
-                    if(error) { break; }
                 }
                 if(error) { break; }
                 writeDataStruct(stream,tp,m_dimsizes, tn);

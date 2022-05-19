@@ -35,9 +35,11 @@ void Load(const DataStruct* ds,Signal *signal, unsigned int i, unsigned int j, u
     if(!ds->data_area) { return; }
     if(!(i < ds->dimSizes[0] && j < ds->dimSizes[1] && k < ds->dimSizes[2])) { return; }
     Neuron* temp = (ds->data_area + i + ds->dimSizes[0] * j + ds->dimSizes[0] * ds->dimSizes[1] * k);
+    if((temp->type & 1) == 0) { return; } 
+
     
 
-    //std::this_thread::sleep_for(std::chrono::nanoseconds(3));
+    std::this_thread::sleep_for(std::chrono::nanoseconds(3));
     printf("%f task[%d][%d][%d]\r\n", m_Monitoring()->getMemoryUsage() ,i,j,k);
     
     if(m_Monitoring()->getMemoryUsage() > 0.95) { return; }
