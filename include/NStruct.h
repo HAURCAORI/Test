@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <fstream>
 #include <vector>
+#include <chrono>
 
 #define SectorDimension 3
 #define SectorSize 3
@@ -20,18 +21,20 @@
 
 #define EPSILON 0.0001
 #define MAX_SECTOR 1000000
+#define Now() std::chrono::steady_clock::now()
 
 typedef int PAGE;
 typedef unsigned char BYTE;
 typedef unsigned char BIT;
 typedef unsigned char FLAG;
 typedef unsigned char DIRECTION;
-typedef float TIMESTAMP;
+typedef std::chrono::steady_clock::time_point TIMESTAMP;
 
 struct Signal
 {
     float value;
     FLAG specificity;
+    TIMESTAMP timestamp;
 };
 
 struct Neuron

@@ -12,6 +12,9 @@
 #define secondSplitString(x) x.substr(x.find_first_of(' ') + 1)
 
 #define TIME_ESTIMATE
+
+static TIMESTAMP time_point = Now();
+
 struct MappingPoint
 {
     PAGE id;
@@ -91,22 +94,22 @@ inline void warningMsg(std::string &&e, int line = 0, ErrorType type = ErrorType
 
 Neuron createNeuron()
 {
-    Neuron temp = {0x00, 0xff, 0x00, 0.0f, 0.0f, random_threshold(), random_weight()};
+    Neuron temp = {0x00, 0x00, 0x00, time_point, 0.0f, random_threshold(), random_weight()};
     return temp;
 }
 Neuron createNeuron(DIRECTION direction)
 {
-    Neuron temp = {0x01, 0xff, direction, 0.0f, 0.0f, random_threshold(), random_weight()};
+    Neuron temp = {0x01, 0x00, direction, time_point, 0.0f, random_threshold(), random_weight()};
     return temp;
 }
 Neuron createNeuron(DIRECTION direction, float threshold)
 {
-    Neuron temp = {0x01, 0xff, direction, 0.0f, 0.0f, threshold, random_weight()};
+    Neuron temp = {0x01, 0x00, direction, time_point, 0.0f, threshold, random_weight()};
     return temp;
 }
 Neuron createNeuron(DIRECTION direction, float threshold, float weight)
 {
-    Neuron temp = {0x01, 0xff, direction, 0.0f, 0.0f, threshold, weight};
+    Neuron temp = {0x01, 0x00, direction, time_point, 0.0f, threshold, weight};
     return temp;
 }
 
