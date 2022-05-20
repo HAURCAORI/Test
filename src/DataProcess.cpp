@@ -4,7 +4,7 @@
 #include <math.h>
 
 #define MAX_QUOTIENT 5
-#define MAX_TIME_DIFFERENCE 0.1f
+#define MAX_TIME_DIFFERENCE 2000
 
 static DataIO::IOManager iom;
 DataIO::IOManager* m_IOManager() {
@@ -53,8 +53,8 @@ void Load(const DataStruct* ds, Signal *signal, unsigned int i, unsigned int j, 
     TIMESTAMP current_time = std::chrono::steady_clock::now();
     if(signal->timestamp > current_time) { return; }
     auto time_difference = std::chrono::duration_cast<std::chrono::microseconds>(current_time - temp->timestamp).count();
-    //if(time_difference > MAX_TIME_DIFFERENCE) { time_difference = MAX_TIME_DIFFERENCE; }
-
+    if(time_difference > MAX_TIME_DIFFERENCE) { time_difference = MAX_TIME_DIFFERENCE; }
+    
     temp->value -= time_difference;
     temp->value += signal->value;
     if(temp->value < temp->threshold) { return; }
@@ -76,10 +76,11 @@ void Load(const DataStruct* ds, Signal *signal, unsigned int i, unsigned int j, 
             pool.EnqueueJob(ds, signal, i + dir_i[offset], j + dir_j[offset], k + dir_k[offset]);
         } 
     }
+    
     if(quotient == 1) { return; }
     for(int iter = 1; iter < quotient; ++iter) {
         Signal nsignal = *signal;
-        //nsignal.timestamp = current_time + iter*time_difference;
+        nsignal.timestamp = current_time + std::chrono::microseconds(iter*(time_difference/quotient));
         for(int offset = 0; offset < 6; ++offset) {
             if(((temp->direction >> offset) & 1) == 1) {
                 pool.EnqueueJob(ds, &nsignal, i + dir_i[offset], j + dir_j[offset], k + dir_k[offset]);
