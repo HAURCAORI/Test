@@ -51,9 +51,19 @@ void Load(const DataStruct* ds, Signal *signal, unsigned int i, unsigned int j, 
     if((temp->type & 1) == 0) { return; } 
     if((signal->specificity & temp->specificity) == 0) { return; }
 
-
     TIMESTAMP current_time = std::chrono::steady_clock::now();
     if(signal->timestamp > current_time) { return; }
+    signal->timestamp = current_time;
+
+    if((temp->type & D8) == D8) {
+        for(int offset = 0; offset < 6; ++offset) {
+            if(((temp->direction >> offset) & 1) == 1) {
+                pool.EnqueueJob(ds, signal, i + dir_i[offset], j + dir_j[offset], k + dir_k[offset]);
+            } 
+        }
+        return;
+    }
+
     auto time_difference = std::chrono::duration_cast<std::chrono::microseconds>(current_time - temp->timestamp).count();
     if(time_difference > MAX_TIME_DIFFERENCE) { time_difference = MAX_TIME_DIFFERENCE; }
 
@@ -69,7 +79,7 @@ void Load(const DataStruct* ds, Signal *signal, unsigned int i, unsigned int j, 
 
     if(m_Monitoring()->getMemoryUsage() > 0.95) { return; }
 
-    signal->timestamp = current_time;
+    
     for(int offset = 0; offset < 6; ++offset) {
         if(((temp->direction >> offset) & 1) == 1) {
             pool.EnqueueJob(ds, signal, i + dir_i[offset], j + dir_j[offset], k + dir_k[offset]);

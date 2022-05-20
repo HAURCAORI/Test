@@ -41,7 +41,7 @@ struct Neuron
 {
     //Header
     BYTE type;
-    // 1 bit : 
+    // 1 bit : 패스
     // 2 bit : 
     // 3 bit : 
     // 4 bit : 
