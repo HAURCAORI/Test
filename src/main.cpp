@@ -6,7 +6,7 @@
 #define Point(i,j,k) (ds->data_area + i + ds->dimSizes[0] * j + ds->dimSizes[0] * ds->dimSizes[1] * k)
 
 int main(){
-    //if(!Mapping::Mapping()) { return 0; }
+    if(!Mapping::Mapping()) { return 0; }
     
     m_IOManager()->loadPage(0);
 
@@ -16,7 +16,7 @@ int main(){
 
     Signal signal = {1.0f, 0xff,std::chrono::steady_clock::now() };
     for(int i = 0; i < 1; i++) {
-        //TLoad(m_IOManager()->getDataStruct(0), &signal, 0,0,0);
+        TLoad(m_IOManager()->getDataStruct(0), &signal, 0,0,0);
         printf("num : %d\r\n", i);
     }
     

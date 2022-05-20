@@ -11,7 +11,7 @@
 #define firstSplitString(x) x.substr(1, x.find_first_of(' ') - 1)
 #define secondSplitString(x) x.substr(x.find_first_of(' ') + 1)
 
-#define TIME_ESTIMATE
+//#define TIME_ESTIMATE
 
 static TIMESTAMP time_point = Now();
 
