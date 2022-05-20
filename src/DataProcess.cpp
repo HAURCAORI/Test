@@ -73,7 +73,6 @@ void Load(const DataStruct* ds, Signal *signal, unsigned int i, unsigned int j, 
     if(temp->value < temp->threshold) { return; }
     int quotient = (int)(temp->value / temp->threshold);
     if(quotient > MAX_QUOTIENT) { quotient = MAX_QUOTIENT; }
-    
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
     printf("%f task[%d][%d][%d]\r\n", m_Monitoring()->getMemoryUsage() ,i,j,k);
 
@@ -85,7 +84,7 @@ void Load(const DataStruct* ds, Signal *signal, unsigned int i, unsigned int j, 
             pool.EnqueueJob(ds, signal, i + dir_i[offset], j + dir_j[offset], k + dir_k[offset]);
         } 
     }
-
+    return;
     if(quotient == 1) { return; }
     for(int iter = 1; iter < quotient; ++iter) {
         Signal nsignal = *signal;

@@ -388,6 +388,7 @@ enum class Command
     DIMENSION,
     DEFAULT,
     DEFINE,
+    DEFINE_DATA,
     FUNCTION,
     //dataprocessing
     PAGE,
@@ -395,7 +396,7 @@ enum class Command
 };
 
 static std::unordered_map<std::string, Command> const command_table = {
-    cmap(DIMENSION), cmap(DEFAULT), cmap(DEFINE), cmap(FUNCTION), {"PAGE", Command::PAGE}, cmap(DATA)};
+    cmap(DIMENSION), cmap(DEFAULT), cmap(DEFINE), cmap(DEFINE_DATA), cmap(FUNCTION), {"PAGE", Command::PAGE}, cmap(DATA)};
 Command matchingCommand(std::string str)
 {
     std::transform(str.begin(), str.end(), str.begin(), ::toupper);
@@ -445,7 +446,7 @@ bool Mapping()
     std::ifstream file(address);
 
     std::vector<codeLine> m_cl;
-
+    std::unordered_map<std::string, Neuron> m_nu;
     bool error = false;
 
     // 1. 코드 정형화
@@ -598,6 +599,31 @@ bool Mapping()
             {
             }
             break;
+            
+            case Command::DEFINE_DATA:
+            {
+                std::string name = it->value.substr(0,it->value.find(' '));
+                std::string command = secondSplitString(it->value);
+                Neuron tn = createNeuron();
+                command.erase(remove(command.begin(), command.end(), ' '), command.end());
+
+                std::vector<std::string> para = split(command, "/");
+                for(auto p : para) {
+                    try {      
+                        if(CommandProcess(p,tn)) {
+                            error = true;
+                            errorMsg("'" + p + "' Invalid Argument", it->line, ErrorType::PREPROCESSING);
+                            break;
+                        }
+                    } catch(std::exception e) {
+                        error = true;
+                        errorMsg("'" + p +"' Invalid Argument.", it->line, ErrorType::PREPROCESSING);
+                        break;
+                    }
+                }
+                m_nu.insert(std::make_pair(name,tn));
+            }
+            break;
 
             case Command::FUNCTION:
             {
@@ -676,7 +702,7 @@ bool Mapping()
             }
             if (it->value.find("=>") == std::string::npos && it->value.find("==") == std::string::npos)
             {
-                warningMsg("'" + it->value + "' Not Defined Data.", it->line, ErrorType::PROCESSING);
+                warningMsg("'" + it->value + "' Data Must Defined Using '=>' or '=='.", it->line, ErrorType::PROCESSING);
                 it = m_cl.erase(it);
                 continue;
             }
@@ -751,14 +777,25 @@ bool Mapping()
                 params.erase(remove(params.begin(), params.end(), ' '), params.end());
                 
                 Neuron tn;
-                if(p_it->first.find("=>")) { 
+                
+                if(p_it->first.find("=>") != std::string::npos) { 
                     tn = default_neuron;
-                } else if(p_it->first.find("==")) {
+                } else if(p_it->first.find("==") != std::string::npos) {
                     tn = createNeuron();
                 }
+                
 
                 if(!params.empty()) {
-                    std::vector<std::string> para = split(params, "/"); 
+                    std::cout << params << std::endl;
+                    std::vector<std::string> para = split(params, "/");
+
+                    auto dfn = m_nu.find(para.at(0));
+                    if (dfn != m_nu.end()) {
+                        tn = dfn->second;
+                        para.erase(para.begin());
+                    }
+                    
+                    
                     for(auto p : para) {
                         try {      
                             if(CommandProcess(p,tn)) {
