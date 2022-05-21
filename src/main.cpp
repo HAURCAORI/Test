@@ -15,9 +15,8 @@ int main(){
     //cout << "page : " << temp->value << endl;
 
     Signal signal = {1.0f, 0xff,std::chrono::steady_clock::now() };
-    for(int i = 0; i < 1; i++) {
-        TLoad(m_IOManager()->getDataStruct(0), &signal, 0,0,0);
-        printf("num : %d\r\n", i);
+    for(int i = 0; i < 2; i++) {
+        TLoad(m_IOManager()->getDataStruct(0), &signal,nullptr, 0,0,0);
     }
     
 

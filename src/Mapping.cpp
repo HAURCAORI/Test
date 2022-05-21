@@ -786,7 +786,6 @@ bool Mapping()
                 
 
                 if(!params.empty()) {
-                    std::cout << params << std::endl;
                     std::vector<std::string> para = split(params, "/");
 
                     auto dfn = m_nu.find(para.at(0));

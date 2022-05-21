@@ -42,7 +42,7 @@ struct Neuron
     //Header
     BYTE type;
     // 1 bit : 패스
-    // 2 bit : 
+    // 2 bit : 억제성
     // 3 bit : 
     // 4 bit : 
     // 5 bit :
@@ -56,6 +56,7 @@ struct Neuron
     //Value
     float threshold;
     float weight;
+    Neuron* prev;
 };
 
 struct FileStruct {

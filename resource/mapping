@@ -1,5 +1,5 @@
 #DIMENSION {10,10,10}
-#DEFAULT type(d1) / specificity(d1) / direction(1+)
+#DEFAULT type(d1) / specificity(d1) / direction(1+) / weight(0.5)
 #DEFINE_DATA Back type(d1) / specificity(d1) / direction(1-)
 #DEFINE UPDOWN 1+|1-
 
