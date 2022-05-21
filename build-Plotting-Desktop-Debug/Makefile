@@ -14,7 +14,7 @@ CC            = gcc
 CXX           = g++
 DEFINES       = -DQT_DEPRECATED_WARNINGS -DQT_QML_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -g -Wall -W -D_REENTRANT -fPIC $(DEFINES)
-CXXFLAGS      = -pipe -g -Wall -W -D_REENTRANT -fPIC $(DEFINES)
+CXXFLAGS      = -pipe -mavx2 -g -Wall -W -D_REENTRANT -fPIC $(DEFINES)
 INCPATH       = -I../Plotting -I. -I../Plotting/library/Simd/src -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -I. -isystem /usr/include/libdrm -I. -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++
 QMAKE         = /usr/lib/qt5/bin/qmake
 DEL_FILE      = rm -f
@@ -35,10 +35,10 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = Plotting1.0.0
-DISTDIR = /tmp/guest-s4qb42/TEST/build-Plotting-Desktop-Debug/.tmp/Plotting1.0.0
+DISTDIR = /tmp/guest-xzrnav/TEST/build-Plotting-Desktop-Debug/.tmp/Plotting1.0.0
 LINK          = g++
 LFLAGS        = 
-LIBS          = $(SUBLIBS) -L/tmp/guest-s4qb42/TEST/Plotting/library/Simd/ -lSimd -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread 
+LIBS          = $(SUBLIBS) -L/tmp/guest-xzrnav/TEST/Plotting/library/Simd/ -lSimd -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread 
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -51,9 +51,13 @@ OBJECTS_DIR   = ./
 ####### Files
 
 SOURCES       = ../Plotting/main.cpp \
-		../Plotting/mainwindow.cpp moc_mainwindow.cpp
+		../Plotting/mainwindow.cpp \
+		../Plotting/drawing.cpp \
+		../Plotting/rtplot.cpp moc_mainwindow.cpp
 OBJECTS       = main.o \
 		mainwindow.o \
+		drawing.o \
+		rtplot.o \
 		moc_mainwindow.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
@@ -129,8 +133,12 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/exceptions.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
-		../Plotting/Plotting.pro ../Plotting/mainwindow.h ../Plotting/main.cpp \
-		../Plotting/mainwindow.cpp
+		../Plotting/Plotting.pro ../Plotting/mainwindow.h \
+		../Plotting/drawing.h \
+		../Plotting/rtplot.h ../Plotting/main.cpp \
+		../Plotting/mainwindow.cpp \
+		../Plotting/drawing.cpp \
+		../Plotting/rtplot.cpp
 QMAKE_TARGET  = Plotting
 DESTDIR       = 
 TARGET        = Plotting
@@ -139,7 +147,7 @@ TARGET        = Plotting
 first: all
 ####### Build rules
 
-$(TARGET): /tmp/guest-s4qb42/TEST/Plotting/library/Simd/libSimd.a ui_mainwindow.h $(OBJECTS)  
+$(TARGET): /tmp/guest-xzrnav/TEST/Plotting/library/Simd/libSimd.a ui_mainwindow.h $(OBJECTS)  
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
 
 Makefile: ../Plotting/Plotting.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++/qmake.conf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
@@ -314,8 +322,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents ../Plotting/mainwindow.h $(DISTDIR)/
-	$(COPY_FILE) --parents ../Plotting/main.cpp ../Plotting/mainwindow.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../Plotting/mainwindow.h ../Plotting/drawing.h ../Plotting/rtplot.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../Plotting/main.cpp ../Plotting/mainwindow.cpp ../Plotting/drawing.cpp ../Plotting/rtplot.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../Plotting/mainwindow.ui $(DISTDIR)/
 
 
@@ -346,15 +354,27 @@ compiler_moc_predefs_make_all: moc_predefs.h
 compiler_moc_predefs_clean:
 	-$(DEL_FILE) moc_predefs.h
 moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
-	g++ -pipe -g -Wall -W -dM -E -o moc_predefs.h /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
+	g++ -pipe -mavx2 -g -Wall -W -dM -E -o moc_predefs.h /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 
 compiler_moc_header_make_all: moc_mainwindow.cpp
 compiler_moc_header_clean:
 	-$(DEL_FILE) moc_mainwindow.cpp
-moc_mainwindow.cpp: ../Plotting/mainwindow.h \
+moc_mainwindow.cpp: ../Plotting/drawing.h \
+		../Plotting/library/Simd/src/Simd/SimdLib.hpp \
+		../Plotting/library/Simd/src/Simd/SimdView.hpp \
+		../Plotting/library/Simd/src/Simd/SimdRectangle.hpp \
+		../Plotting/library/Simd/src/Simd/SimdPoint.hpp \
+		../Plotting/library/Simd/src/Simd/SimdLib.h \
+		../Plotting/library/Simd/src/Simd/SimdConfig.h \
+		../Plotting/library/Simd/src/Simd/SimdAllocator.hpp \
+		../Plotting/library/Simd/src/Simd/SimdPixel.hpp \
+		../Plotting/library/Simd/src/Simd/SimdPyramid.hpp \
+		../Plotting/library/Simd/src/Simd/SimdFont.hpp \
+		../Plotting/library/Simd/src/Simd/SimdDrawing.hpp \
+		../Plotting/mainwindow.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/tmp/guest-s4qb42/TEST/Plotting -I/tmp/guest-s4qb42/TEST/Plotting/library/Simd/src -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../Plotting/mainwindow.h -o moc_mainwindow.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/tmp/guest-xzrnav/TEST/Plotting -I/tmp/guest-xzrnav/TEST/Plotting/library/Simd/src -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../Plotting/mainwindow.h -o moc_mainwindow.cpp
 
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
@@ -376,6 +396,7 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean compiler_ui
 ####### Compile
 
 main.o: ../Plotting/main.cpp ../Plotting/mainwindow.h \
+		../Plotting/drawing.h \
 		../Plotting/library/Simd/src/Simd/SimdLib.hpp \
 		../Plotting/library/Simd/src/Simd/SimdView.hpp \
 		../Plotting/library/Simd/src/Simd/SimdRectangle.hpp \
@@ -384,12 +405,56 @@ main.o: ../Plotting/main.cpp ../Plotting/mainwindow.h \
 		../Plotting/library/Simd/src/Simd/SimdConfig.h \
 		../Plotting/library/Simd/src/Simd/SimdAllocator.hpp \
 		../Plotting/library/Simd/src/Simd/SimdPixel.hpp \
-		../Plotting/library/Simd/src/Simd/SimdPyramid.hpp
+		../Plotting/library/Simd/src/Simd/SimdPyramid.hpp \
+		../Plotting/library/Simd/src/Simd/SimdFont.hpp \
+		../Plotting/library/Simd/src/Simd/SimdDrawing.hpp \
+		../Plotting/rtplot.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o ../Plotting/main.cpp
 
 mainwindow.o: ../Plotting/mainwindow.cpp ../Plotting/mainwindow.h \
+		../Plotting/drawing.h \
+		../Plotting/library/Simd/src/Simd/SimdLib.hpp \
+		../Plotting/library/Simd/src/Simd/SimdView.hpp \
+		../Plotting/library/Simd/src/Simd/SimdRectangle.hpp \
+		../Plotting/library/Simd/src/Simd/SimdPoint.hpp \
+		../Plotting/library/Simd/src/Simd/SimdLib.h \
+		../Plotting/library/Simd/src/Simd/SimdConfig.h \
+		../Plotting/library/Simd/src/Simd/SimdAllocator.hpp \
+		../Plotting/library/Simd/src/Simd/SimdPixel.hpp \
+		../Plotting/library/Simd/src/Simd/SimdPyramid.hpp \
+		../Plotting/library/Simd/src/Simd/SimdFont.hpp \
+		../Plotting/library/Simd/src/Simd/SimdDrawing.hpp \
 		ui_mainwindow.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o ../Plotting/mainwindow.cpp
+
+drawing.o: ../Plotting/drawing.cpp ../Plotting/drawing.h \
+		../Plotting/library/Simd/src/Simd/SimdLib.hpp \
+		../Plotting/library/Simd/src/Simd/SimdView.hpp \
+		../Plotting/library/Simd/src/Simd/SimdRectangle.hpp \
+		../Plotting/library/Simd/src/Simd/SimdPoint.hpp \
+		../Plotting/library/Simd/src/Simd/SimdLib.h \
+		../Plotting/library/Simd/src/Simd/SimdConfig.h \
+		../Plotting/library/Simd/src/Simd/SimdAllocator.hpp \
+		../Plotting/library/Simd/src/Simd/SimdPixel.hpp \
+		../Plotting/library/Simd/src/Simd/SimdPyramid.hpp \
+		../Plotting/library/Simd/src/Simd/SimdFont.hpp \
+		../Plotting/library/Simd/src/Simd/SimdDrawing.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o drawing.o ../Plotting/drawing.cpp
+
+rtplot.o: ../Plotting/rtplot.cpp ../Plotting/rtplot.h \
+		../Plotting/drawing.h \
+		../Plotting/library/Simd/src/Simd/SimdLib.hpp \
+		../Plotting/library/Simd/src/Simd/SimdView.hpp \
+		../Plotting/library/Simd/src/Simd/SimdRectangle.hpp \
+		../Plotting/library/Simd/src/Simd/SimdPoint.hpp \
+		../Plotting/library/Simd/src/Simd/SimdLib.h \
+		../Plotting/library/Simd/src/Simd/SimdConfig.h \
+		../Plotting/library/Simd/src/Simd/SimdAllocator.hpp \
+		../Plotting/library/Simd/src/Simd/SimdPixel.hpp \
+		../Plotting/library/Simd/src/Simd/SimdPyramid.hpp \
+		../Plotting/library/Simd/src/Simd/SimdFont.hpp \
+		../Plotting/library/Simd/src/Simd/SimdDrawing.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o rtplot.o ../Plotting/rtplot.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp

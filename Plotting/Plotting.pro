@@ -25,10 +25,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+    drawing.cpp \
+    rtplot.cpp
 
 HEADERS += \
-        mainwindow.h
+        mainwindow.h \
+    drawing.h \
+    rtplot.h
 
 FORMS += \
         mainwindow.ui
@@ -45,3 +49,5 @@ else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/library/Sim
 else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/library/Simd/release/Simd.lib
 else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/library/Simd/debug/Simd.lib
 else:unix:!macx: PRE_TARGETDEPS += $$PWD/library/Simd/libSimd.a
+
+QMAKE_CXXFLAGS += -mavx2
