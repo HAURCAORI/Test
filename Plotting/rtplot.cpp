@@ -70,4 +70,16 @@ void DataSet::printAll() {
         printDataByType(*it);
     }
 }
+
+
+rtplot::rtplot(size_t width, size_t height) : m_width(width), m_height(height) {
+    init();
+}
+void rtplot::init() {
+    m_plot_width = m_width * 0.8;
+    m_plot_height = m_height * 0.8;
+    m_view = View(m_width,m_height,FORMAT);
+    m_plot_view = View(m_plot_width,m_plot_height,FORMAT);
+
+}
 }

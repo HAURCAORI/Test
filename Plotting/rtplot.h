@@ -59,11 +59,15 @@ enum class DataType {
     PAIR_FLOAT_FLOAT
 };
 
-struct Data {
+class Data {
+private:
     std::string name; //범례에 표시되는 값
     DataType type;
-    void* values; //데이터 포인터
+    void* data; //데이터 포인터
+public:
+    Data(std::string name, DataType type, void* data) : name(name), type(type), data(data) {}
 };
+
 
 class DataSet {
 private:
@@ -73,12 +77,12 @@ public:
     DataSet() : name("new dataset") {}
     DataSet(std::string& name) : name(name) {}
 
-    void addData(std::string name, std::vector<INT>* data){ datas.push_back({name,DataType::SINGLE_INT, data}); }
-    void addData(std::string name, std::vector<FLOAT>* data){ datas.push_back({name,DataType::SINGLE_FLOAT, data}); }
-    void addData(std::string name, std::vector<STRING>* data){ datas.push_back({name,DataType::SINGLE_STRING, data}); }
-    void addData(std::string name, std::vector<Pair<STRING,INT>>* data){ datas.push_back({name,DataType::PAIR_STRING_INT, data}); }
-    void addData(std::string name, std::vector<Pair<STRING,FLOAT>>* data){ datas.push_back({name,DataType::PAIR_STRING_FLOAT, data}); }
-    void addData(std::string name, std::vector<Pair<FLOAT,FLOAT>>* data){ datas.push_back({name,DataType::PAIR_FLOAT_FLOAT, data}); }
+    void addData(std::string name, std::vector<INT>* data){ datas.push_back(Data(name,DataType::SINGLE_INT, data)); }
+    void addData(std::string name, std::vector<FLOAT>* data){ datas.push_back(Data(name,DataType::SINGLE_FLOAT, data)); }
+    void addData(std::string name, std::vector<STRING>* data){ datas.push_back(Data(name,DataType::SINGLE_STRING, data)); }
+    void addData(std::string name, std::vector<Pair<STRING,INT>>* data){ datas.push_back(Data(name,DataType::PAIR_STRING_INT, data)); }
+    void addData(std::string name, std::vector<Pair<STRING,FLOAT>>* data){ datas.push_back(Data(name,DataType::PAIR_STRING_FLOAT, data)); }
+    void addData(std::string name, std::vector<Pair<FLOAT,FLOAT>>* data){ datas.push_back(Data(name,DataType::PAIR_FLOAT_FLOAT, data)); }
 
     bool deleteData(std::string name);
     bool deleteData(unsigned int index);
@@ -92,20 +96,82 @@ public:
     void printAll();
 };
 
+struct Gradation {
+    int font_size = 10;
+    bool show_gradation = true;
+    FLOAT tick;
+    FLOAT lim_min;
+    FLOAT lim_max;
+    std::string label;
+    size_t width;
+    size_t height;
+    View view_gradation;
+};
 
 class Axis {
 private:
-    FLOAT value_max;
-    FLOAT value_min;
-
-
+    Gradation x_axis;
+    Gradation y_axis;
+    DataType type;
 public:
+    Axis(DataType type);
+};
+
+struct AxisData {
+    Axis axis;
+    DataSet dataset;
+    AxisData(Axis axis, DataSet dataset) : axis(axis), dataset(dataset) {}
+};
+
+class Title {
+private:
+   bool show_title = true;
+   std::string m_title;
+
+   size_t m_width;
+   size_t m_height;
+   View m_view;
+public:
+   Title(size_t width, size_t height) : m_width(width), m_height(height), m_title("Plot") {
+       m_view = View(width,height,FORMAT);
+   }
+   Title(size_t width, size_t height, std::string title) : m_width(width), m_height(height), m_title(title) {
+       m_view = View(width,height,FORMAT);
+   }
+
+   void setTitle(std::string title) { m_title = title; }
+};
+
+class Plot {
+private:
+    size_t m_width;
+    size_t m_height;
+    View m_view;
+public:
+    Plot(size_t width, size_t height) : m_width(width), m_height(height) {
+       m_view = View(width,height,FORMAT);
+    }
 };
 
 class rtplot {
 private:
+    size_t m_width;
+    size_t m_height;
+    View m_view;
 
+
+    Title m_title;
+    AxisData m_axisdata;
+    Plot m_plot;
 public:
+    rtplot(size_t width, size_t height);
+
+    void init();
+
+    void setDataSet(DataSet dataset) {
+        m_axisdata = AxisData(Axis(DataType::PAIR_FLOAT_FLOAT), dataset);
+        init();
+    }
 
 };
 }

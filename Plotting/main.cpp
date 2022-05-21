@@ -19,19 +19,32 @@ int main(int argc, char *argv[])
     ds.addData("c", &vec3);
     ds.addData("d", &vec4);
     ds.printAll();
-/*
-    View view1(400, 300, FORMAT);
+
+    View view1(800, 600, FORMAT);
     Simd::Fill(view1,255);
     Simd::Font font(10);
     font.Draw(view1,"abc",Point(10,10),Color(0, 0, 255));
     Simd::DrawLine(view1,Point(0,0),Point(10,10),Color(255,0,0));
 
-    View view2(400, 300, FORMAT);
-    Simd::Fill(view2,100);
-    //Overlay(view1,10,10,view2);
+
+    View view2(100, 100, FORMAT);
+    Simd::FillValue(view2,100);
+    //SimdFill(view2.data,4*500,500,200,4,100);
+
+        /*
+    for(int i = 0 ; i < 500*200; i+=1)
+    {
+        view2.data[i*4] = 255;
+        view2.data[i*4+1] = 0;
+        view2.data[i*4+2] = 0;
+        view2.data[i*4+3] = 255;
+    }
+            */
+
+    Overlay(view1,100,100,view2);
 
 
     w.setImage(w.getView("view1"),&view1);
-*/
+
     return a.exec();
 }
