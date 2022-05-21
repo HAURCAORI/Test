@@ -23,7 +23,7 @@ void ThreadPool::WorkerThread() {
 
     // 해당 job 을 수행한다 :)
     job();
-    if(m_Monitoring()->getCpuUsage() > 70) {
+    if(m_Monitoring()->getCpuUsage() > 90) {
       printf("!!PAUSE!!\r\n");
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }

@@ -15,13 +15,16 @@ int main(){
     //cout << "page : " << temp->value << endl;
 
     Signal signal = {1.0f, 0xff,std::chrono::steady_clock::now() };
-    for(int i = 0; i < 2; i++) {
-        TLoad(m_IOManager()->getDataStruct(0), &signal,nullptr, 0,0,0);
+    
+    for(int i = 0; i < 5; i++) {
+        TLoad(m_IOManager()->getDataStruct(0), signal,nullptr, 0,0,0);
     }
     
+    
 
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    std::cout << "Escape" << std::endl;
+    Log();
     //m_IOManager()->unloadPage(0);
     
     
