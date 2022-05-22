@@ -19,7 +19,7 @@ QLabel* MainWindow::getView(QString id) {
     return temp[0];
 }
 
-void MainWindow::setImage(QLabel* widget, View* view) {
+void MainWindow::setImage(QLabel* widget, const View* view) {
     widget->resize(view->width, view->height);
     int bytes_per_line = view->width * CHANNEL;
     QImage image( view->data, view->width, view->height, bytes_per_line, FORMATQT );

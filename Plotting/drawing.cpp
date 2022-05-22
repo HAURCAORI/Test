@@ -27,7 +27,14 @@ void Overlay(uint8_t * src, size_t stride, size_t src_width, size_t src_height, 
         }
     }
 }
-
+}
+void setPixel(uint8_t*& src, const Color color) {
+   *(src) = color.red;
+   *(src+1) = color.green;
+   *(src+2) = color.blue;
+#if CHANNEL==4
+   *(src+3) = 255;
+#endif
 }
 
 }

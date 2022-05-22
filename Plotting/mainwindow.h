@@ -19,7 +19,7 @@ public:
     ~MainWindow();
 
     QLabel* getView(QString id);
-    void setImage(QLabel* widget, View* view);
+    void setImage(QLabel* widget, const View* view);
 
 private:
     Ui::MainWindow *ui;
