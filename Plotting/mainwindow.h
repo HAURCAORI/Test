@@ -20,6 +20,13 @@ public:
 
     QLabel* getView(QString id);
     void setImage(QLabel* widget, const View* view);
+    void setEvent(QLabel* target);
+
+private slots:
+    void Mouse_current_pos();
+    void Mouse_Down();
+    void Mouse_Up();
+    void Mouse_left();
 
 private:
     Ui::MainWindow *ui;

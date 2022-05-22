@@ -27,12 +27,14 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     drawing.cpp \
-    rtplot.cpp
+    rtplot.cpp \
+    qplot.cpp
 
 HEADERS += \
         mainwindow.h \
     drawing.h \
-    rtplot.h
+    rtplot.h \
+    qplot.h
 
 FORMS += \
         mainwindow.ui

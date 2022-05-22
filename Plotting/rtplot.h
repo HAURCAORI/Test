@@ -103,11 +103,11 @@ public:
 
 struct Gradation {
     Simd::Font font = Simd::Font(10);
-    bool show_gradation = true;
-    FLOAT min_value = -10.9;
+    bool show = true;
+    FLOAT min_value = -10;
     FLOAT max_value = 10;
     FLOAT major_interval = 2;
-    FLOAT minor_interval = 2;
+    FLOAT minor_interval = 1;
     FLOAT major_tick = (max_value-min_value)/major_interval;
     FLOAT minor_tick = (max_value-min_value)/minor_interval;
     int digit = 3;
@@ -158,6 +158,7 @@ protected:
    bool title_changed = true;
    bool show_title = true;
    Size m_title_size;
+   Simd::Font m_title_font = Simd::Font(20);
    Location m_title_location;
    std::string m_title;
    View m_title_view;
@@ -209,6 +210,7 @@ private:
     DataSet m_dataset;
 
     Color color_axis = Color(0,0,0);
+    Color color_axis_minor = Color(150,150,150);
     Color color_text = Color(0,0,0);
     Color color_grid = Color(200,200,200);
     //Location calLocation() { return Location(0,0); }

@@ -14,13 +14,29 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QLabel" name="view1">
+   <widget class="qplot" name="view1">
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>20</y>
+      <y>40</y>
       <width>211</width>
       <height>101</height>
+     </rect>
+    </property>
+    <property name="mouseTracking">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="qplot" name="label">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>10</y>
+      <width>55</width>
+      <height>18</height>
      </rect>
     </property>
     <property name="text">
@@ -49,6 +65,13 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>qplot</class>
+   <extends>QLabel</extends>
+   <header>qplot.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
