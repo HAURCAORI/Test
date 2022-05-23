@@ -15,8 +15,8 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-QLabel* MainWindow::getView(QString id) {
-    QList<QLabel*> temp = this->findChildren<QLabel*>(id);
+qplot* MainWindow::getViewWidget(QString id) {
+    QList<qplot*> temp = this->findChildren<qplot*>(id);
     if(temp.empty()) { return nullptr; }
     return temp[0];
 }
@@ -30,15 +30,9 @@ void MainWindow::setImage(QLabel* widget, const View* view) {
 
 void MainWindow::setEvent(QLabel* target) {
     if(!target) return;
-    connect(target, SIGNAL(Mouse_Pos()),this,SLOT(Mouse_current_pos()));
     connect(target, SIGNAL(Mouse_Down()),this,SLOT(Mouse_Down()));
     connect(target, SIGNAL(Mouse_Up()),this,SLOT(Mouse_Up()));
     connect(target, SIGNAL(Mouse_Left()),this,SLOT(Mouse_left()));
-}
-
-void MainWindow::Mouse_current_pos()
-{
-    std::cout<<ui->view1->x << "," << ui->view1->y << std::endl;
 }
 
 void MainWindow::Mouse_Down()

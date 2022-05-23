@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>664</width>
-    <height>506</height>
+    <width>871</width>
+    <height>513</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,27 +17,20 @@
    <widget class="qplot" name="view1">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>40</y>
-      <width>211</width>
-      <height>101</height>
+      <x>60</x>
+      <y>10</y>
+      <width>500</width>
+      <height>400</height>
      </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
     </property>
     <property name="mouseTracking">
      <bool>true</bool>
-    </property>
-    <property name="text">
-     <string>TextLabel</string>
-    </property>
-   </widget>
-   <widget class="qplot" name="label">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>10</y>
-      <width>55</width>
-      <height>18</height>
-     </rect>
     </property>
     <property name="text">
      <string>TextLabel</string>
@@ -49,7 +42,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>664</width>
+     <width>871</width>
      <height>23</height>
     </rect>
    </property>

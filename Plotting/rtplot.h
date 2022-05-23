@@ -102,7 +102,6 @@ public:
 };
 
 struct Gradation {
-    Simd::Font font = Simd::Font(10);
     bool show = true;
     FLOAT min_value = -10;
     FLOAT max_value = 10;
@@ -114,46 +113,78 @@ struct Gradation {
     std::string label;
     Size size;
     Location location;
-    View view_gradation;
     size_t margin = 20;// 좌우 마진
 };
 
 class Axis {
 private:
-    void* view_x_data;
-    void* view_y_data;
+    void* view_x_data = nullptr;
+    void* view_y_data = nullptr;
 protected:
+    Simd::Font font = Simd::Font(10);
     bool axis_changed = true;
     Gradation x_axis;
     Gradation y_axis;
-    DataType type;
+    View view_x_axis;
+    View view_y_axis;
     inline Location origin_x_axis(size_t x, size_t y) {
         return Location(x + x_axis.margin, y);
     }
     inline Location origin_y_axis(size_t x, size_t y) {
-        return Location(y_axis.size.width - x - 1, y_axis.size.height - y -1 + y_axis.margin);
+        return Location(y_axis.size.width - x - 1, y_axis.size.height - y -1 - y_axis.margin);
     }
 public:
+    Axis() {}
+    Axis(const Axis& rhs) : x_axis(rhs.x_axis), y_axis(rhs.y_axis) {
+        if(view_x_data) SimdFree(view_x_data);
+        if(view_y_data) SimdFree(view_y_data);
+        view_x_data = SimdAllocate(x_axis.size.width*x_axis.size.height*FORMAT,16);
+        view_x_axis = View(x_axis.size.width,x_axis.size.height,x_axis.size.width*FORMAT,FORMAT,view_x_data);
+        view_y_data = SimdAllocate(y_axis.size.width*y_axis.size.height*FORMAT,16);
+        view_y_axis = View(y_axis.size.width,y_axis.size.height,y_axis.size.width*FORMAT,FORMAT,view_y_data);
+    }
+    Axis& operator=(const Axis& rhs) {
+        x_axis = rhs.x_axis;
+        y_axis = rhs.y_axis;
+        if(view_x_data) SimdFree(view_x_data);
+        if(view_y_data) SimdFree(view_y_data);
+        view_x_data = SimdAllocate(x_axis.size.width*x_axis.size.height*FORMAT,16);
+        view_x_axis = View(x_axis.size.width,x_axis.size.height,x_axis.size.width*FORMAT,FORMAT,view_x_data);
+        view_y_data = SimdAllocate(y_axis.size.width*y_axis.size.height*FORMAT,16);
+        view_y_axis = View(y_axis.size.width,y_axis.size.height,y_axis.size.width*FORMAT,FORMAT,view_y_data);
+        return *this;
+    }
+    Axis(Axis&& rhs) noexcept : x_axis(rhs.x_axis), y_axis(rhs.y_axis) {
+        if(view_x_data) SimdFree(view_x_data);
+        if(view_y_data) SimdFree(view_y_data);
+        view_x_data = rhs.view_x_data;
+        view_x_axis = std::move(rhs.view_x_axis);
+        view_y_data = rhs.view_y_data;
+        view_y_axis = std::move(rhs.view_y_axis);
+        rhs.view_x_data = nullptr;
+        rhs.view_y_data = nullptr;
+    }
+
     Axis(Size plot_size, Location plot_location) {
-        x_axis.size = Size(plot_size.width, plot_size.height*0.15);
-        y_axis.size = Size(plot_size.width*0.15,plot_size.height);
+        x_axis.size = Size(plot_size.width+x_axis.margin*2, plot_size.height*0.15);
+        y_axis.size = Size(plot_size.width*0.15,plot_size.height+y_axis.margin*2);
         x_axis.location = Location(plot_location.x - x_axis.margin, plot_location.y + plot_size.height);
         y_axis.location = Location(plot_location.x - y_axis.size.width, plot_location.y - y_axis.margin);
 
-        view_x_data = SimdAllocate((x_axis.size.width+x_axis.margin*2)*x_axis.size.height*FORMAT,16);
-        x_axis.view_gradation = View((x_axis.size.width+x_axis.margin*2),x_axis.size.height,(x_axis.size.width+x_axis.margin*2)*FORMAT,FORMAT,view_x_data);
-        view_y_data = SimdAllocate(y_axis.size.width*(y_axis.size.height+y_axis.margin*2)*FORMAT,16);
-        y_axis.view_gradation = View(y_axis.size.width,y_axis.size.height+y_axis.margin*2,y_axis.size.width*FORMAT,FORMAT,view_y_data);
+        view_x_data = SimdAllocate(x_axis.size.width*x_axis.size.height*FORMAT,16);
+        view_x_axis = View(x_axis.size.width,x_axis.size.height,x_axis.size.width*FORMAT,FORMAT,view_x_data);
+        view_y_data = SimdAllocate(y_axis.size.width*y_axis.size.height*FORMAT,16);
+        view_y_axis = View(y_axis.size.width,y_axis.size.height,y_axis.size.width*FORMAT,FORMAT,view_y_data);
     }
     ~Axis() {
-        SimdFree(view_x_data);
-        SimdFree(view_y_data);
+        if(view_x_data) SimdFree(view_x_data);
+        if(view_y_data) SimdFree(view_y_data);
     }
 };
 
 class Title {
 private:
-   void* m_title_view_data;
+   void* m_title_view_data = nullptr;
 protected:
    bool title_changed = true;
    bool show_title = true;
@@ -163,6 +194,28 @@ protected:
    std::string m_title;
    View m_title_view;
 public:
+   Title() {}
+   Title(const Title& rhs) : m_title_size(rhs.m_title_size), m_title_location(rhs.m_title_location), m_title(rhs.m_title) {
+       if(m_title_view_data) { SimdFree(m_title_view_data); }
+       m_title_view_data = SimdAllocate(m_title_size.width*m_title_size.height*FORMAT,16);
+       m_title_view = View(m_title_size.width,m_title_size.height,m_title_size.width*FORMAT,FORMAT,m_title_view_data);
+   }
+   Title& operator=(const Title& rhs) {
+       m_title_size = rhs.m_title_size;
+       m_title_location = rhs.m_title_location;
+       m_title = rhs.m_title;
+       if(m_title_view_data) { SimdFree(m_title_view_data); }
+       m_title_view_data = SimdAllocate(m_title_size.width*m_title_size.height*FORMAT,16);
+       m_title_view = View(m_title_size.width,m_title_size.height,m_title_size.width*FORMAT,FORMAT,m_title_view_data);
+       return *this;
+   }
+   Title(Title&& rhs) noexcept : m_title_size(rhs.m_title_size), m_title_location(rhs.m_title_location), m_title(rhs.m_title) {
+       if(m_title_view_data) { SimdFree(m_title_view_data); }
+       m_title_view_data = rhs.m_title_view_data;
+       m_title_view = std::move(rhs.m_title_view);
+       rhs.m_title_view_data = nullptr;
+   }
+
    Title(Size size, Location location) : m_title_size(size), m_title_location(location), m_title("Plot") {
        m_title_view_data = SimdAllocate(m_title_size.width*m_title_size.height*FORMAT,16);
        m_title_view = View(m_title_size.width,m_title_size.height,m_title_size.width*FORMAT,FORMAT,m_title_view_data);
@@ -180,7 +233,7 @@ public:
 
 class Plot {
 private:
-    void* m_plot_view_data;
+    void* m_plot_view_data = nullptr;
 protected:
     bool plot_changed = true;
     bool show_grid = true;
@@ -192,6 +245,26 @@ protected:
         return Location(x, m_plot_size.height - y -1);
     }
 public:
+    Plot() {}
+    Plot(const Plot& rhs) : m_plot_size(rhs.m_plot_size), m_plot_location(rhs.m_plot_location) {
+        if(m_plot_view_data) { SimdFree(m_plot_view_data); }
+        m_plot_view_data = SimdAllocate(m_plot_size.width*m_plot_size.height*FORMAT,16);
+        m_plot_view = View(m_plot_size.width,m_plot_size.height,m_plot_size.width*FORMAT,FORMAT,m_plot_view_data);
+    }
+    Plot& operator=(const Plot& rhs) {
+        m_plot_size = rhs.m_plot_size;
+        m_plot_location = rhs.m_plot_location;
+        if(m_plot_view_data) { SimdFree(m_plot_view_data); }
+        m_plot_view_data = SimdAllocate(m_plot_size.width*m_plot_size.height*FORMAT,16);
+        m_plot_view = View(m_plot_size.width,m_plot_size.height,m_plot_size.width*FORMAT,FORMAT,m_plot_view_data);
+        return *this;
+    }
+    Plot(Plot&& rhs) noexcept : m_plot_size(rhs.m_plot_size), m_plot_location(rhs.m_plot_location) {
+        if(m_plot_view_data) { SimdFree(m_plot_view_data); }
+        m_plot_view_data = rhs.m_plot_view_data;
+        m_plot_view = std::move(rhs.m_plot_view);
+        rhs.m_plot_view_data = nullptr;
+    }
     Plot(Size size, Location location) : m_plot_size(size), m_plot_location(location) {
        m_plot_view_data = SimdAllocate(m_plot_size.width*m_plot_size.height*FORMAT,16);
        m_plot_view = View(m_plot_size.width,m_plot_size.height,m_plot_size.width*FORMAT,FORMAT,m_plot_view_data);
@@ -206,8 +279,9 @@ class rtplot : Title, Plot, Axis {
 private:
     Size m_size;
     View m_view;
-    void* m_view_data;
+    void* m_view_data = nullptr;
     DataSet m_dataset;
+    DataType type;
 
     Color color_axis = Color(0,0,0);
     Color color_axis_minor = Color(150,150,150);
@@ -216,6 +290,34 @@ private:
     //Location calLocation() { return Location(0,0); }
 
 public:
+    rtplot() {}
+    rtplot(const rtplot& rhs) : Title(rhs), Plot(rhs), Axis(rhs), m_size(rhs.m_size), m_dataset(rhs.m_dataset), type(rhs.type) {
+        if(m_view_data) { SimdFree(m_view_data); }
+        m_view_data = SimdAllocate(m_size.width*m_size.height*FORMAT, 16);
+        m_view = View(m_size.width,m_size.height,m_size.width*FORMAT,FORMAT,m_view_data);
+        init();
+    }
+    rtplot& operator=(const rtplot& rhs){
+        m_size = rhs.m_size;
+        m_dataset = rhs.m_dataset;
+        type = rhs.type;
+        if(m_view_data) { SimdFree(m_view_data); }
+        m_view_data = SimdAllocate(m_size.width*m_size.height*FORMAT, 16);
+        m_view = View(m_size.width,m_size.height,m_size.width*FORMAT,FORMAT,m_view_data);
+        Title::operator=(rhs);
+        Plot::operator=(rhs);
+        Axis::operator=(rhs);
+        init();
+        return *this;
+    }
+    rtplot(rtplot&& rhs) noexcept : Title(std::move(rhs)), Plot(std::move(rhs)), Axis(std::move(rhs)), m_size(rhs.m_size), m_dataset(rhs.m_dataset), type(rhs.type){
+        std::cout <<"move";
+        if(m_view_data) { SimdFree(m_view_data); }
+        m_view_data = rhs.m_view_data;
+        m_view = std::move(rhs.m_view);
+        rhs.m_view_data = nullptr;
+    }
+
     rtplot(size_t width, size_t height) :
         Title(Size(width*0.5,height*0.125),Location(width*0.25, height*0.025)),
         Plot(Size(width*0.8,height*0.65),Location(width*0.15,height*0.175)),
@@ -224,6 +326,7 @@ public:
     {
         m_view_data = SimdAllocate(m_size.width*m_size.height*FORMAT, 16);
         m_view = View(m_size.width,m_size.height,m_size.width*FORMAT,FORMAT,m_view_data);
+        init();
     }
     ~rtplot() {
         if(m_view_data) {SimdFree(m_view_data);}

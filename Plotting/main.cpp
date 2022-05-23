@@ -1,14 +1,12 @@
 #include "mainwindow.h"
 #include <QApplication>
-#include "rtplot.h"
-#include "qplot.h"
+
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
     w.show();
-
 
 /*
     //std::vector<INT> vec = {1,2,3,4,5};
@@ -47,11 +45,14 @@ int main(int argc, char *argv[])
 
     Overlay(view1,100,100,view2);
 */
+
+    w.getViewWidget("view1")->init();
+/*
     rtplot::rtplot plot = rtplot::rtplot(500,400);
-    plot.init();
-    const View* view1 = plot.getView();
+    rtplot::rtplot plot1(std::move(plot));
+    const View* view1 = plot1.getView();
 
     w.setImage(w.getView("view1"), view1);
-
+*/
     return a.exec();
 }

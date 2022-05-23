@@ -28,7 +28,6 @@ class Ui_MainWindow
 public:
     QWidget *centralWidget;
     qplot *view1;
-    qplot *label;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -37,20 +36,22 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
-        MainWindow->resize(664, 506);
+        MainWindow->resize(871, 513);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         view1 = new qplot(centralWidget);
         view1->setObjectName(QStringLiteral("view1"));
-        view1->setGeometry(QRect(30, 40, 211, 101));
+        view1->setGeometry(QRect(60, 10, 500, 400));
+        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(view1->sizePolicy().hasHeightForWidth());
+        view1->setSizePolicy(sizePolicy);
         view1->setMouseTracking(true);
-        label = new qplot(centralWidget);
-        label->setObjectName(QStringLiteral("label"));
-        label->setGeometry(QRect(40, 10, 55, 18));
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 664, 23));
+        menuBar->setGeometry(QRect(0, 0, 871, 23));
         MainWindow->setMenuBar(menuBar);
         mainToolBar = new QToolBar(MainWindow);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -68,7 +69,6 @@ public:
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", Q_NULLPTR));
         view1->setText(QApplication::translate("MainWindow", "TextLabel", Q_NULLPTR));
-        label->setText(QApplication::translate("MainWindow", "TextLabel", Q_NULLPTR));
     } // retranslateUi
 
 };

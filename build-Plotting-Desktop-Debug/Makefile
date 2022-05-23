@@ -35,10 +35,10 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = Plotting1.0.0
-DISTDIR = /tmp/guest-pzj7u6/TEST/build-Plotting-Desktop-Debug/.tmp/Plotting1.0.0
+DISTDIR = /tmp/guest-aye2mm/TEST/build-Plotting-Desktop-Debug/.tmp/Plotting1.0.0
 LINK          = g++
 LFLAGS        = 
-LIBS          = $(SUBLIBS) -L/tmp/guest-pzj7u6/TEST/Plotting/library/Simd/ -lSimd -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread 
+LIBS          = $(SUBLIBS) -L/tmp/guest-aye2mm/TEST/Plotting/library/Simd/ -lSimd -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread 
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -153,7 +153,7 @@ TARGET        = Plotting
 first: all
 ####### Build rules
 
-$(TARGET): /tmp/guest-pzj7u6/TEST/Plotting/library/Simd/libSimd.a ui_mainwindow.h $(OBJECTS)  
+$(TARGET): /tmp/guest-aye2mm/TEST/Plotting/library/Simd/libSimd.a ui_mainwindow.h $(OBJECTS)  
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
 
 Makefile: ../Plotting/Plotting.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++/qmake.conf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
@@ -380,12 +380,25 @@ moc_mainwindow.cpp: ../Plotting/drawing.h \
 		../Plotting/mainwindow.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/tmp/guest-pzj7u6/TEST/Plotting -I/tmp/guest-pzj7u6/TEST/Plotting/library/Simd/src -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../Plotting/mainwindow.h -o moc_mainwindow.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/tmp/guest-aye2mm/TEST/Plotting -I/tmp/guest-aye2mm/TEST/Plotting/library/Simd/src -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../Plotting/mainwindow.h -o moc_mainwindow.cpp
 
-moc_qplot.cpp: ../Plotting/qplot.h \
+moc_qplot.cpp: ../Plotting/rtplot.h \
+		../Plotting/drawing.h \
+		../Plotting/library/Simd/src/Simd/SimdLib.hpp \
+		../Plotting/library/Simd/src/Simd/SimdView.hpp \
+		../Plotting/library/Simd/src/Simd/SimdRectangle.hpp \
+		../Plotting/library/Simd/src/Simd/SimdPoint.hpp \
+		../Plotting/library/Simd/src/Simd/SimdLib.h \
+		../Plotting/library/Simd/src/Simd/SimdConfig.h \
+		../Plotting/library/Simd/src/Simd/SimdAllocator.hpp \
+		../Plotting/library/Simd/src/Simd/SimdPixel.hpp \
+		../Plotting/library/Simd/src/Simd/SimdPyramid.hpp \
+		../Plotting/library/Simd/src/Simd/SimdFont.hpp \
+		../Plotting/library/Simd/src/Simd/SimdDrawing.hpp \
+		../Plotting/qplot.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/tmp/guest-pzj7u6/TEST/Plotting -I/tmp/guest-pzj7u6/TEST/Plotting/library/Simd/src -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../Plotting/qplot.h -o moc_qplot.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/tmp/guest-aye2mm/TEST/Plotting -I/tmp/guest-aye2mm/TEST/Plotting/library/Simd/src -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../Plotting/qplot.h -o moc_qplot.cpp
 
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
@@ -394,7 +407,20 @@ compiler_uic_clean:
 	-$(DEL_FILE) ui_mainwindow.h
 ui_mainwindow.h: ../Plotting/mainwindow.ui \
 		/usr/lib/qt5/bin/uic \
-		../Plotting/qplot.h
+		../Plotting/qplot.h \
+		../Plotting/rtplot.h \
+		../Plotting/drawing.h \
+		../Plotting/library/Simd/src/Simd/SimdLib.hpp \
+		../Plotting/library/Simd/src/Simd/SimdView.hpp \
+		../Plotting/library/Simd/src/Simd/SimdRectangle.hpp \
+		../Plotting/library/Simd/src/Simd/SimdPoint.hpp \
+		../Plotting/library/Simd/src/Simd/SimdLib.h \
+		../Plotting/library/Simd/src/Simd/SimdConfig.h \
+		../Plotting/library/Simd/src/Simd/SimdAllocator.hpp \
+		../Plotting/library/Simd/src/Simd/SimdPixel.hpp \
+		../Plotting/library/Simd/src/Simd/SimdPyramid.hpp \
+		../Plotting/library/Simd/src/Simd/SimdFont.hpp \
+		../Plotting/library/Simd/src/Simd/SimdDrawing.hpp
 	/usr/lib/qt5/bin/uic ../Plotting/mainwindow.ui -o ui_mainwindow.h
 
 compiler_yacc_decl_make_all:
@@ -437,7 +463,9 @@ mainwindow.o: ../Plotting/mainwindow.cpp ../Plotting/mainwindow.h \
 		../Plotting/library/Simd/src/Simd/SimdPyramid.hpp \
 		../Plotting/library/Simd/src/Simd/SimdFont.hpp \
 		../Plotting/library/Simd/src/Simd/SimdDrawing.hpp \
-		ui_mainwindow.h
+		ui_mainwindow.h \
+		../Plotting/qplot.h \
+		../Plotting/rtplot.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o ../Plotting/mainwindow.cpp
 
 drawing.o: ../Plotting/drawing.cpp ../Plotting/drawing.h \
@@ -469,7 +497,20 @@ rtplot.o: ../Plotting/rtplot.cpp ../Plotting/rtplot.h \
 		../Plotting/library/Simd/src/Simd/SimdDrawing.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o rtplot.o ../Plotting/rtplot.cpp
 
-qplot.o: ../Plotting/qplot.cpp ../Plotting/qplot.h
+qplot.o: ../Plotting/qplot.cpp ../Plotting/qplot.h \
+		../Plotting/rtplot.h \
+		../Plotting/drawing.h \
+		../Plotting/library/Simd/src/Simd/SimdLib.hpp \
+		../Plotting/library/Simd/src/Simd/SimdView.hpp \
+		../Plotting/library/Simd/src/Simd/SimdRectangle.hpp \
+		../Plotting/library/Simd/src/Simd/SimdPoint.hpp \
+		../Plotting/library/Simd/src/Simd/SimdLib.h \
+		../Plotting/library/Simd/src/Simd/SimdConfig.h \
+		../Plotting/library/Simd/src/Simd/SimdAllocator.hpp \
+		../Plotting/library/Simd/src/Simd/SimdPixel.hpp \
+		../Plotting/library/Simd/src/Simd/SimdPyramid.hpp \
+		../Plotting/library/Simd/src/Simd/SimdFont.hpp \
+		../Plotting/library/Simd/src/Simd/SimdDrawing.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qplot.o ../Plotting/qplot.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 

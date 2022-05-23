@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <iostream>
 #include "drawing.h"
+#include "qplot.h"
 
 namespace Ui {
 class MainWindow;
@@ -18,12 +19,11 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    QLabel* getView(QString id);
+    qplot* getViewWidget(QString id);
     void setImage(QLabel* widget, const View* view);
     void setEvent(QLabel* target);
 
 private slots:
-    void Mouse_current_pos();
     void Mouse_Down();
     void Mouse_Up();
     void Mouse_left();

@@ -109,8 +109,8 @@ void rtplot::init() {
     Simd::FillValue(m_view,255);
     Simd::FillValue(m_plot_view,255);
     Simd::FillValue(m_title_view,255);
-    Simd::FillValueBgra(x_axis.view_gradation,255,255,0,255);
-    Simd::FillValueBgra(y_axis.view_gradation,255,255,0,255);
+    Simd::FillValueBgra(view_x_axis,255,255,0,255);
+    Simd::FillValueBgra(view_y_axis,255,255,0,255);
     drawPlot();
 }
 
@@ -133,15 +133,15 @@ void rtplot::drawPlot() {
             for(size_t i = 0; i <= y_axis.minor_tick; i++) {
                 std::string y_value = roundString(approx_min_y+ y_axis.minor_interval*i,y_axis.digit);
                 size_t ty = delta_y_minor*i + height_per_value*(approx_min_y-y_axis.min_value);
-                Simd::DrawingLine(y_axis.view_gradation,origin_y_axis(0, ty),origin_y_axis(3, ty),color_axis_minor);
+                Simd::DrawingLine(view_y_axis,origin_y_axis(0, ty),origin_y_axis(3, ty),color_axis_minor);
             }
             for(size_t i = 0; i <= y_axis.major_tick; i++) {
                 std::string y_value = roundString(approx_min_y+ y_axis.major_interval*i,y_axis.digit);
                 size_t ty = delta_y_major*i + height_per_value*(approx_min_y-y_axis.min_value);
-                Simd::DrawingLine(y_axis.view_gradation,origin_y_axis(0, ty),origin_y_axis(10, ty),color_axis);
+                Simd::DrawingLine(view_y_axis,origin_y_axis(0, ty),origin_y_axis(10, ty),color_axis);
                 if(show_grid) Simd::DrawingLine(m_plot_view,origin_plot(1,ty),origin_plot(m_plot_size.width-2,ty),color_grid);
-                Point tp =y_axis.font.Measure(y_value);
-                y_axis.font.Draw(y_axis.view_gradation,y_value,origin_y_axis(tp.x + 10,ty + tp.y/2),color_text);
+                Point tp =font.Measure(y_value);
+                font.Draw(view_y_axis,y_value,origin_y_axis(tp.x + 10,ty + tp.y/2),color_text);
             }
         }
 
@@ -152,15 +152,15 @@ void rtplot::drawPlot() {
             for(size_t i = 0; i <= x_axis.minor_tick; i++) {
                 std::string x_value = roundString(approx_min_x+ x_axis.minor_interval*i,x_axis.digit);
                 size_t tx = delta_x_minor*i + width_per_value*(approx_min_x-x_axis.min_value);
-                Simd::DrawingLine(x_axis.view_gradation,origin_x_axis(tx, 0),origin_x_axis(tx, 3),color_axis_minor);
+                Simd::DrawingLine(view_x_axis,origin_x_axis(tx, 0),origin_x_axis(tx, 3),color_axis_minor);
             }
             for(size_t i = 0; i <= x_axis.major_tick; i++) {
                 std::string x_value = roundString(approx_min_x+ x_axis.major_interval*i,x_axis.digit);
                 size_t tx = delta_x_major*i + width_per_value*(approx_min_x-x_axis.min_value);
-                Simd::DrawingLine(x_axis.view_gradation,origin_x_axis(tx, 0),origin_x_axis(tx, 10),color_axis);
+                Simd::DrawingLine(view_x_axis,origin_x_axis(tx, 0),origin_x_axis(tx, 10),color_axis);
                 if(show_grid) Simd::DrawingLine(m_plot_view,origin_plot(tx,1),origin_plot(tx,m_plot_size.height-2),color_grid);
-                Point tp =x_axis.font.Measure(x_value);
-                x_axis.font.Draw(x_axis.view_gradation,x_value,origin_x_axis(tx - tp.x/2,tp.y + 10),color_text);
+                Point tp =font.Measure(x_value);
+                font.Draw(view_x_axis,x_value,origin_x_axis(tx - tp.x/2,tp.y + 10),color_text);
             }
         }
     }
@@ -185,8 +185,8 @@ void rtplot::drawPlot() {
 
 void rtplot::updatePlot() {
     Simd::Overlay(m_view,m_title_location.x,m_title_location.y,m_title_view);
-    Simd::Overlay(m_view,x_axis.location.x, x_axis.location.y,x_axis.view_gradation);
-    Simd::Overlay(m_view,y_axis.location.x, y_axis.location.y,y_axis.view_gradation);
+    Simd::Overlay(m_view,x_axis.location.x, x_axis.location.y,view_x_axis);
+    Simd::Overlay(m_view,y_axis.location.x, y_axis.location.y,view_y_axis);
     Simd::Overlay(m_view,m_plot_location.x,m_plot_location.y,m_plot_view);
 }
 }
