@@ -127,10 +127,10 @@ protected:
     Gradation y_axis;
     View view_x_axis;
     View view_y_axis;
-    inline Location origin_x_axis(size_t x, size_t y) {
+    inline Location origin_x_axis(int x, int y) {
         return Location(x + x_axis.margin, y);
     }
-    inline Location origin_y_axis(size_t x, size_t y) {
+    inline Location origin_y_axis(int x, int y) {
         return Location(y_axis.size.width - x - 1, y_axis.size.height - y -1 - y_axis.margin);
     }
 public:
