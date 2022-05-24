@@ -6,11 +6,20 @@
 #include <QDebug>
 #include "rtplot.h"
 
+enum class Area {
+    none,
+    title,
+    plot,
+    x_axis,
+    y_axis
+};
+
 class qplot : public QLabel
 {
     Q_OBJECT
 private:
     int x0, y0;
+    Area area;
     bool is_press = false;
     inline bool inArea(int x, int y, Size size, Location location) {
         if(x >= location.x && x < location.x + size.width && y >= location.y && y < location.y + size.height) {

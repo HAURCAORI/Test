@@ -132,7 +132,7 @@ void rtplot::drawPlot() {
             double delta_y_major = (double) m_plot_view.height/y_axis.major_tick;
             double delta_y_minor = (double) m_plot_view.height/y_axis.minor_tick;
             double approx_min_y = roundValue(y_axis.min_value,getDigit(y_axis.min_value)-1);
-            approx_min_y += remainder(approx_min_y, y_axis.major_interval);
+            approx_min_y -= remainder(approx_min_y, y_axis.major_interval);
             for(size_t i = 0; i <= y_axis.minor_tick; i++) {
                 int ty = delta_y_minor*i + height_per_value*(approx_min_y-y_axis.min_value);
                 if(ty < 0 || ty > (int) m_plot_size.height+1) { continue; }
@@ -153,7 +153,7 @@ void rtplot::drawPlot() {
             double delta_x_major = (double) m_plot_view.width/x_axis.major_tick;
             double delta_x_minor = (double) m_plot_view.width/x_axis.minor_tick;
             double approx_min_x = roundValue(x_axis.min_value,getDigit(x_axis.min_value)-1);
-            approx_min_x += remainder(approx_min_x, x_axis.major_interval);
+            approx_min_x -= remainder(approx_min_x, x_axis.major_interval);
             for(size_t i = 0; i <= x_axis.minor_tick; i++) {
                 int tx = delta_x_minor*i + width_per_value*(approx_min_x-x_axis.min_value);
                 if(tx < 0 || tx > (int) m_plot_size.width+1) { continue; }

@@ -11,10 +11,13 @@ void qplot::mouseMoveEvent(QMouseEvent *event)
         this->x = event->x();
         this->y = event->y();
 
-        if(inArea(this->x, this->y, plot.plotSize(),plot.plotLocation())) {
-
+        if(area == Area::plot) {
+            plot.movePlot(x-x0,y-y0);
+        } else if(area == Area::x_axis) {
+            plot.movePlot(x-x0,0);
+        } else if(area == Area::y_axis) {
+            plot.movePlot(0,y-y0);
         }
-        plot.movePlot(x-x0,y-y0);
         x0 = this->x;
         y0 = this->y;
         updateImage();
@@ -27,6 +30,16 @@ void qplot::mousePressEvent(QMouseEvent *event)
     if(event->buttons() == Qt::LeftButton) {
         x0 = event->x();
         y0 = event->y();
+        if(inArea(x0, y0, plot.plotSize(),plot.plotLocation())) {
+            area = Area::plot;
+        } else if(inArea(x0, y0, plot.xAxisSize(),plot.xAxisLocation())) {
+            area = Area::x_axis;
+        } else if(inArea(x0, y0, plot.yAxisSize(),plot.yAxisLocation())) {
+            area = Area::y_axis;
+        } else {
+            area = Area::none;
+        }
+
         is_press = true;
 
         emit Mouse_Down();
@@ -36,6 +49,7 @@ void qplot::mousePressEvent(QMouseEvent *event)
 
 void qplot::mouseReleaseEvent(QMouseEvent *event) {
     is_press = false;
+    area = Area::none;
     emit Mouse_Up();
 }
 

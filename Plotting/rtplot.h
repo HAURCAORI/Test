@@ -105,7 +105,7 @@ struct Gradation {
     bool show = true;
     FLOAT min_value = -10;
     FLOAT max_value = 10;
-    FLOAT major_interval = 2;
+    FLOAT major_interval = 4;
     FLOAT minor_interval = 1;
     FLOAT major_tick = (max_value-min_value)/major_interval;
     FLOAT minor_tick = (max_value-min_value)/minor_interval;
@@ -180,6 +180,10 @@ public:
         if(view_x_data) SimdFree(view_x_data);
         if(view_y_data) SimdFree(view_y_data);
     }
+    Size xAxisSize() { return x_axis.size; }
+    Location xAxisLocation() { return x_axis.location; }
+    Size yAxisSize() { return y_axis.size; }
+    Location yAxisLocation() { return y_axis.location; }
 };
 
 class Title {
