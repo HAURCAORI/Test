@@ -126,12 +126,14 @@ void rtplot::drawPlot() {
     double height_per_value = m_plot_view.height/(y_axis.max_value - y_axis.min_value);
     double width_per_value = m_plot_view.width/(x_axis.max_value - x_axis.min_value);
     {
+        Simd::FillValue(m_plot_view,255);
+        Simd::FillValueBgra(view_x_axis,255,255,0,255);
+        Simd::FillValueBgra(view_y_axis,255,255,0,255);
         if(y_axis.show) {
             double delta_y_major = (double) m_plot_view.height/y_axis.major_tick;
             double delta_y_minor = (double) m_plot_view.height/y_axis.minor_tick;
             double approx_min_y = roundValue(y_axis.min_value,getDigit(y_axis.major_interval));
             for(size_t i = 0; i <= y_axis.minor_tick; i++) {
-                std::string y_value = roundString(approx_min_y+ y_axis.minor_interval*i,y_axis.digit);
                 size_t ty = delta_y_minor*i + height_per_value*(approx_min_y-y_axis.min_value);
                 Simd::DrawingLine(view_y_axis,origin_y_axis(0, ty),origin_y_axis(3, ty),color_axis_minor);
             }
@@ -150,7 +152,6 @@ void rtplot::drawPlot() {
             double delta_x_minor = (double) m_plot_view.width/x_axis.minor_tick;
             double approx_min_x = roundValue(x_axis.min_value,getDigit(x_axis.major_interval));
             for(size_t i = 0; i <= x_axis.minor_tick; i++) {
-                std::string x_value = roundString(approx_min_x+ x_axis.minor_interval*i,x_axis.digit);
                 size_t tx = delta_x_minor*i + width_per_value*(approx_min_x-x_axis.min_value);
                 Simd::DrawingLine(view_x_axis,origin_x_axis(tx, 0),origin_x_axis(tx, 3),color_axis_minor);
             }
@@ -188,5 +189,30 @@ void rtplot::updatePlot() {
     Simd::Overlay(m_view,x_axis.location.x, x_axis.location.y,view_x_axis);
     Simd::Overlay(m_view,y_axis.location.x, y_axis.location.y,view_y_axis);
     Simd::Overlay(m_view,m_plot_location.x,m_plot_location.y,m_plot_view);
+}
+
+void rtplot::movePlot(int x, int y)
+{
+    double value_per_width = (x_axis.max_value - x_axis.min_value) / m_plot_view.width;
+    double value_per_height = (y_axis.max_value - y_axis.min_value) / m_plot_view.height;
+    std::cout << x<< "/" << y << std::endl;
+    x_axis.max_value -=  x * value_per_width;
+    x_axis.min_value -=  x * value_per_width;
+    y_axis.max_value +=  y * value_per_height;
+    y_axis.min_value += y * value_per_height;
+
+    drawPlot();
+    updatePlot();
+}
+
+void rtplot::moveOrigin() {
+    double middle_x = (x_axis.max_value + x_axis.min_value)/2;
+    double middle_y = (y_axis.max_value + y_axis.min_value)/2;
+    x_axis.max_value -= middle_x;
+    x_axis.min_value -= middle_x;
+    y_axis.max_value -= middle_y;
+    y_axis.min_value -= middle_y;
+    drawPlot();
+    updatePlot();
 }
 }

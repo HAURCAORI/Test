@@ -10,7 +10,14 @@ void qplot::mouseMoveEvent(QMouseEvent *event)
     if(is_press) {
         this->x = event->x();
         this->y = event->y();
-        printf("dx : %d / dy : %d",x-x0,y-y0);
+
+        if(inArea(this->x, this->y, plot.plotSize(),plot.plotLocation())) {
+
+        }
+        plot.movePlot(x-x0,y-y0);
+        x0 = this->x;
+        y0 = this->y;
+        updateImage();
     }
     emit Mouse_Pos();
 }
@@ -30,6 +37,15 @@ void qplot::mousePressEvent(QMouseEvent *event)
 void qplot::mouseReleaseEvent(QMouseEvent *event) {
     is_press = false;
     emit Mouse_Up();
+}
+
+void qplot::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    if(event->buttons() == Qt::LeftButton) {
+        plot.moveOrigin();
+        updateImage();
+    }
+
 }
 
 void qplot::leaveEvent(QEvent *event)

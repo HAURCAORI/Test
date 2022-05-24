@@ -273,9 +273,11 @@ public:
         if(m_plot_view_data) {SimdFree(m_plot_view_data);}
     }
 
+    Size plotSize() { return m_plot_size; }
+    Location plotLocation() { return m_plot_location; }
 };
 
-class rtplot : Title, Plot, Axis {
+class rtplot : public Title, public Plot, public Axis {
 private:
     Size m_size;
     View m_view;
@@ -336,6 +338,8 @@ public:
     void init();
     void drawPlot();
     void updatePlot();
+    void movePlot(int x, int y);
+    void moveOrigin();
     void resize(size_t width, size_t height);
     void setDataSet(DataSet dataset);
 
