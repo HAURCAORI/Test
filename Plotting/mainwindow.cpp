@@ -37,15 +37,15 @@ void MainWindow::setEvent(QLabel* target) {
 
 void MainWindow::Mouse_Down()
 {
-    std::cout << "down" << std::endl;
+
 }
 
 void MainWindow::Mouse_Up()
 {
-    std::cout << "up" << std::endl;
+
 }
 
 void MainWindow::Mouse_left()
 {
-    std::cout << "leave" << std::endl;
+
 }

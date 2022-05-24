@@ -19,6 +19,8 @@ class qplot : public QLabel
     Q_OBJECT
 private:
     int x0, y0;
+    int x1, y1;
+    double point_value;
     Area area;
     bool is_press = false;
     inline bool inArea(int x, int y, Size size, Location location) {

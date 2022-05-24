@@ -169,16 +169,17 @@ void rtplot::drawPlot() {
                 font.Draw(view_x_axis,x_value,origin_x_axis(tx - tp.x/2,tp.y + 10),color_text);
             }
         }
+        //중심 선
+        if(y_axis.min_value < 0 && y_axis.max_value > 0) {
+            size_t ty = (0.0-y_axis.min_value)*height_per_value;
+            Simd::DrawingLine(m_plot_view,origin_plot(1,ty),origin_plot(m_plot_size.width-2,ty),color_axis);
+        }
+        if(x_axis.min_value < 0 && x_axis.max_value > 0) {
+            size_t tx = (0.0 - x_axis.min_value)*width_per_value;
+            Simd::DrawingLine(m_plot_view,origin_plot(tx,1),origin_plot(tx,m_plot_size.height-2),color_axis);
+        }
     }
-    //중심 선
-    if(y_axis.min_value < 0 && y_axis.max_value > 0) {
-        size_t ty = (0.0-y_axis.min_value)*height_per_value;
-        Simd::DrawingLine(m_plot_view,origin_plot(1,ty),origin_plot(m_plot_size.width-2,ty),color_axis);
-    }
-    if(x_axis.min_value < 0 && x_axis.max_value > 0) {
-        size_t tx = (0.0 - x_axis.min_value)*width_per_value;
-        Simd::DrawingLine(m_plot_view,origin_plot(tx,1),origin_plot(tx,m_plot_size.height-2),color_axis);
-    }
+
 
 
     //plot 외부선
@@ -217,6 +218,42 @@ void rtplot::moveOrigin() {
     x_axis.min_value -= middle_x;
     y_axis.max_value -= middle_y;
     y_axis.min_value -= middle_y;
+    drawPlot();
+    updatePlot();
+}
+
+void rtplot::scalePlot(Gradation *axis, FLOAT pivet, int delta)
+{
+    double scale = exp((double) delta/200);
+    double diff = axis->max_value - axis->min_value;
+    double idiff = axis->imax_value - axis->imin_value;
+    axis->max_value = pivet + (axis->max_value-pivet)*scale;
+    axis->min_value = pivet - (pivet - axis->min_value)*scale;
+
+    if(axis->major_tick > idiff/axis->imajor_interval*2 || axis->major_tick < idiff/axis->imajor_interval*0.5) {
+        axis->major_tick = idiff/axis->imajor_interval;
+        axis->major_interval = diff/axis->major_tick;
+    }
+    if(axis->minor_tick > idiff/axis->iminor_interval*2 || axis->minor_tick < idiff/axis->iminor_interval*0.5) {
+        axis->minor_tick = idiff/axis->iminor_interval;
+        axis->minor_interval = diff/axis->minor_tick;
+    }
+
+    axis->major_tick = diff/axis->major_interval;
+    axis->minor_tick = diff/axis->minor_interval;
+
+
+    drawPlot();
+    updatePlot();
+}
+void rtplot::scaleOrigin(Gradation *axis) {
+    std::cout <<"a";
+    axis->max_value = axis->imax_value;
+    axis->min_value = axis->imin_value;
+    axis->major_interval = axis->imajor_interval;
+    axis->minor_interval = axis->iminor_interval;
+    axis->major_tick = (axis->max_value-axis->min_value)/axis->major_interval;
+    axis->minor_tick = (axis->max_value-axis->min_value)/axis->minor_interval;
     drawPlot();
     updatePlot();
 }

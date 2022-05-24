@@ -105,8 +105,12 @@ struct Gradation {
     bool show = true;
     FLOAT min_value = -10;
     FLOAT max_value = 10;
+    FLOAT imin_value = min_value;
+    FLOAT imax_value = max_value;
     FLOAT major_interval = 4;
+    FLOAT imajor_interval = major_interval;
     FLOAT minor_interval = 1;
+    FLOAT iminor_interval = minor_interval;
     FLOAT major_tick = (max_value-min_value)/major_interval;
     FLOAT minor_tick = (max_value-min_value)/minor_interval;
     int digit = 3;
@@ -180,6 +184,10 @@ public:
         if(view_x_data) SimdFree(view_x_data);
         if(view_y_data) SimdFree(view_y_data);
     }
+
+    Gradation* xAxis() { return &x_axis; }
+    Gradation* yAxis() { return &y_axis; }
+
     Size xAxisSize() { return x_axis.size; }
     Location xAxisLocation() { return x_axis.location; }
     Size yAxisSize() { return y_axis.size; }
@@ -344,6 +352,8 @@ public:
     void updatePlot();
     void movePlot(int x, int y);
     void moveOrigin();
+    void scalePlot(Gradation* axis, FLOAT pivet, int delta);
+    void scaleOrigin(Gradation* axis);
     void resize(size_t width, size_t height);
     void setDataSet(DataSet dataset);
 
