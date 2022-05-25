@@ -6,7 +6,7 @@
 #define RTPLOT_H
 
 typedef int INT;
-typedef float FLOAT;
+typedef double FLOAT;
 typedef std::string STRING;
 
 template<typename T, typename U>
@@ -107,7 +107,7 @@ struct Gradation {
     FLOAT max_value = 10;
     FLOAT imin_value = min_value;
     FLOAT imax_value = max_value;
-    FLOAT major_interval = 4;
+    FLOAT major_interval = 2;
     FLOAT imajor_interval = major_interval;
     FLOAT minor_interval = 1;
     FLOAT iminor_interval = minor_interval;
@@ -351,9 +351,9 @@ public:
     void drawPlot();
     void updatePlot();
     void movePlot(int x, int y);
-    void moveOrigin();
+    void moveOrigin(Gradation *axis);
     void scalePlot(Gradation* axis, FLOAT pivet, int delta);
-    void scaleOrigin(Gradation* axis);
+    void scaleOrigin(Gradation* axis, FLOAT pivet);
     void resize(size_t width, size_t height);
     void setDataSet(DataSet dataset);
 

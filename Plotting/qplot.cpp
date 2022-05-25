@@ -14,11 +14,11 @@ void qplot::mouseMoveEvent(QMouseEvent *event)
         if(area == Area::plot) {
             plot.movePlot(x-x0,y-y0);
         } else if(area == Area::x_axis) {
-            plot.movePlot(x-x0,0);
-            plot.scalePlot(plot.xAxis(),point_value, y-y0);
+            if(is_mouse_left) plot.movePlot(x-x0,0);
+            if(is_mouse_right) plot.scalePlot(plot.xAxis(),point_value, y-y0);
         } else if(area == Area::y_axis) {
-            plot.movePlot(0,y-y0);
-            plot.scalePlot(plot.yAxis(),point_value, x0-x);
+            if(is_mouse_left) plot.movePlot(0,y-y0);
+            if(is_mouse_right) plot.scalePlot(plot.yAxis(),point_value, x0-x);
         }
         x0 = this->x;
         y0 = this->y;
@@ -29,34 +29,41 @@ void qplot::mouseMoveEvent(QMouseEvent *event)
 
 void qplot::mousePressEvent(QMouseEvent *event)
 {
-    if(event->buttons() == Qt::LeftButton) {
-        x0 = event->x();
-        y0 = event->y();
-        x1 = x0;
-        y1 = y0;
-        if(inArea(x0, y0, plot.plotSize(),plot.plotLocation())) {
-            area = Area::plot;
-        } else if(inArea(x0, y0, plot.xAxisSize(),plot.xAxisLocation())) {
-            rtplot::Gradation *g =plot.xAxis();
-            point_value = g->min_value + (g->max_value-g->min_value)/(g->size.width-g->margin*2)*(x0 - g->location.x - g->margin);
-            area = Area::x_axis;
-        } else if(inArea(x0, y0, plot.yAxisSize(),plot.yAxisLocation())) {
-            rtplot::Gradation *g =plot.yAxis();
-            point_value = g->min_value + (g->max_value-g->min_value)/(g->size.height-g->margin*2)*(x0 - g->location.x - g->margin);
-            area = Area::y_axis;
-        } else {
-            area = Area::none;
-        }
+    x0 = event->x();
+    y0 = event->y();
+    if(inArea(x0, y0, plot.plotSize(),plot.plotLocation())) {
+        area = Area::plot;
+    } else if(inArea(x0, y0, plot.xAxisSize(),plot.xAxisLocation())) {
+        rtplot::Gradation *g =plot.xAxis();
+        point_value = g->min_value + (g->max_value-g->min_value)/(g->size.width-g->margin*2)*(x0 - g->location.x - g->margin);
+        area = Area::x_axis;
+    } else if(inArea(x0, y0, plot.yAxisSize(),plot.yAxisLocation())) {
+        rtplot::Gradation *g =plot.yAxis();
+        point_value = g->min_value + (g->max_value-g->min_value)/(g->size.height-g->margin*2)*(g->size.height - y0 + g->location.y - g->margin);
+        area = Area::y_axis;
+    } else {
+        area = Area::none;
+    }
 
+    if(event->buttons() == Qt::LeftButton) {
         is_press = true;
+        is_mouse_left = true;
+
 
         emit Mouse_Down();
+        updateImage();
+    } else if(event->buttons() == Qt::RightButton) {
+        is_press = true;
+        is_mouse_right = true;
+
         updateImage();
     }
 }
 
 void qplot::mouseReleaseEvent(QMouseEvent *event) {
     is_press = false;
+    is_mouse_left = false;
+    is_mouse_right = false;
     area = Area::none;
     emit Mouse_Up();
 }
@@ -65,13 +72,21 @@ void qplot::mouseDoubleClickEvent(QMouseEvent *event)
 {
     if(event->buttons() == Qt::LeftButton) {
         if(inArea(x0, y0, plot.plotSize(),plot.plotLocation())) {
-            plot.moveOrigin();
+            plot.moveOrigin(plot.xAxis());
+            plot.moveOrigin(plot.yAxis());
         } else if(inArea(x0, y0, plot.xAxisSize(),plot.xAxisLocation())) {
-            plot.scaleOrigin(plot.xAxis());
+            plot.moveOrigin(plot.xAxis());
         } else if(inArea(x0, y0, plot.yAxisSize(),plot.yAxisLocation())) {
-            plot.scaleOrigin(plot.yAxis());
+            plot.moveOrigin(plot.yAxis());
         }
-
+        updateImage();
+    }
+    if(event->buttons() == Qt::RightButton) {
+        if(inArea(x0, y0, plot.xAxisSize(),plot.xAxisLocation())) {
+            plot.scaleOrigin(plot.xAxis(),point_value);
+        } else if(inArea(x0, y0, plot.yAxisSize(),plot.yAxisLocation())) {
+            plot.scaleOrigin(plot.yAxis(),point_value);
+        }
         updateImage();
     }
 

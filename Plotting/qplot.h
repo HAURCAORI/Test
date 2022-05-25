@@ -19,10 +19,11 @@ class qplot : public QLabel
     Q_OBJECT
 private:
     int x0, y0;
-    int x1, y1;
     double point_value;
     Area area;
     bool is_press = false;
+    bool is_mouse_left = false;
+    bool is_mouse_right = false;
     inline bool inArea(int x, int y, Size size, Location location) {
         if(x >= location.x && x < location.x + size.width && y >= location.y && y < location.y + size.height) {
             return true;
