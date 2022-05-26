@@ -1,41 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#define SHAPE_SIZE 4
-#define CARD_MAX_VALUE 13
-struct card {
-    const char* shape;
-    int number;
-};
-const char* shape[SHAPE_SIZE] = {"Hearts", "Diamonds","Clubs", "Spades"};
-
-int main() {
-    card card_list[52];
-    //initialize card;
-    for(int i = 0; i < SHAPE_SIZE; i++) {
-        for(int j = 0; j < CARD_MAX_VALUE; j++) {
-            (card_list + i*CARD_MAX_VALUE + j)->shape = shape[i];
-            (card_list + i*CARD_MAX_VALUE + j)->number = (j+1);
-        }
-    }
-    
-    //shuffle
-    for(int i = 0; i < SHAPE_SIZE*CARD_MAX_VALUE; i++) {
-        int index = rand() % (SHAPE_SIZE*CARD_MAX_VALUE);
-        card temp = *(card_list+i);
-        *(card_list+i) = *(card_list+index);
-        *(card_list+index) = temp;
-    }
-
-    //print
-    for(int i = 0; i < SHAPE_SIZE*CARD_MAX_VALUE; i++) {
-        printf("Card %2d: %10s, %2d\r\n", i+1,card_list[i].shape, card_list[i].number);
-    }
-    return 0;
-
-}
-
-
-/*#include "main.h"
+#include "main.h"
 #include "DataProcess.h"
 
 #include <thread>
@@ -89,7 +52,6 @@ int main(){
         TLoad(&signal, 0,1,1);
         printf("num : %d\r\n", i);
     }
-    
+    */
     return 0;
 }
-*/
