@@ -1,31 +1,9 @@
 #include "drawing.h"
 #include <iostream>
 #include <type_traits>
-
+#include <plotstruct.h>
 #ifndef RTPLOT_H
 #define RTPLOT_H
-
-typedef int INT;
-typedef double FLOAT;
-typedef std::string STRING;
-
-template<typename T, typename U>
-struct Pair {
-    T first;
-    U second;
-};
-
-typedef Pair<FLOAT,FLOAT> FloatFloat;
-typedef Pair<STRING,FLOAT> StringFloat;
-typedef Pair<STRING,INT> StringInt;
-
-template<typename T>
-inline std::string getType() {
-    if(typeid(T) == typeid(INT)) { return "int"; }
-    else if(typeid(T) == typeid(FLOAT)) { return "float"; }
-    else if(typeid(T) == typeid(STRING)) { return "string"; }
-    else return typeid(T).name();
-}
 
 template<typename T>
 inline void printVector(const std::vector<T> vec) {
@@ -49,31 +27,6 @@ inline void printVector(const std::vector<Pair<T,U>> vec) {
 }
 
 namespace rtplot {
-
-
-enum class DataType {
-    SINGLE_INT,
-    SINGLE_FLOAT,
-    SINGLE_STRING,
-    PAIR_STRING_INT,
-    PAIR_STRING_FLOAT,
-    PAIR_FLOAT_FLOAT
-};
-
-class Data {
-private:
-    std::string name; //범례에 표시되는 값
-    DataType type;
-    void* data; //데이터 포인터
-public:
-    Data(std::string name, DataType type, void* data) : name(name), type(type), data(data) {}
-    std::string getName() { return name; }
-    DataType getType() { return type; }
-    const void* getData(){ return data; }
-
-};
-
-
 class DataSet {
 private:
     std::string name;
@@ -93,31 +46,13 @@ public:
     bool deleteData(unsigned int index);
     void deleteAll() { datas.clear(); }
 
+    std::vector<Data>* getDatas() { return &datas; }
     Data* getData(std::string name);
     Data* getData(unsigned int index);
 
     void printData(std::string name);
     void printData(unsigned int index);
     void printAll();
-};
-
-struct Gradation {
-    bool show = true;
-    FLOAT min_value = -10;
-    FLOAT max_value = 10;
-    FLOAT imin_value = min_value;
-    FLOAT imax_value = max_value;
-    FLOAT major_interval = 2;
-    FLOAT imajor_interval = major_interval;
-    FLOAT minor_interval = 1;
-    FLOAT iminor_interval = minor_interval;
-    FLOAT major_tick = (max_value-min_value)/major_interval;
-    FLOAT minor_tick = (max_value-min_value)/minor_interval;
-    int digit = 3;
-    std::string label;
-    Size size;
-    Location location;
-    size_t margin = 20;// 좌우 마진
 };
 
 class Axis {
@@ -295,14 +230,13 @@ private:
     View m_view;
     void* m_view_data = nullptr;
     DataSet m_dataset;
-    DataType type;
+    DataType type = DataType::PAIR_FLOAT_FLOAT;
 
     Color color_axis = Color(0,0,0);
     Color color_axis_minor = Color(150,150,150);
     Color color_text = Color(0,0,0);
     Color color_grid = Color(200,200,200);
-    //Location calLocation() { return Location(0,0); }
-
+    void drawData();
 public:
     rtplot() {}
     rtplot(const rtplot& rhs) : Title(rhs), Plot(rhs), Axis(rhs), m_size(rhs.m_size), m_dataset(rhs.m_dataset), type(rhs.type) {
@@ -355,7 +289,7 @@ public:
     void scalePlot(Gradation* axis, FLOAT pivet, int delta);
     void scaleOrigin(Gradation* axis, FLOAT pivet);
     void resize(size_t width, size_t height);
-    void setDataSet(DataSet dataset);
+    void setDataSet(DataSet dataset, DataType type);
 
 };
 }

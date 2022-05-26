@@ -30,6 +30,7 @@ private:
         }
         return false;
     }
+    rtplot::rtplot plot;
 public:
     explicit qplot(QWidget *parent = nullptr);
 
@@ -40,8 +41,7 @@ public:
     void leaveEvent(QEvent *event);
     void updateImage();
     void init();
-
-    rtplot::rtplot plot;
+    void setDataSet(rtplot::DataSet dataset, rtplot::DataType type);
     const View* view;
     int x,y;
 signals:

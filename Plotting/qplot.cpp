@@ -111,3 +111,10 @@ void qplot::init()
     view = plot.getView();
     updateImage();
 }
+
+void qplot::setDataSet(rtplot::DataSet dataset, rtplot::DataType type)
+{
+    plot.setDataSet(dataset,type);
+    plot.updatePlot();
+    updateImage();
+}

@@ -34,7 +34,8 @@ HEADERS += \
         mainwindow.h \
     drawing.h \
     rtplot.h \
-    qplot.h
+    qplot.h \
+    plotstruct.h
 
 FORMS += \
         mainwindow.ui

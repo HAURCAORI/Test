@@ -112,6 +112,25 @@ void DataSet::printAll() {
 
 
 
+void rtplot::drawData()
+{
+    double height_per_value = (double) m_plot_view.height/(y_axis.max_value - y_axis.min_value);
+    double width_per_value = (double) m_plot_view.width/(x_axis.max_value - x_axis.min_value);
+    if(type == DataType::PAIR_FLOAT_FLOAT) {
+        for(auto it = m_dataset.getDatas()->begin(); it != m_dataset.getDatas()->end(); ++it) {
+            if(it->getType() != type) { continue; }
+            const std::vector<FloatFloat>* d = (const std::vector<FloatFloat>*) (it->getData());
+            for(auto iit = d->begin(); iit != d->end(); ++iit ){
+                std::cout << iit->first << "," << iit->second << std::endl;
+                size_t tx = (iit->first - x_axis.min_value)*width_per_value;
+                size_t ty = (iit->second - y_axis.min_value)*height_per_value;
+                Location tl = origin_plot(tx,ty);
+                Simd::DrawRectangle(m_plot_view,tl.x-1,tl.y-1,tl.x+1,tl.y+1, Color(0,0,255));
+            }
+        }
+    }
+}
+
 void rtplot::init() {
     Simd::FillValue(m_view,255);
     Simd::FillValue(m_plot_view,255);
@@ -124,8 +143,11 @@ void rtplot::init() {
 
 void rtplot::drawPlot() {
     if(title_changed){
-        Point tfm =m_title_font.Measure(m_title);
-        m_title_font.Draw(m_title_view,m_title, Point((m_title_size.width-tfm.x)/2, (m_title_size.height-tfm.y)/2),color_text);
+        Simd::FillValue(m_title_view,255);
+        if(!m_title.empty()) {
+            Point tfm =m_title_font.Measure(m_title);
+            m_title_font.Draw(m_title_view,m_title, Point((m_title_size.width-tfm.x)/2, (m_title_size.height-tfm.y)/2),color_text);
+        }
     }
 
     //좌표 축
@@ -136,53 +158,57 @@ void rtplot::drawPlot() {
         Simd::FillValueBgra(view_x_axis,255,255,0,255);
         Simd::FillValueBgra(view_y_axis,255,255,0,255);
         if(y_axis.show) {
-            double delta_y_major = (double) m_plot_view.height/(y_axis.max_value-y_axis.min_value)*y_axis.major_interval;
-            double delta_y_minor = (double) m_plot_view.height/(y_axis.max_value-y_axis.min_value)*y_axis.minor_interval;
-            int dig =(y_axis.major_interval > 1 ? getDigit(y_axis.max_value-y_axis.min_value)+2:  -getDigit(y_axis.minor_interval)+2);
+            if(type == DataType::PAIR_FLOAT_FLOAT) {
+                double delta_y_major = (double) m_plot_view.height/(y_axis.max_value-y_axis.min_value)*y_axis.major_interval;
+                double delta_y_minor = (double) m_plot_view.height/(y_axis.max_value-y_axis.min_value)*y_axis.minor_interval;
+                int dig =(y_axis.major_interval > 1 ? getDigit(y_axis.max_value-y_axis.min_value)+2:  -getDigit(y_axis.minor_interval)+2);
 
-            double approx_min_y = roundValue(y_axis.min_value,dig);
-            approx_min_y -= remainder(approx_min_y, y_axis.major_interval);
+                double approx_min_y = roundValue(y_axis.min_value,dig);
+                approx_min_y -= remainder(approx_min_y, y_axis.major_interval);
 
-            for(size_t i = 0; i <= y_axis.minor_tick+1; i++) {
-                int ty = delta_y_minor*i + height_per_value*(approx_min_y-y_axis.min_value);
-                if(ty < 0 || ty > (int) m_plot_size.height+1) { continue; }
-                Simd::DrawingLine(view_y_axis,origin_y_axis(0, ty),origin_y_axis(3, ty),color_axis_minor);
-            }
-            for(size_t i = 0; i <= y_axis.major_tick+1; i++) {
-                std::string y_value = roundString(approx_min_y+ y_axis.major_interval*i,y_axis.digit);
-                int ty = delta_y_major*i + height_per_value*(approx_min_y-y_axis.min_value);
+                for(size_t i = 0; i <= y_axis.minor_tick+1; i++) {
+                    int ty = delta_y_minor*i + height_per_value*(approx_min_y-y_axis.min_value);
+                    if(ty < 0 || ty > (int) m_plot_size.height+1) { continue; }
+                    Simd::DrawingLine(view_y_axis,origin_y_axis(0, ty),origin_y_axis(3, ty),color_axis_minor);
+                }
+                for(size_t i = 0; i <= y_axis.major_tick+1; i++) {
+                    std::string y_value = roundString(approx_min_y+ y_axis.major_interval*i,y_axis.digit);
+                    int ty = delta_y_major*i + height_per_value*(approx_min_y-y_axis.min_value);
 
-                if(ty < 0 || ty > (int) m_plot_size.height+1) { continue; }
-                Simd::DrawingLine(view_y_axis,origin_y_axis(0, ty),origin_y_axis(10, ty),color_axis);
-                if(show_grid) Simd::DrawingLine(m_plot_view,origin_plot(1,ty),origin_plot(m_plot_size.width-2,ty),color_grid);
-                Point tp =font.Measure(y_value);
-                font.Draw(view_y_axis,y_value,origin_y_axis(tp.x + 10,ty + tp.y/2),color_text);
+                    if(ty < 0 || ty > (int) m_plot_size.height+1) { continue; }
+                    Simd::DrawingLine(view_y_axis,origin_y_axis(0, ty),origin_y_axis(10, ty),color_axis);
+                    if(show_grid) Simd::DrawingLine(m_plot_view,origin_plot(1,ty),origin_plot(m_plot_size.width-2,ty),color_grid);
+                    Point tp =font.Measure(y_value);
+                    font.Draw(view_y_axis,y_value,origin_y_axis(tp.x + 10,ty + tp.y/2),color_text);
+                }
             }
         }
 
         if(x_axis.show) {
-            double delta_x_major = (double) m_plot_view.width/(x_axis.max_value-x_axis.min_value)*x_axis.major_interval;
-            double delta_x_minor = (double) m_plot_view.width/(x_axis.max_value-x_axis.min_value)*x_axis.minor_interval;
+            if(type == DataType::PAIR_FLOAT_FLOAT) {
+                double delta_x_major = (double) m_plot_view.width/(x_axis.max_value-x_axis.min_value)*x_axis.major_interval;
+                double delta_x_minor = (double) m_plot_view.width/(x_axis.max_value-x_axis.min_value)*x_axis.minor_interval;
 
-            int dig =(x_axis.major_interval > 1 ? getDigit(x_axis.max_value-x_axis.min_value)+2:  -getDigit(x_axis.max_value-x_axis.min_value)+5); // 간격이 1보다 작은 경우 소수점 자리를 기준으로, 간격이 1보다 클 경우 전체 값 기준으로
+                int dig =(x_axis.major_interval > 1 ? getDigit(x_axis.max_value-x_axis.min_value)+2:  -getDigit(x_axis.max_value-x_axis.min_value)+5); // 간격이 1보다 작은 경우 소수점 자리를 기준으로, 간격이 1보다 클 경우 전체 값 기준으로
 
-            double approx_min_x = roundValue(x_axis.min_value,dig);
-            approx_min_x -= remainder(approx_min_x, x_axis.major_interval);
+                double approx_min_x = roundValue(x_axis.min_value,dig);
+                approx_min_x -= remainder(approx_min_x, x_axis.major_interval);
 
-            for(size_t i = 0; i <= x_axis.minor_tick+1; i++) {
-                int tx = delta_x_minor*i + width_per_value*(approx_min_x-x_axis.min_value);
-                if(tx < 0 || tx > (int) m_plot_size.width+1) { continue; }
-                Simd::DrawingLine(view_x_axis,origin_x_axis(tx, 0),origin_x_axis(tx, 3),color_axis_minor);
-            }
+                for(size_t i = 0; i <= x_axis.minor_tick+1; i++) {
+                    int tx = delta_x_minor*i + width_per_value*(approx_min_x-x_axis.min_value);
+                    if(tx < 0 || tx > (int) m_plot_size.width+1) { continue; }
+                    Simd::DrawingLine(view_x_axis,origin_x_axis(tx, 0),origin_x_axis(tx, 3),color_axis_minor);
+                }
 
-            for(size_t i = 0; i <= x_axis.major_tick+1; i++) {
-                std::string x_value = roundString(approx_min_x+ x_axis.major_interval*i,x_axis.digit);
-                int tx = delta_x_major*i + width_per_value*(approx_min_x-x_axis.min_value);
-                if(tx < 0 || tx > (int) m_plot_size.width+1) { continue; }
-                Simd::DrawingLine(view_x_axis,origin_x_axis(tx, 0),origin_x_axis(tx, 10),color_axis);
-                if(show_grid) Simd::DrawingLine(m_plot_view,origin_plot(tx,1),origin_plot(tx,m_plot_size.height-2),color_grid);
-                Point tp =font.Measure(x_value);
-                font.Draw(view_x_axis,x_value,origin_x_axis(tx - tp.x/2,tp.y + 10),color_text);
+                for(size_t i = 0; i <= x_axis.major_tick+1; i++) {
+                    std::string x_value = roundString(approx_min_x+ x_axis.major_interval*i,x_axis.digit);
+                    int tx = delta_x_major*i + width_per_value*(approx_min_x-x_axis.min_value);
+                    if(tx < 0 || tx > (int) m_plot_size.width+1) { continue; }
+                    Simd::DrawingLine(view_x_axis,origin_x_axis(tx, 0),origin_x_axis(tx, 10),color_axis);
+                    if(show_grid) Simd::DrawingLine(m_plot_view,origin_plot(tx,1),origin_plot(tx,m_plot_size.height-2),color_grid);
+                    Point tp =font.Measure(x_value);
+                    font.Draw(view_x_axis,x_value,origin_x_axis(tx - tp.x/2,tp.y + 10),color_text);
+                }
             }
         }
         //중심 선
@@ -196,7 +222,7 @@ void rtplot::drawPlot() {
         }
     }
 
-
+    drawData();
 
     //plot 외부선
     Simd::DrawingLine(m_plot_view,0,0,0,m_plot_size.height,color_axis);
@@ -207,7 +233,7 @@ void rtplot::drawPlot() {
 }
 
 void rtplot::updatePlot() {
-
+    drawPlot();
     if(title_changed) { Simd::Overlay(m_view,m_title_location.x,m_title_location.y,m_title_view); title_changed = false; }
     Simd::Overlay(m_view,x_axis.location.x, x_axis.location.y,view_x_axis);
     Simd::Overlay(m_view,y_axis.location.x, y_axis.location.y,view_y_axis);
@@ -223,7 +249,6 @@ void rtplot::movePlot(int x, int y)
     y_axis.max_value +=  y * value_per_height;
     y_axis.min_value += y * value_per_height;
 
-    drawPlot();
     updatePlot();
 }
 
@@ -231,7 +256,6 @@ void rtplot::moveOrigin(Gradation *axis) {
     double middle = (axis->max_value + axis->min_value)/2;
     axis->max_value -= middle;
     axis->min_value -= middle;
-    drawPlot();
     updatePlot();
 }
 
@@ -255,8 +279,6 @@ void rtplot::scalePlot(Gradation *axis, FLOAT pivet, int delta)
     axis->major_tick = diff/axis->major_interval;
     axis->minor_tick = diff/axis->minor_interval;
 
-
-    drawPlot();
     updatePlot();
 }
 void rtplot::scaleOrigin(Gradation *axis, FLOAT pivet) {
@@ -268,7 +290,12 @@ void rtplot::scaleOrigin(Gradation *axis, FLOAT pivet) {
     axis->max_value = (axis->max_value-pivet)*ratio + pivet;
     axis->min_value = (axis->min_value-pivet)*ratio + pivet;
 
-    drawPlot();
     updatePlot();
+}
+
+void rtplot::setDataSet(DataSet dataset, DataType type)
+{
+    m_dataset = dataset;
+    type = type;
 }
 }

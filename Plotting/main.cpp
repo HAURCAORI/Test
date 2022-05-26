@@ -1,26 +1,28 @@
 #include "mainwindow.h"
 #include <QApplication>
-
-
+#include <rtplot.h>
+#include <plotstruct.h>
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
     w.show();
 
-/*
+
     //std::vector<INT> vec = {1,2,3,4,5};
     std::vector<FLOAT> vec = {1,2,3,4,5};
     std::vector<STRING> vec2 = {"a","ab","abc","abcd","abcde"};
     std::vector<FloatFloat> vec3 = {{1,2},{3,4},{5,6}};
     std::vector<StringFloat> vec4 = {{"A",2},{"b",4},{"C",6}};
     rtplot::DataSet ds;
-    ds.addData("a", &vec);
-    ds.addData("b", &vec2);
+
+    //ds.addData("a", &vec);
+    //ds.addData("b", &vec2);
     ds.addData("c", &vec3);
-    ds.addData("d", &vec4);
-    ds.printAll();
-*/
+    //ds.addData("d", &vec4);
+    //ds.printAll();
+
+
     /*
     View view1(800, 600, FORMAT);
     Simd::Fill(view1,255);
@@ -47,6 +49,7 @@ int main(int argc, char *argv[])
 */
 
     w.getViewWidget("view1")->init();
+    w.getViewWidget("view1")->setDataSet(ds,rtplot::DataType::PAIR_FLOAT_FLOAT);
 /*
     rtplot::rtplot plot = rtplot::rtplot(500,400);
     rtplot::rtplot plot1(std::move(plot));
