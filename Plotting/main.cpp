@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 
     //ds.addData("a", &vec);
     //ds.addData("b", &vec2);
-    ds.addData("c", &vec3);
+    //ds.addData("c", &vec3);
     //ds.addData("d", &vec4);
     //ds.printAll();
 
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 */
 
     w.getViewWidget("view1")->init();
-    w.getViewWidget("view1")->setDataSet(ds,rtplot::DataType::PAIR_FLOAT_FLOAT);
+    w.getViewWidget("view1")->setDataSet(ds,rtplot::DataType::PAIR_STRING_FLOAT);
 /*
     rtplot::rtplot plot = rtplot::rtplot(500,400);
     rtplot::rtplot plot1(std::move(plot));

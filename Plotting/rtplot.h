@@ -66,6 +66,8 @@ protected:
     Gradation y_axis;
     View view_x_axis;
     View view_y_axis;
+    char principal_axis = 'x';
+
     inline Location origin_x_axis(int x, int y) {
         return Location(x + x_axis.margin, y);
     }
@@ -105,6 +107,8 @@ public:
     }
 
     Axis(Size plot_size, Location plot_location) {
+        x_axis.id = 'x';
+        x_axis.id = 'y';
         x_axis.size = Size(plot_size.width+x_axis.margin*2, plot_size.height*0.15);
         y_axis.size = Size(plot_size.width*0.15,plot_size.height+y_axis.margin*2);
         x_axis.location = Location(plot_location.x - x_axis.margin, plot_location.y + plot_size.height);

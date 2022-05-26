@@ -121,7 +121,6 @@ void rtplot::drawData()
             if(it->getType() != type) { continue; }
             const std::vector<FloatFloat>* d = (const std::vector<FloatFloat>*) (it->getData());
             for(auto iit = d->begin(); iit != d->end(); ++iit ){
-                std::cout << iit->first << "," << iit->second << std::endl;
                 size_t tx = (iit->first - x_axis.min_value)*width_per_value;
                 size_t ty = (iit->second - y_axis.min_value)*height_per_value;
                 Location tl = origin_plot(tx,ty);
@@ -158,7 +157,7 @@ void rtplot::drawPlot() {
         Simd::FillValueBgra(view_x_axis,255,255,0,255);
         Simd::FillValueBgra(view_y_axis,255,255,0,255);
         if(y_axis.show) {
-            if(type == DataType::PAIR_FLOAT_FLOAT) {
+            if(type == DataType::PAIR_FLOAT_FLOAT || ( (principal_axis != 'y') && ( (type == DataType::PAIR_STRING_FLOAT) || (type == DataType::PAIR_STRING_INT))) ) {
                 double delta_y_major = (double) m_plot_view.height/(y_axis.max_value-y_axis.min_value)*y_axis.major_interval;
                 double delta_y_minor = (double) m_plot_view.height/(y_axis.max_value-y_axis.min_value)*y_axis.minor_interval;
                 int dig =(y_axis.major_interval > 1 ? getDigit(y_axis.max_value-y_axis.min_value)+2:  -getDigit(y_axis.minor_interval)+2);
@@ -181,11 +180,26 @@ void rtplot::drawPlot() {
                     Point tp =font.Measure(y_value);
                     font.Draw(view_y_axis,y_value,origin_y_axis(tp.x + 10,ty + tp.y/2),color_text);
                 }
+                //중심 선
+                if(y_axis.min_value < 0 && y_axis.max_value > 0) {
+                    size_t ty = (0.0-y_axis.min_value)*height_per_value;
+                    Simd::DrawingLine(m_plot_view,origin_plot(1,ty),origin_plot(m_plot_size.width-2,ty),color_axis);
+                }
+            } else {
+                double delta_y = (double) m_plot_view.height/y_axis.data_number;
+                for(size_t i = 0; i <= y_axis.data_number; i++) {
+                    std::string str = "a";
+                    int ty = delta_y*i;
+                    Simd::DrawingLine(view_y_axis,origin_y_axis(0, ty),origin_y_axis(3, ty),color_axis);
+                    Point tp =font.Measure(str);
+                    font.Draw(view_y_axis,str,origin_y_axis(tp.x + 10,ty + tp.y/2),color_text);
+                }
+
             }
         }
 
         if(x_axis.show) {
-            if(type == DataType::PAIR_FLOAT_FLOAT) {
+            if(type == DataType::PAIR_FLOAT_FLOAT || ( (principal_axis != 'x') && ( (type == DataType::PAIR_STRING_FLOAT) || (type == DataType::PAIR_STRING_INT)))) {
                 double delta_x_major = (double) m_plot_view.width/(x_axis.max_value-x_axis.min_value)*x_axis.major_interval;
                 double delta_x_minor = (double) m_plot_view.width/(x_axis.max_value-x_axis.min_value)*x_axis.minor_interval;
 
@@ -209,17 +223,25 @@ void rtplot::drawPlot() {
                     Point tp =font.Measure(x_value);
                     font.Draw(view_x_axis,x_value,origin_x_axis(tx - tp.x/2,tp.y + 10),color_text);
                 }
+                //중심 선
+                if(x_axis.min_value < 0 && x_axis.max_value > 0) {
+                    size_t tx = (0.0 - x_axis.min_value)*width_per_value;
+                    Simd::DrawingLine(m_plot_view,origin_plot(tx,1),origin_plot(tx,m_plot_size.height-2),color_axis);
+                }
+            } else {
+                double delta_x = (double) m_plot_view.width/x_axis.data_number;
+                for(size_t i = 0; i <=  x_axis.data_number; i++) {
+                    std::string str = "a";
+                    int tx = delta_x*i;
+                    Simd::DrawingLine(view_x_axis,origin_x_axis(tx,0),origin_x_axis(tx, 5),color_axis);
+                    Point tp =font.Measure(str);
+                    font.Draw(view_x_axis,str,origin_x_axis(tx + delta_x/2 - tp.x/2,tp.y + 5),color_text);
+                }
+
             }
         }
-        //중심 선
-        if(y_axis.min_value < 0 && y_axis.max_value > 0) {
-            size_t ty = (0.0-y_axis.min_value)*height_per_value;
-            Simd::DrawingLine(m_plot_view,origin_plot(1,ty),origin_plot(m_plot_size.width-2,ty),color_axis);
-        }
-        if(x_axis.min_value < 0 && x_axis.max_value > 0) {
-            size_t tx = (0.0 - x_axis.min_value)*width_per_value;
-            Simd::DrawingLine(m_plot_view,origin_plot(tx,1),origin_plot(tx,m_plot_size.height-2),color_axis);
-        }
+
+
     }
 
     drawData();
@@ -296,6 +318,6 @@ void rtplot::scaleOrigin(Gradation *axis, FLOAT pivet) {
 void rtplot::setDataSet(DataSet dataset, DataType type)
 {
     m_dataset = dataset;
-    type = type;
+    this->type = type;
 }
 }
