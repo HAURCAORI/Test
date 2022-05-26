@@ -127,6 +127,32 @@ void rtplot::drawData()
                 Simd::DrawRectangle(m_plot_view,tl.x-1,tl.y-1,tl.x+1,tl.y+1, Color(0,0,255));
             }
         }
+    } else if (type == DataType::SINGLE_FLOAT) {
+        std::vector<Data> valid_data;
+
+        for(auto it = m_dataset.getDatas()->begin(); it != m_dataset.getDatas()->end(); ++it) {
+            if(it->getType() == DataType::SINGLE_FLOAT||it->getType() == DataType::SINGLE_INT) {
+                valid_data.push_back(*it);
+            }
+        }
+
+        double delta;
+        if(principal_axis == 'x') {
+            delta = (double) m_plot_view.width/valid_data.size();
+        } else {
+            delta = (double) m_plot_view.height/valid_data.size();
+        }
+        for(size_t i = 0; i < valid_data.size(); i++) {
+            const std::vector<FLOAT>* d = (const std::vector<FLOAT>*) (valid_data[i].getData());
+            for(auto it = d->begin(); it != d->end(); ++it) {
+                size_t tx = (*it - x_axis.min_value)*width_per_value;
+                size_t ty = (*it - y_axis.min_value)*height_per_value;
+                if(principal_axis == 'x') tx = delta * i + delta/2;
+                if(principal_axis == 'y') ty = delta * i + delta/2;
+                Location tl = origin_plot(tx,ty);
+                Simd::DrawRectangle(m_plot_view,tl.x-1,tl.y-1,tl.x+1,tl.y+1, Color(0,0,255));
+            }
+        }
     }
 }
 
@@ -134,8 +160,8 @@ void rtplot::init() {
     Simd::FillValue(m_view,255);
     Simd::FillValue(m_plot_view,255);
     Simd::FillValue(m_title_view,255);
-    Simd::FillValueBgra(view_x_axis,255,255,0,255);
-    Simd::FillValueBgra(view_y_axis,255,255,0,255);
+    Simd::FillValue(view_x_axis,255);
+    Simd::FillValue(view_y_axis,255);
     drawPlot();
 }
 
@@ -154,10 +180,10 @@ void rtplot::drawPlot() {
     double width_per_value = (double) m_plot_view.width/(x_axis.max_value - x_axis.min_value);
     {
         Simd::FillValue(m_plot_view,255);
-        Simd::FillValueBgra(view_x_axis,255,255,0,255);
-        Simd::FillValueBgra(view_y_axis,255,255,0,255);
+        Simd::FillValue(view_x_axis,255);
+        Simd::FillValue(view_y_axis,255);
         if(y_axis.show) {
-            if(type == DataType::PAIR_FLOAT_FLOAT || ( (principal_axis != 'y') && ( (type == DataType::PAIR_STRING_FLOAT) || (type == DataType::PAIR_STRING_INT))) ) {
+            if(type == DataType::PAIR_FLOAT_FLOAT || ( (principal_axis != 'y') && ( (type == DataType::PAIR_STRING_FLOAT) || (type == DataType::PAIR_STRING_INT) || (type == DataType::SINGLE_FLOAT) || (type == DataType::SINGLE_INT))) ) {
                 double delta_y_major = (double) m_plot_view.height/(y_axis.max_value-y_axis.min_value)*y_axis.major_interval;
                 double delta_y_minor = (double) m_plot_view.height/(y_axis.max_value-y_axis.min_value)*y_axis.minor_interval;
                 int dig =(y_axis.major_interval > 1 ? getDigit(y_axis.max_value-y_axis.min_value)+2:  -getDigit(y_axis.minor_interval)+2);
@@ -185,21 +211,40 @@ void rtplot::drawPlot() {
                     size_t ty = (0.0-y_axis.min_value)*height_per_value;
                     Simd::DrawingLine(m_plot_view,origin_plot(1,ty),origin_plot(m_plot_size.width-2,ty),color_axis);
                 }
+            } else if((type == DataType::SINGLE_FLOAT || type == DataType::SINGLE_INT) && principal_axis == 'y') {
+                std::vector<Data> valid_data;
+                for(auto it = m_dataset.getDatas()->begin(); it != m_dataset.getDatas()->end(); ++it) {
+                    if(it->getType() == DataType::SINGLE_FLOAT||it->getType() == DataType::SINGLE_INT) {
+                        valid_data.push_back(*it);
+                    }
+                }
+                if(valid_data.size() > 0) {
+                    double delta_y = (double) m_plot_view.height/valid_data.size();
+                    for(size_t i = 0; i < valid_data.size(); i++) {
+                        std::string str = valid_data[i].getName();
+                        int ty = delta_y*i;
+                        Simd::DrawingLine(view_y_axis,origin_y_axis(0, ty),origin_y_axis(5, ty),color_axis);
+                        if(show_grid) Simd::DrawingLine(m_plot_view,origin_plot(1,ty),origin_plot(m_plot_size.width-2,ty),color_grid);
+                        Point tp =font.Measure(str);
+                        font.Draw(view_y_axis,str,origin_y_axis(tp.x + 10,ty + delta_y/2 + tp.y/2),color_text);
+                    }
+                    Simd::DrawingLine(view_y_axis,origin_y_axis(0,m_plot_view.height-1),origin_y_axis(5, m_plot_view.height-1),color_axis);
+                }
             } else {
                 double delta_y = (double) m_plot_view.height/y_axis.data_number;
-                for(size_t i = 0; i <= y_axis.data_number; i++) {
+                for(size_t i = 0; i < y_axis.data_number; i++) {
                     std::string str = "a";
                     int ty = delta_y*i;
-                    Simd::DrawingLine(view_y_axis,origin_y_axis(0, ty),origin_y_axis(3, ty),color_axis);
+                    Simd::DrawingLine(view_y_axis,origin_y_axis(0, ty),origin_y_axis(5, ty),color_axis);
                     Point tp =font.Measure(str);
-                    font.Draw(view_y_axis,str,origin_y_axis(tp.x + 10,ty + tp.y/2),color_text);
+                    font.Draw(view_y_axis,str,origin_y_axis(tp.x + 10,ty + delta_y/2 + tp.y/2),color_text);
                 }
 
             }
         }
 
         if(x_axis.show) {
-            if(type == DataType::PAIR_FLOAT_FLOAT || ( (principal_axis != 'x') && ( (type == DataType::PAIR_STRING_FLOAT) || (type == DataType::PAIR_STRING_INT)))) {
+            if(type == DataType::PAIR_FLOAT_FLOAT || ( (principal_axis != 'x') && ( (type == DataType::PAIR_STRING_FLOAT) || (type == DataType::PAIR_STRING_INT) || (type == DataType::SINGLE_FLOAT) || (type == DataType::SINGLE_INT)))) {
                 double delta_x_major = (double) m_plot_view.width/(x_axis.max_value-x_axis.min_value)*x_axis.major_interval;
                 double delta_x_minor = (double) m_plot_view.width/(x_axis.max_value-x_axis.min_value)*x_axis.minor_interval;
 
@@ -228,9 +273,28 @@ void rtplot::drawPlot() {
                     size_t tx = (0.0 - x_axis.min_value)*width_per_value;
                     Simd::DrawingLine(m_plot_view,origin_plot(tx,1),origin_plot(tx,m_plot_size.height-2),color_axis);
                 }
+            } else if((type == DataType::SINGLE_FLOAT || type == DataType::SINGLE_INT) && principal_axis == 'x') {
+                std::vector<Data> valid_data;
+                for(auto it = m_dataset.getDatas()->begin(); it != m_dataset.getDatas()->end(); ++it) {
+                    if(it->getType() == DataType::SINGLE_FLOAT||it->getType() == DataType::SINGLE_INT) {
+                        valid_data.push_back(*it);
+                    }
+                }
+                if(valid_data.size() > 0) {
+                    double delta_x = (double) m_plot_view.width/valid_data.size();
+                    for(size_t i = 0; i < valid_data.size(); i++) {
+                        std::string str = valid_data[i].getName();
+                        int tx = delta_x*i;
+                        Simd::DrawingLine(view_x_axis,origin_x_axis(tx,0),origin_x_axis(tx, 5),color_axis);
+                        if(show_grid) Simd::DrawingLine(m_plot_view,origin_plot(tx,1),origin_plot(tx,m_plot_size.height-2),color_grid);
+                        Point tp =font.Measure(str);
+                        font.Draw(view_x_axis,str,origin_x_axis(tx + delta_x/2 - tp.x/2,tp.y + 5),color_text);
+                    }
+                    Simd::DrawingLine(view_x_axis,origin_x_axis(m_plot_view.width-1,0),origin_x_axis(m_plot_view.width-1, 5),color_axis);
+                }
             } else {
                 double delta_x = (double) m_plot_view.width/x_axis.data_number;
-                for(size_t i = 0; i <=  x_axis.data_number; i++) {
+                for(size_t i = 0; i <  x_axis.data_number; i++) {
                     std::string str = "a";
                     int tx = delta_x*i;
                     Simd::DrawingLine(view_x_axis,origin_x_axis(tx,0),origin_x_axis(tx, 5),color_axis);
@@ -264,13 +328,16 @@ void rtplot::updatePlot() {
 
 void rtplot::movePlot(int x, int y)
 {
-    double value_per_width = (x_axis.max_value - x_axis.min_value) / m_plot_view.width;
-    double value_per_height = (y_axis.max_value - y_axis.min_value) / m_plot_view.height;
-    x_axis.max_value -=  x * value_per_width;
-    x_axis.min_value -=  x * value_per_width;
-    y_axis.max_value +=  y * value_per_height;
-    y_axis.min_value += y * value_per_height;
-
+    if(principal_axis != 'x') {
+        double value_per_width = (x_axis.max_value - x_axis.min_value) / m_plot_view.width;
+        x_axis.max_value -=  x * value_per_width;
+        x_axis.min_value -=  x * value_per_width;
+    }
+    if(principal_axis != 'y') {
+        double value_per_height = (y_axis.max_value - y_axis.min_value) / m_plot_view.height;
+        y_axis.max_value +=  y * value_per_height;
+        y_axis.min_value += y * value_per_height;
+    }
     updatePlot();
 }
 
@@ -283,6 +350,7 @@ void rtplot::moveOrigin(Gradation *axis) {
 
 void rtplot::scalePlot(Gradation *axis, FLOAT pivet, int delta)
 {
+    if(axis->id == principal_axis) { return; }
     double scale = exp((double) delta/200);
     double diff = axis->max_value - axis->min_value;
     double idiff = axis->imax_value - axis->imin_value;

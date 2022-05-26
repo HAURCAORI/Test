@@ -10,13 +10,14 @@ int main(int argc, char *argv[])
 
 
     //std::vector<INT> vec = {1,2,3,4,5};
-    std::vector<FLOAT> vec = {1,2,3,4,5};
+    std::vector<FLOAT> vec = {1,2,3,4,5.1,4.2,1.3};
     std::vector<STRING> vec2 = {"a","ab","abc","abcd","abcde"};
     std::vector<FloatFloat> vec3 = {{1,2},{3,4},{5,6}};
     std::vector<StringFloat> vec4 = {{"A",2},{"b",4},{"C",6}};
     rtplot::DataSet ds;
 
-    //ds.addData("a", &vec);
+    ds.addData("single", &vec);
+    ds.addData("single2", &vec);
     //ds.addData("b", &vec2);
     //ds.addData("c", &vec3);
     //ds.addData("d", &vec4);
@@ -49,7 +50,7 @@ int main(int argc, char *argv[])
 */
 
     w.getViewWidget("view1")->init();
-    w.getViewWidget("view1")->setDataSet(ds,rtplot::DataType::PAIR_STRING_FLOAT);
+    w.getViewWidget("view1")->setDataSet(ds,rtplot::DataType::SINGLE_FLOAT);
 /*
     rtplot::rtplot plot = rtplot::rtplot(500,400);
     rtplot::rtplot plot1(std::move(plot));
