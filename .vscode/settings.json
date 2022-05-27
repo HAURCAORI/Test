@@ -53,6 +53,8 @@
         "mutex": "cpp",
         "set": "cpp",
         "unordered_set": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "cstring": "cpp",
+        "list": "cpp"
     }
 }
