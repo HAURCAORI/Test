@@ -169,4 +169,9 @@ obj/DataIO.o: src/DataIO.cpp /usr/include/stdc-predef.h include/DataIO.h \
  /usr/include/x86_64-linux-gnu/bits/confname.h \
  /usr/include/x86_64-linux-gnu/bits/getopt_posix.h \
  /usr/include/x86_64-linux-gnu/bits/getopt_core.h \
- /usr/include/x86_64-linux-gnu/bits/unistd.h
+ /usr/include/x86_64-linux-gnu/bits/unistd.h \
+ /usr/include/x86_64-linux-gnu/sys/shm.h \
+ /usr/include/x86_64-linux-gnu/sys/ipc.h \
+ /usr/include/x86_64-linux-gnu/bits/ipctypes.h \
+ /usr/include/x86_64-linux-gnu/bits/ipc.h \
+ /usr/include/x86_64-linux-gnu/bits/shm.h

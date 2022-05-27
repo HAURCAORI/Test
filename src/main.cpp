@@ -6,6 +6,8 @@
 #include <sys/shm.h>
 #include <sys/ipc.h>
 
+#include <cstring>
+
 #define Point(i,j,k) (ds->data_area + i + ds->dimSizes[0] * j + ds->dimSizes[0] * ds->dimSizes[1] * k)
 
 struct shared_data {
@@ -14,9 +16,55 @@ struct shared_data {
     int data;
 };
 
+//데이터 형식
+//mutex / condition variable
+//id <- char[20]
+//data_type <- char
+//packet_size
+//data_dimension = data count
+//data_size = 4byte or 8byte etc.
+
+//size_t index; = 0 to index_max
+//size_t index_max; = final pack
+//char* data = buffered data
+
+// receive part confirm check sum
+
+#define TYPE std::string
 int main(){
+    std::vector<TYPE> strs;
+    for(int i = 0; i < 10; i++) {
+        std::string str = "abc" + i;
+        strs.push_back(str);
+    }
+
+    TYPE* d = &strs[0];
+    size_t size = strs.size();
+    char* vp = (char*) d;
+    
+    size_t res_size = sizeof(TYPE)*size;
+    std::cout << size << "/" << res_size << std::endl;
+    char* res = new char(res_size);
+    size_t buffer = 10;
+    size_t i = 0;
+    for(; i < res_size; i += buffer) {
+        memcpy(res+i,vp,buffer);
+    }
+    if(i < res_size) {
+        memcpy(res+i,vp,res_size - i);
+    }
+
+    TYPE* rd =(TYPE*) vp;
+    std::cout << "[result]" << std::endl; 
+    for(int i = 0; i < size; i ++) {
+        std::cout << *(rd+i) << std::endl;
+    }
 
 
+    delete(res);
+
+
+/*
     int shmid;
     shared_data *d;
     key_t key = 987654;

@@ -7,6 +7,10 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <pthread.h>
+#include <sys/shm.h>
+#include <sys/ipc.h>
+
 //#define Point(i,j,k) (header + sizeof(Neuron)*(i + dimSizes[0]*j + dimSizes[0]*dimSizes[1]*k))
 
 namespace DataIO
@@ -152,5 +156,14 @@ void IOManager::printPage() {
         printf("Page id[%d] \r\n", it->id);
     }
 }
+
+//DataIPC
+struct shared_data {
+    pthread_mutex_t lock;
+    pthread_cond_t cond;
+    int data;
+};
+
+
 
 } // namespace DataIO

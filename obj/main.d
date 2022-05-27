@@ -171,4 +171,7 @@ obj/main.o: src/main.cpp /usr/include/stdc-predef.h include/main.h \
  /usr/include/x86_64-linux-gnu/sys/ipc.h \
  /usr/include/x86_64-linux-gnu/bits/ipctypes.h \
  /usr/include/x86_64-linux-gnu/bits/ipc.h \
- /usr/include/x86_64-linux-gnu/bits/shm.h
+ /usr/include/x86_64-linux-gnu/bits/shm.h /usr/include/c++/7/cstring \
+ /usr/include/string.h /usr/include/strings.h \
+ /usr/include/x86_64-linux-gnu/bits/strings_fortified.h \
+ /usr/include/x86_64-linux-gnu/bits/string_fortified.h

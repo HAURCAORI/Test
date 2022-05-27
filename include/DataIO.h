@@ -4,7 +4,6 @@
 #include <fstream>
 #include <unordered_set>
 
-
 #define PATH "resource/"
 #define DefaultReserve 10
 
@@ -27,6 +26,25 @@ class IOManager {
         inline void* getPointer(PageFile pf) { return pf.fs.memory_area; }
         inline PageFile getPageFile(PAGE id) { return *pagefiles.find(id); }
         const DataStruct* getDataStruct(PAGE id) { return &((*pagefiles.find(id)).ds); }
+};
+
+struct shared_data;
+
+class DataIPC {
+    private:
+    int shmid;
+    int key;
+    void *memory_segment = nullptr; //shared memory
+    void *memory_area = nullptr; //mmap
+    size_t mmap_capacity; //mmap
+    public:
+    DataIPC();
+    ~DataIPC();
+
+    bool assign();
+    bool realloc(); //memory_area
+    void setData();
+
 };
 
 template<typename T>
