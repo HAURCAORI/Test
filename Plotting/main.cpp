@@ -21,7 +21,8 @@ void task(DataIO::DataIPC& ipc) {
         DataIO::IPCData d(ipc.receiveData());
 
         if((d.getFlag() & SEND_SUCCESS) == SEND_SUCCESS) {
-            std::cout << d.getData() << std::endl;
+            //rtplot::DataStruct ds = DataIO::IPCStruct::decodeIPCData(d);
+
         } else if((d.getFlag() & IPC_DESTROY) == IPC_DESTROY) {
             std::cout << "destroy" << std::endl;
             break;

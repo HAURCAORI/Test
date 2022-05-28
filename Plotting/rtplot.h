@@ -30,25 +30,25 @@ namespace rtplot {
 class DataSet {
 private:
     std::string name;
-    std::vector<Data> datas;
+    std::vector<DataStruct> datas;
 public:
     DataSet() : name("new dataset") {}
     DataSet(std::string& name) : name(name) {}
 
-    void addData(std::string name, std::vector<INT>* data){ datas.push_back(Data(name,DataType::SINGLE_INT, data)); }
-    void addData(std::string name, std::vector<FLOAT>* data){ datas.push_back(Data(name,DataType::SINGLE_FLOAT, data)); }
-    void addData(std::string name, std::vector<STRING>* data){ datas.push_back(Data(name,DataType::SINGLE_STRING, data)); }
-    void addData(std::string name, std::vector<Pair<STRING,INT>>* data){ datas.push_back(Data(name,DataType::PAIR_STRING_INT, data)); }
-    void addData(std::string name, std::vector<Pair<STRING,FLOAT>>* data){ datas.push_back(Data(name,DataType::PAIR_STRING_FLOAT, data)); }
-    void addData(std::string name, std::vector<Pair<FLOAT,FLOAT>>* data){ datas.push_back(Data(name,DataType::PAIR_FLOAT_FLOAT, data)); }
+    void addData(std::string name, std::vector<INT>* data){ datas.push_back(DataStruct(name,DataType::SINGLE_INT, data,data->size(),sizeof(INT))); }
+    void addData(std::string name, std::vector<FLOAT>* data){ datas.push_back(DataStruct(name,DataType::SINGLE_FLOAT, data,data->size(),sizeof(FLOAT))); }
+    void addData(std::string name, std::vector<STRING>* data){ datas.push_back(DataStruct(name,DataType::SINGLE_STRING, data,data->size(),sizeof(STRING))); }
+    void addData(std::string name, std::vector<Pair<STRING,INT>>* data){ datas.push_back(DataStruct(name,DataType::PAIR_STRING_INT, data,data->size(),sizeof(Pair<STRING,INT>))); }
+    void addData(std::string name, std::vector<Pair<STRING,FLOAT>>* data){ datas.push_back(DataStruct(name,DataType::PAIR_STRING_FLOAT, data,data->size(),sizeof(Pair<STRING,FLOAT>))); }
+    void addData(std::string name, std::vector<Pair<FLOAT,FLOAT>>* data){ datas.push_back(DataStruct(name,DataType::PAIR_FLOAT_FLOAT, data,data->size(),sizeof(Pair<FLOAT,FLOAT>))); }
 
     bool deleteData(std::string name);
     bool deleteData(unsigned int index);
     void deleteAll() { datas.clear(); }
 
-    std::vector<Data>* getDatas() { return &datas; }
-    Data* getData(std::string name);
-    Data* getData(unsigned int index);
+    std::vector<DataStruct>* getDatas() { return &datas; }
+    DataStruct* getData(std::string name);
+    DataStruct* getData(unsigned int index);
     size_t getSize() { return datas.size(); }
 
     void printData(std::string name);

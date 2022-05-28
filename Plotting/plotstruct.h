@@ -25,26 +25,29 @@ inline std::string getType() {
 namespace rtplot {
 
 
-enum class DataType {
-    SINGLE_INT,
-    SINGLE_FLOAT,
-    SINGLE_STRING,
-    PAIR_STRING_INT,
-    PAIR_STRING_FLOAT,
-    PAIR_FLOAT_FLOAT
+enum class DataType :char {
+    SINGLE_INT = 0x01,
+    SINGLE_FLOAT = 0x02,
+    SINGLE_STRING = 0x03,
+    PAIR_STRING_INT = 0x04,
+    PAIR_STRING_FLOAT = 0x05,
+    PAIR_FLOAT_FLOAT = 0x06
 };
 
-class Data {
+class DataStruct {
 private:
     std::string name; //범례에 표시되는 값
     DataType type;
     void* data; //데이터 포인터
+    int m_size;
+    int type_size;
 public:
-    Data(std::string name, DataType type, void* data) : name(name), type(type), data(data) {}
+     DataStruct(std::string name, DataType type, void* data, size_t size, int type_size) : name(name), type(type), data(data), m_size(size), type_size(type_size) {}
     std::string getName() { return name; }
     DataType getType() { return type; }
     const void* getData(){ return data; }
-
+    int size() { return m_size; }
+    int typeSize() { return type_size; }
 };
 
 struct Gradation {

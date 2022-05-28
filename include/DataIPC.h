@@ -8,8 +8,6 @@
 
 #include <sys/time.h>
 
-#include "IPCStruct.h"
-
 #ifndef _DATA_IPC_H
 #define _DATA_IPC_H
 
@@ -26,6 +24,10 @@
 #define IPC_DESTROY 0X80
 
 #define IPC_BUFFER_SIZE 6
+
+typedef int INT;
+typedef double FLOAT;
+typedef std::string STRING;
 
 namespace DataIO {
 //DataIPC
@@ -179,8 +181,9 @@ class DataIPC {
         }
     }
 
-    bool sendData(IPCData& ipc_data, unsigned int size) {
+    bool sendData(IPCData& ipc_data) {
         if(!ipc_success) { return false; }
+        unsigned int size = ipc_data.getSize();
         shared_data* sd = sharedData();
         sd->size = size;
         unsigned int i = 0;
@@ -289,6 +292,50 @@ class DataIPC {
 namespace IPCStruct
 {
 
+template<typename T, typename U>
+struct Pair {
+    T first;
+    U second;
+};
+
+typedef Pair<FLOAT,FLOAT> FloatFloat;
+typedef Pair<STRING,FLOAT> StringFloat;
+typedef Pair<STRING,INT> StringInt;
+
+template<typename T>
+inline std::string getType() {
+    if(typeid(T) == typeid(INT)) { return "int"; }
+    else if(typeid(T) == typeid(FLOAT)) { return "float"; }
+    else if(typeid(T) == typeid(STRING)) { return "string"; }
+    else return typeid(T).name();
+}
+
+enum class IPCDataType :char {
+    SINGLE_INT = 0x01,
+    SINGLE_FLOAT = 0x02,
+    SINGLE_STRING = 0x03,
+    PAIR_STRING_INT = 0x04,
+    PAIR_STRING_FLOAT = 0x05,
+    PAIR_FLOAT_FLOAT = 0x06
+};
+
+class IPCDataStruct {
+private:
+    std::string name; //범례에 표시되는 값
+    IPCDataType type;
+    void* data; //데이터 포인터
+    int m_size;
+    int type_size;
+public:
+    IPCDataStruct(std::string name, IPCDataType type, void* data, size_t size, int type_size) : name(name), type(type), data(data), m_size(size), type_size(type_size) {}
+    std::string getName() { return name; }
+    IPCDataType getType() { return type; }
+    const void* getData(){ return data; }
+    int size() { return m_size; }
+    int typeSize() { return type_size; }
+};
+
+
 //총 구조
 //IPC Data 개수
 
@@ -315,7 +362,7 @@ T mread(char *src, size_t *index)
     return ret;
 }
 
-inline int getIPCDataSize(DataStruct data)
+inline int getIPCDataSize(IPCDataStruct data)
 {
     return (1 + 20 + 4 + 1 + data.size() * data.typeSize());
 }
@@ -332,7 +379,7 @@ inline void vectorWrite(std::vector<T>* vec, char *dest, size_t *index) {
     }
 }
 
-inline void vectorDecompos(DataStruct &data_struct, std::string s_id, char *dest, size_t *index)
+inline void vectorDecompos(IPCDataStruct &data_struct, std::string s_id, char *dest, size_t *index)
 {
     char data_type = static_cast<char>(data_struct.getType());
     mwrite(dest, &data_type, index);
@@ -340,16 +387,16 @@ inline void vectorDecompos(DataStruct &data_struct, std::string s_id, char *dest
     strcpy(id, s_id.c_str());
     mwrite(dest, id, 20, index);
 
-    if(data_struct.getType() == DataType::SINGLE_FLOAT) {
+    if(data_struct.getType() == IPCDataType::SINGLE_FLOAT) {
         std::vector<float>* vec = (std::vector<float>*) data_struct.getData();
         vectorWrite(vec,dest,index);
-    } else if(data_struct.getType() == DataType::SINGLE_INT) {
+    } else if(data_struct.getType() == IPCDataType::SINGLE_INT) {
         std::vector<int>* vec = (std::vector<int>*) data_struct.getData();
         vectorWrite(vec,dest,index);
     }
 }
 
-IPCData encodeIPCData(std::vector<DataStruct>& vecs)
+IPCData encodeIPCData(std::vector<IPCDataStruct>& vecs)
 {
     IPCData ipc_data;
     int number = vecs.size();
@@ -376,9 +423,9 @@ IPCData encodeIPCData(std::vector<DataStruct>& vecs)
     return ipc_data;
 }
 
-std::vector<DataStruct> decodeIPCData(IPCData& ipc_data)
+std::vector<IPCDataStruct> decodeIPCData(IPCData& ipc_data)
 {
-    std::vector<DataStruct> ret;
+    std::vector<IPCDataStruct> ret;
     char* data = ipc_data.getData();
     size_t index = 0;
     int number = mread<int>(data, &index);
@@ -391,12 +438,12 @@ std::vector<DataStruct> decodeIPCData(IPCData& ipc_data)
         index += 20;
         int size = mread<int>(data, &index);
         char byte = mread<char>(data, &index);
-        if(static_cast<DataType>(type) == DataType::SINGLE_FLOAT) {
+        if(static_cast<IPCDataType>(type) == IPCDataType::SINGLE_FLOAT) {
             std::vector<float> vec;
             for(int j = 0; j < size; j++) {
                 vec.push_back(mread<float>(data, &index));
             }
-            ret.push_back(DataStruct(id,DataIO::IPCStruct::DataType::SINGLE_FLOAT, &vec, vec.size(),sizeof(float)));
+            ret.push_back(IPCDataStruct(id,IPCDataType::SINGLE_FLOAT, &vec, vec.size(),sizeof(float)));
         }
     }
     std::cout << "total read size : " << index << std::endl;

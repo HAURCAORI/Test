@@ -10,13 +10,21 @@
 #define TYPE std::string
 
 
-typedef DataIO::IPCStruct::DataStruct DStruct;
-
 int main(){
     std::vector<float> vec = {1,2,3,4,5.1,4.2,1.3};
-    std::vector<DStruct> vecs;
-    vecs.push_back(DStruct("signal",DataIO::IPCStruct::DataType::SINGLE_FLOAT, &vec, vec.size(),sizeof(float)));
+    std::vector<DataIO::IPCStruct::IPCDataStruct> vecs;
+    vecs.push_back(DataIO::IPCStruct::IPCDataStruct("signal",DataIO::IPCStruct::IPCDataType::SINGLE_FLOAT, &vec, vec.size(),sizeof(float)));
     DataIO::IPCData d = DataIO::IPCStruct::encodeIPCData(vecs);
+
+    DataIO::DataIPC ipc(DataIO::IPC_MODE::SENDER, 98765);
+    /*
+    for(int i = 0; i < 5; i++) {
+
+        ipc.sendData(d);
+        std::cout << i << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+    }
+    */
 
     DataIO::IPCStruct::decodeIPCData(d);
     /*
@@ -51,21 +59,8 @@ int main(){
 
     delete(res);
     */
-/*
-    DataIO::DataIPC ipc(DataIO::IPC_MODE::SENDER, 98765);
-    
-    DataIO::IPCData idata(20);
-    
-    for(int i = 0; i < 5; i++) {
-        char data[20];
-        std::string text = "abcdefghijklmnopqr" + std::to_string(i);
-        strcpy(data,text.c_str());
-        
-        idata.setData(&data[0],20);
-        ipc.sendData(idata, 20);
-        std::cout << i << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-    }
+
+   
 
     /*
     if(!Mapping::Mapping()) { return 0; }

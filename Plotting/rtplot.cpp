@@ -55,20 +55,20 @@ bool DataSet::deleteData(unsigned int index) {
     return false;
 }
 
-Data* DataSet::getData(std::string name) {
+DataStruct* DataSet::getData(std::string name) {
     for(auto it = datas.begin(); it != datas.end(); ++it) {
         if(it->getName() == name) { return &(*it); }
     }
     return nullptr;
 }
-Data* DataSet::getData(unsigned int index) {
+DataStruct* DataSet::getData(unsigned int index) {
     if(datas.size() > index ) {
         return &datas[index];
     }
     return nullptr;
 }
 
-void printDataByType(Data& data) {
+void printDataByType(DataStruct& data) {
     if(data.getType() == DataType::SINGLE_INT) {
         auto d = static_cast<const std::vector<INT>*>(data.getData());
         printVector(*d);
@@ -128,7 +128,7 @@ void rtplot::drawData()
             }
         }
     } else if (type == DataType::SINGLE_FLOAT) {
-        std::vector<Data> valid_data;
+        std::vector<DataStruct> valid_data;
 
         for(auto it = m_dataset.getDatas()->begin(); it != m_dataset.getDatas()->end(); ++it) {
             if(it->getType() == DataType::SINGLE_FLOAT||it->getType() == DataType::SINGLE_INT) {
@@ -212,7 +212,7 @@ void rtplot::drawPlot() {
                     Simd::DrawingLine(m_plot_view,origin_plot(1,ty),origin_plot(m_plot_size.width-2,ty),color_axis);
                 }
             } else if((type == DataType::SINGLE_FLOAT || type == DataType::SINGLE_INT) && principal_axis == 'y') {
-                std::vector<Data> valid_data;
+                std::vector<DataStruct> valid_data;
                 for(auto it = m_dataset.getDatas()->begin(); it != m_dataset.getDatas()->end(); ++it) {
                     if(it->getType() == DataType::SINGLE_FLOAT||it->getType() == DataType::SINGLE_INT) {
                         valid_data.push_back(*it);
@@ -274,7 +274,7 @@ void rtplot::drawPlot() {
                     Simd::DrawingLine(m_plot_view,origin_plot(tx,1),origin_plot(tx,m_plot_size.height-2),color_axis);
                 }
             } else if((type == DataType::SINGLE_FLOAT || type == DataType::SINGLE_INT) && principal_axis == 'x') {
-                std::vector<Data> valid_data;
+                std::vector<DataStruct> valid_data;
                 for(auto it = m_dataset.getDatas()->begin(); it != m_dataset.getDatas()->end(); ++it) {
                     if(it->getType() == DataType::SINGLE_FLOAT||it->getType() == DataType::SINGLE_INT) {
                         valid_data.push_back(*it);
