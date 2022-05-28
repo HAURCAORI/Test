@@ -348,9 +348,6 @@ inline void vectorDecompos(DataStruct &data_struct, std::string s_id, char *dest
         vectorWrite(vec,dest,index);
     }
 }
-inline void vectorCompos() {
-
-}
 
 IPCData encodeIPCData(std::vector<DataStruct>& vecs)
 {
@@ -385,9 +382,6 @@ std::vector<DataStruct> decodeIPCData(IPCData& ipc_data)
     char* data = ipc_data.getData();
     size_t index = 0;
     int number = mread<int>(data, &index);
-    std::cout << number << std::endl;
-
-    char *data = new char[ipc_data.getSize()];
 
     for (int i = 0; i < number; i++)
     {
@@ -395,11 +389,17 @@ std::vector<DataStruct> decodeIPCData(IPCData& ipc_data)
         char id[20];
         memcpy(&id,data + (index), 20);
         index += 20;
-        std::cout << id;
-        //DataStruct temp();
-        //vectorDecompos(*it, "single", data, &index);
+        int size = mread<int>(data, &index);
+        char byte = mread<char>(data, &index);
+        if(static_cast<DataType>(type) == DataType::SINGLE_FLOAT) {
+            std::vector<float> vec;
+            for(int j = 0; j < size; j++) {
+                vec.push_back(mread<float>(data, &index));
+            }
+            ret.push_back(DataStruct(id,DataIO::IPCStruct::DataType::SINGLE_FLOAT, &vec, vec.size(),sizeof(float)));
+        }
     }
-    std::cout << index;
+    std::cout << "total read size : " << index << std::endl;
 
     delete[] data;
     return ret;
