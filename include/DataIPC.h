@@ -6,6 +6,10 @@
 #include <stdlib.h>
 #include <cstring>
 
+#include <sys/time.h>
+
+#include "IPCStruct.h"
+
 #ifndef _DATA_IPC_H
 #define _DATA_IPC_H
 
@@ -18,13 +22,13 @@
 #define SEND_DATA 0x01
 #define SEND_SUCCESS 0x02
 #define SEND_ERROR 0x04
+#define SEND_TIMEOUT 0x08
 #define IPC_DESTROY 0X80
 
-#define IPC_BUFFER_SIZE 1024
+#define IPC_BUFFER_SIZE 6
 
 namespace DataIO {
 //DataIPC
-
 class IPCData {
     private:
     char* m_data = nullptr;
@@ -37,7 +41,6 @@ class IPCData {
         alloc(size);
     }
     IPCData(const IPCData& rhs) {
-        std::cout << "e1" << std::endl;
         if(rhs.m_data != nullptr) {
             m_data = new char[rhs.m_size];
             memcpy(m_data,rhs.m_data,rhs.m_size);
@@ -46,7 +49,6 @@ class IPCData {
         }
     }
     IPCData& operator=(const IPCData& rhs) {
-        std::cout << "e2" << std::endl;
         if(rhs.m_data != nullptr) {
             m_data = new char[rhs.m_size];
             memcpy(m_data,rhs.m_data,rhs.m_size);
@@ -56,13 +58,11 @@ class IPCData {
         return *this;
     }
     IPCData(IPCData&& rhs) : m_data(rhs.m_data), m_size(rhs.m_size) {
-        std::cout << "e3" << std::endl;
         rhs.m_data = nullptr;
         rhs.m_size = 0;
     }
 
     IPCData& operator=(IPCData&& rhs) noexcept {
-        std::cout << "e4" << std::endl;
         if(this != &rhs) {
             free();
             m_data = rhs.m_data;
@@ -75,7 +75,6 @@ class IPCData {
     }
 
     ~IPCData() {
-        std::cout << "e5" << std::endl;
         free();
     }
     
@@ -86,7 +85,8 @@ class IPCData {
     }
 
     void free() {
-        if(m_data) { delete[] m_data; }
+        if(m_data != nullptr) { delete[] m_data; }
+        m_data = nullptr;
         m_size = 0;
     }
 
@@ -183,9 +183,10 @@ class DataIPC {
         if(!ipc_success) { return false; }
         shared_data* sd = sharedData();
         sd->size = size;
-        sd->flag = SEND_DATA;
-        for(unsigned int i = 0; i < size; i+= sd->buffer) {
+        unsigned int i = 0;
+        for(; i <= (size - sd->buffer); i+= sd->buffer) {
             pthread_mutex_lock(&(sd->shm_mutex));
+            sd->flag = SEND_DATA;
             sd->sequence_number = sequence_number;
             ++sequence_number;
             if(memcpy(sd->data+i, (ipc_data.getData()+i), sd->buffer) == NULL) {
@@ -196,11 +197,30 @@ class DataIPC {
                 return false;
             };
             sd->index = i;
-            pthread_cond_signal(&(sd->shm_cond));
             pthread_mutex_unlock(&(sd->shm_mutex));
+            pthread_cond_signal(&(sd->shm_cond));
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+        sd->flag |= SEND_SUCCESS;
+        if(i < size) {
+            pthread_mutex_lock(&(sd->shm_mutex));
+            sd->flag |= SEND_DATA;
+            sd->sequence_number = sequence_number;
+            sd->buffer = (size-i);
+            ++sequence_number;
+            if(memcpy(sd->data+i, (ipc_data.getData()+i), (size-i)) == NULL) {
+                printf("IPC Send Error\r\n");
+                sd->flag |= SEND_ERROR;
+                pthread_cond_signal(&(sd->shm_cond));
+                pthread_mutex_unlock(&(sd->shm_mutex));
+                return false;
+            };
+            sd->index = i;
+            pthread_mutex_unlock(&(sd->shm_mutex));
+            pthread_cond_signal(&(sd->shm_cond));
         }
         
-        sd->flag |= SEND_SUCCESS;
+        
         printf("IPC Send Success\r\n");
         return true;
     }
@@ -211,35 +231,51 @@ class DataIPC {
         if(ipc_mode != IPC_MODE::RECEIVER) { return result; }
         shared_data* sd = sharedData();
         result.setFlag(sd->flag);
-        if((sd->flag & SEND_DATA) == SEND_DATA) {
-            
+        if((result.getFlag() & SEND_DATA) == SEND_DATA) {
+            pthread_mutex_lock(&(sd->shm_mutex));
             unsigned int total_packet = sd->size / sd->buffer;
             if(sd->size % sd->buffer != 0) ++total_packet;
             result.alloc(sd->size);
-
+            
             unsigned int packet = 0;
             
             bool valid = true;
-            
+            struct timespec wait_time = {0, 0};
             while(packet < total_packet) {
-                pthread_mutex_lock(&(sd->shm_mutex));
-                pthread_cond_wait(&(sd->shm_cond),&(sd->shm_mutex));
-                
+                //std::cout << packet << "/" << total_packet << std::endl;
+                wait_time.tv_sec = time(NULL) + 2;
+
+                if(pthread_cond_timedwait(&(sd->shm_cond),&(sd->shm_mutex),&wait_time) != 0) {
+                    if((sd->flag & IPC_DESTROY) == IPC_DESTROY) { ipc_destroy = true; valid = false; break; }
+                    continue;
+                }
                 if((sd->flag & SEND_ERROR) == SEND_ERROR) { valid = false; break; }
-                if((sd->flag & IPC_DESTROY) == IPC_DESTROY) { ipc_destroy = true; valid = false; break; }
-                
+
+                if(sd->index < packet) {
+                    total_packet = sd->size / sd->buffer;
+                    if(sd->size % sd->buffer != 0) ++total_packet;
+                    result.alloc(sd->size);
+                    packet = 0;
+                }
                 
                 if(memcpy((result.getData() + sd->index), sd->data+sd->index, sd->buffer) == NULL) { valid = false; break; }
-                
+                result.setFlag(sd->flag);
+
                 ++packet;
-                if(((sd->flag & SEND_SUCCESS) == SEND_SUCCESS) && packet < total_packet) { valid = false; break; }
+                if((sd->flag & SEND_SUCCESS) == SEND_SUCCESS) {
+                    pthread_mutex_unlock(&(sd->shm_mutex));
+                    break;
+                }
                 pthread_mutex_unlock(&(sd->shm_mutex));
             }
+            
             if(!valid) {
+                result.setFlag(sd->flag);
                 pthread_mutex_unlock(&(sd->shm_mutex));
                 result.free();
                 return result;
             }
+            result.setFlag(result.getFlag() | SEND_SUCCESS);
         }
         return result;
     }
@@ -249,6 +285,119 @@ class DataIPC {
     }
 
 };
+
+namespace IPCStruct
+{
+
+//총 구조
+//IPC Data 개수
+
+//IPC Data 출력 type & id & size & byte & data
+template <typename T>
+void mwrite(char *dest, T *src, size_t *index)
+{
+    memcpy(dest + (*index), src, sizeof(T));
+    *index += sizeof(T);
+}
+
+void mwrite(char *dest, char *src, size_t n, size_t *index)
+{
+    memcpy(dest + (*index), src, n);
+    *index += n;
+}
+
+template <typename T>
+T mread(char *src, size_t *index)
+{
+    T ret;
+    memcpy(&ret,src+(*index), sizeof(T));
+    *index += sizeof(T);
+    return ret;
+}
+
+inline int getIPCDataSize(DataStruct data)
+{
+    return (1 + 20 + 4 + 1 + data.size() * data.typeSize());
+}
+
+template<typename T>
+inline void vectorWrite(std::vector<T>* vec, char *dest, size_t *index) {
+    int size = vec->size();
+    char byte = sizeof(T);
+    mwrite(dest, &size, index);
+    mwrite(dest, &byte, index);
+    for(auto it = vec->begin(); it != vec->end(); ++it) {
+        T value = *it;
+        mwrite(dest, &value, index);
+    }
+}
+
+inline void vectorDecompos(DataStruct &data_struct, std::string s_id, char *dest, size_t *index)
+{
+    char data_type = static_cast<char>(data_struct.getType());
+    mwrite(dest, &data_type, index);
+    char id[20];
+    strcpy(id, s_id.c_str());
+    mwrite(dest, id, 20, index);
+
+    if(data_struct.getType() == DataType::SINGLE_FLOAT) {
+        std::vector<float>* vec = (std::vector<float>*) data_struct.getData();
+        vectorWrite(vec,dest,index);
+    } else if(data_struct.getType() == DataType::SINGLE_INT) {
+        std::vector<int>* vec = (std::vector<int>*) data_struct.getData();
+        vectorWrite(vec,dest,index);
+    }
+}
+
+IPCData encodeIPCData(std::vector<DataStruct>& vecs)
+{
+    IPCData ipc_data;
+    int number = vecs.size();
+    int ipc_data_size = 4;
+    for (int i = 0; i < number; i++)
+    {
+        ipc_data_size += getIPCDataSize(vecs[i]);
+    }
+    std::cout << "total size : " << ipc_data_size << std::endl;
+    char *data = new char[ipc_data_size];
+    
+    //헤더 부분
+    size_t index = 0;
+    mwrite(data, &number, &index);    //4 number
+    //vector 대입
+    for (auto it = vecs.begin(); it != vecs.end(); ++it)
+    {
+        vectorDecompos(*it, "single", data, &index);
+    }
+    //std::cout << index;
+    ipc_data.alloc(ipc_data_size);
+    ipc_data.setData(data,ipc_data_size);
+    delete[] data;
+    return ipc_data;
+}
+
+std::vector<DataStruct> decodeIPCData(IPCData& ipc_data)
+{
+    std::vector<DataStruct> ret;
+    char* data = ipc_data.getData();
+    size_t index = 0;
+    int number = mread<int>(data, &index);
+    std::cout << number << std::endl;
+
+    char *data = new char[ipc_data.getSize()];
+
+    for (auto it = vecs.begin(); it != vecs.end(); ++it)
+    {
+        vectorDecompos(*it, "single", data, &index);
+    }
+    std::cout << index;
+    ipc_data.alloc(ipc_data_size);
+    ipc_data.setData(data,ipc_data_size);
+    delete[] data;
+    */
+    return ret;
+}
+} // namespace IPCStruct
 
 }
 #endif

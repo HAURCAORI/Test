@@ -8,7 +8,17 @@
 #define Point(i,j,k) (ds->data_area + i + ds->dimSizes[0] * j + ds->dimSizes[0] * ds->dimSizes[1] * k)
 
 #define TYPE std::string
+
+
+typedef DataIO::IPCStruct::DataStruct DStruct;
+
 int main(){
+    std::vector<float> vec = {1,2,3,4,5.1,4.2,1.3};
+    std::vector<DStruct> vecs;
+    vecs.push_back(DStruct("signal",DataIO::IPCStruct::DataType::SINGLE_FLOAT, &vec, vec.size(),sizeof(float)));
+    DataIO::IPCData d = DataIO::IPCStruct::encodeIPCData(vecs);
+
+    DataIO::IPCStruct::decodeIPCData(d);
     /*
     std::vector<TYPE> strs;
     for(int i = 0; i < 10; i++) {
@@ -41,12 +51,17 @@ int main(){
 
     delete(res);
     */
-
+/*
     DataIO::DataIPC ipc(DataIO::IPC_MODE::SENDER, 98765);
-    char data[20] = "Hello.";
+    
     DataIO::IPCData idata(20);
-    idata.setData(&data[0],20);
-    for(int i = 0; i < 10; i++) {
+    
+    for(int i = 0; i < 5; i++) {
+        char data[20];
+        std::string text = "abcdefghijklmnopqr" + std::to_string(i);
+        strcpy(data,text.c_str());
+        
+        idata.setData(&data[0],20);
         ipc.sendData(idata, 20);
         std::cout << i << std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(2));

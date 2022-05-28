@@ -15,14 +15,23 @@ struct shared_data {
 };
 
 void task(DataIO::DataIPC& ipc) {
-    std::cout << ipc.valid() << std::endl;
+    try {
     while(ipc.valid()) {
+        std::cout << "a" << std::endl;
         DataIO::IPCData d(ipc.receiveData());
-        if((d.getFlag() & IPC_DESTROY) == IPC_DESTROY) {
+
+        if((d.getFlag() & SEND_SUCCESS) == SEND_SUCCESS) {
+            std::cout << d.getData() << std::endl;
+        } else if((d.getFlag() & IPC_DESTROY) == IPC_DESTROY) {
             std::cout << "destroy" << std::endl;
             break;
+        } else  {
+            std::cout << "fail" << std::endl;
         }
-        std::cout << d.getData() << std::endl;
+
+    }
+    } catch(std::exception e) {
+        std::cout << "Exception" << std::endl;
     }
     std::cout << "invalid" << std::endl;
 }
@@ -35,25 +44,6 @@ int main(int argc, char *argv[])
 
     DataIO::DataIPC ipc(DataIO::IPC_MODE::RECEIVER, 98765);
     QtConcurrent::run(task,ipc);
-            /*
-    std::async(std::launch::async,
-               [&] {
-        std::cout << ipc.valid() << std::endl;
-        while(ipc.valid()) {
-            DataIO::IPCData d(ipc.receiveData());
-            std::cout << d.getData() << std::endl;
-        }
-        std::cout << "invalid" << std::endl;
-    }
-    );
-/*
-    std::thread([&] {std::this_thread::sleep_for(std::chrono::seconds(2));
-        pthread_cond_signal(&(d->cond));
-        std::cout << "signal" << std::endl;}
-    ).detach();
-*/
-
-
 
 /*
     //std::vector<INT> vec = {1,2,3,4,5};
