@@ -3,10 +3,10 @@
 #include <rtplot.h>
 #include <plotstruct.h>
 
-#include <pthread.h>
-#include <sys/shm.h>
-#include <sys/ipc.h>
+#include <QtConcurrent/qtconcurrentrun.h>
 #include <thread>
+#include <future>
+#include "../include/DataIPC.h"
 
 struct shared_data {
     pthread_mutex_t lock;
@@ -14,6 +14,18 @@ struct shared_data {
     int data;
 };
 
+void task(DataIO::DataIPC& ipc) {
+    std::cout << ipc.valid() << std::endl;
+    while(ipc.valid()) {
+        DataIO::IPCData d(ipc.receiveData());
+        if((d.getFlag() & IPC_DESTROY) == IPC_DESTROY) {
+            std::cout << "destroy" << std::endl;
+            break;
+        }
+        std::cout << d.getData() << std::endl;
+    }
+    std::cout << "invalid" << std::endl;
+}
 
 int main(int argc, char *argv[])
 {
@@ -21,37 +33,19 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
 
-    int shmid;
-    shared_data *d;
-    key_t key = 987654;
-    void *memory_segment = NULL;
-    if ((shmid = shmget(key, sizeof(shared_data), IPC_CREAT | 0666)) < 0)
-    {
-        printf("shmget failed\n");
-        return 0;
-    }
-    if ((memory_segment = shmat(shmid, NULL, 0)) == (void *)-1)
-    {
-        printf("shmat failed\n");
-        exit(0);
-    }
-    d = (struct shared_data*)memory_segment;
-    //d->cond = PTHREAD_COND_INITIALIZER;
-    int value = 0;
-
-    std::thread(
+    DataIO::DataIPC ipc(DataIO::IPC_MODE::RECEIVER, 98765);
+    QtConcurrent::run(task,ipc);
+            /*
+    std::async(std::launch::async,
                [&] {
-        pthread_mutex_lock(&(d->lock));
-        while(value < 5) {
-            pthread_cond_wait(&(d->cond),&(d->lock));
-            value = d->data;
-            std::cout << value << std::endl;
-            //printf("data : %d\r\n", value);
-            value++;
+        std::cout << ipc.valid() << std::endl;
+        while(ipc.valid()) {
+            DataIO::IPCData d(ipc.receiveData());
+            std::cout << d.getData() << std::endl;
         }
-        pthread_mutex_unlock(&(d->lock));
+        std::cout << "invalid" << std::endl;
     }
-    ).detach();
+    );
 /*
     std::thread([&] {std::this_thread::sleep_for(std::chrono::seconds(2));
         pthread_cond_signal(&(d->cond));

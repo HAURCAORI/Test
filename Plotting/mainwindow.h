@@ -7,6 +7,7 @@
 #include "drawing.h"
 #include "qplot.h"
 
+
 namespace Ui {
 class MainWindow;
 }

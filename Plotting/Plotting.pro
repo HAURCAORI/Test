@@ -34,7 +34,8 @@ HEADERS += \
     drawing.h \
     rtplot.h \
     qplot.h \
-    plotstruct.h
+    plotstruct.h \
+    ../include/DataIPC.h
 
 FORMS += \
         mainwindow.ui

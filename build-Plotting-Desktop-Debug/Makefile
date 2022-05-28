@@ -35,10 +35,10 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = Plotting1.0.0
-DISTDIR = /tmp/guest-auxt52/TEST/build-Plotting-Desktop-Debug/.tmp/Plotting1.0.0
+DISTDIR = /tmp/guest-wwgze9/TEST/build-Plotting-Desktop-Debug/.tmp/Plotting1.0.0
 LINK          = g++
 LFLAGS        = 
-LIBS          = $(SUBLIBS) -L/tmp/guest-auxt52/TEST/Plotting/library/Simd/ -lSimd -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread 
+LIBS          = $(SUBLIBS) -L/tmp/guest-wwgze9/TEST/Plotting/library/Simd/ -lSimd -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread 
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -141,7 +141,8 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		../Plotting/drawing.h \
 		../Plotting/rtplot.h \
 		../Plotting/qplot.h \
-		../Plotting/plotstruct.h ../Plotting/main.cpp \
+		../Plotting/plotstruct.h \
+		../include/DataIPC.h ../Plotting/main.cpp \
 		../Plotting/mainwindow.cpp \
 		../Plotting/drawing.cpp \
 		../Plotting/rtplot.cpp \
@@ -154,7 +155,7 @@ TARGET        = Plotting
 first: all
 ####### Build rules
 
-$(TARGET): /tmp/guest-auxt52/TEST/Plotting/library/Simd/libSimd.a ui_mainwindow.h $(OBJECTS)  
+$(TARGET): /tmp/guest-wwgze9/TEST/Plotting/library/Simd/libSimd.a ui_mainwindow.h $(OBJECTS)  
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
 
 Makefile: ../Plotting/Plotting.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++/qmake.conf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
@@ -329,7 +330,7 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents ../Plotting/mainwindow.h ../Plotting/drawing.h ../Plotting/rtplot.h ../Plotting/qplot.h ../Plotting/plotstruct.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../Plotting/mainwindow.h ../Plotting/drawing.h ../Plotting/rtplot.h ../Plotting/qplot.h ../Plotting/plotstruct.h ../include/DataIPC.h $(DISTDIR)/
 	$(COPY_FILE) --parents ../Plotting/main.cpp ../Plotting/mainwindow.cpp ../Plotting/drawing.cpp ../Plotting/rtplot.cpp ../Plotting/qplot.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../Plotting/mainwindow.ui $(DISTDIR)/
 
@@ -384,7 +385,7 @@ moc_mainwindow.cpp: ../Plotting/drawing.h \
 		../Plotting/mainwindow.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/tmp/guest-auxt52/TEST/Plotting -I/tmp/guest-auxt52/TEST/Plotting/library/Simd/src -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../Plotting/mainwindow.h -o moc_mainwindow.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/tmp/guest-wwgze9/TEST/Plotting -I/tmp/guest-wwgze9/TEST/Plotting/library/Simd/src -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../Plotting/mainwindow.h -o moc_mainwindow.cpp
 
 moc_qplot.cpp: ../Plotting/rtplot.h \
 		../Plotting/drawing.h \
@@ -403,7 +404,7 @@ moc_qplot.cpp: ../Plotting/rtplot.h \
 		../Plotting/qplot.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/tmp/guest-auxt52/TEST/Plotting -I/tmp/guest-auxt52/TEST/Plotting/library/Simd/src -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../Plotting/qplot.h -o moc_qplot.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include ./moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/tmp/guest-wwgze9/TEST/Plotting -I/tmp/guest-wwgze9/TEST/Plotting/library/Simd/src -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../Plotting/qplot.h -o moc_qplot.cpp
 
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
@@ -454,7 +455,8 @@ main.o: ../Plotting/main.cpp ../Plotting/mainwindow.h \
 		../Plotting/library/Simd/src/Simd/SimdDrawing.hpp \
 		../Plotting/qplot.h \
 		../Plotting/rtplot.h \
-		../Plotting/plotstruct.h
+		../Plotting/plotstruct.h \
+		../include/DataIPC.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o ../Plotting/main.cpp
 
 mainwindow.o: ../Plotting/mainwindow.cpp ../Plotting/mainwindow.h \
