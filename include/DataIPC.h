@@ -348,6 +348,9 @@ inline void vectorDecompos(DataStruct &data_struct, std::string s_id, char *dest
         vectorWrite(vec,dest,index);
     }
 }
+inline void vectorCompos() {
+
+}
 
 IPCData encodeIPCData(std::vector<DataStruct>& vecs)
 {
@@ -386,15 +389,19 @@ std::vector<DataStruct> decodeIPCData(IPCData& ipc_data)
 
     char *data = new char[ipc_data.getSize()];
 
-    for (auto it = vecs.begin(); it != vecs.end(); ++it)
+    for (int i = 0; i < number; i++)
     {
-        vectorDecompos(*it, "single", data, &index);
+        char type = mread<char>(data, &index);
+        char id[20];
+        memcpy(&id,data + (index), 20);
+        index += 20;
+        std::cout << id;
+        //DataStruct temp();
+        //vectorDecompos(*it, "single", data, &index);
     }
     std::cout << index;
-    ipc_data.alloc(ipc_data_size);
-    ipc_data.setData(data,ipc_data_size);
+
     delete[] data;
-    */
     return ret;
 }
 } // namespace IPCStruct
