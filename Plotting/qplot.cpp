@@ -119,10 +119,9 @@ void qplot::setDataSet(rtplot::DataSet dataset, rtplot::DataType type)
     updateImage();
 }
 
-void qplot::updateDataSet()
+void qplot::updateDataSet(std::vector<rtplot::DataStruct>* rds)
 {
-    //plot.updateDataSet(rds);
+    plot.updateDataSet(rds);
     //plot.updatePlot();
-    emit Update_Image(this);
     //updateImage();
 }

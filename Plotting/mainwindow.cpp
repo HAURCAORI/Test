@@ -9,8 +9,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setEvent(ui->view1);
 
-    //rtthread = new RTThread(this);
-    //QObject::connect(rtthread, SIGNAL(Send()),this,SLOT(Receive()),Qt::DirectConnection);
+    rtthread = new RTThread(this);
+    QObject::connect(rtthread, SIGNAL(Update_Image(std::vector<rtplot::DataStruct>*,QString)),this,SLOT(Update_Image(std::vector<rtplot::DataStruct>*,QString)),Qt::DirectConnection);
 
 }
 
@@ -55,11 +55,6 @@ void MainWindow::Mouse_left()
 
 }
 
-void MainWindow::Update_Image(qplot* plot){
-
-}
-
-void MainWindow::Receive()
-{
-    std::cout <<"a" << std::endl;
+void MainWindow::Update_Image(std::vector<rtplot::DataStruct>* rds, QString id){
+    getViewWidget(id)->updateDataSet(rds);
 }

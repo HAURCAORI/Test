@@ -41,6 +41,8 @@ std::string roundString(double value, int digits)
 }
 
 namespace rtplot {
+
+
 bool DataSet::deleteData(std::string name) {
     for(auto it = datas.begin(); it != datas.end();) {
         if(it->getName() == name) { it = datas.erase(it); return true; }

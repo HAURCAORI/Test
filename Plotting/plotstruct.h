@@ -55,29 +55,6 @@ public:
     int typeSize() { return type_size; }
 };
 
-struct Gradation {
-    //global
-    char id;
-    bool show = true;
-    std::string label;
-    Size size;
-    Location location;
-    size_t margin = 20;// 좌우 마진
-    //case number
-    FLOAT min_value = -10;
-    FLOAT max_value = 10;
-    FLOAT imin_value = min_value;
-    FLOAT imax_value = max_value;
-    FLOAT major_interval = 2;
-    FLOAT imajor_interval = major_interval;
-    FLOAT minor_interval = 1;
-    FLOAT iminor_interval = minor_interval;
-    FLOAT major_tick = (max_value-min_value)/major_interval;
-    FLOAT minor_tick = (max_value-min_value)/minor_interval;
-    int digit = 3;
-    //case string
-    size_t data_number = 5;
-};
 
 }
 

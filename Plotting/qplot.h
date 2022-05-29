@@ -43,7 +43,7 @@ public:
     void init();
     void setDataSet(rtplot::DataSet dataset, rtplot::DataType type);
     rtplot::DataSet* getDataSet() { return plot.getDataSet(); }
-    void updateDataSet();
+    void updateDataSet(std::vector<rtplot::DataStruct>* rds);
     const View* view = nullptr;
     int x,y;
 signals:
@@ -51,7 +51,6 @@ signals:
     void Mouse_Up();
     void Mouse_Pos();
     void Mouse_Left();
-    void Update_Image(qplot*);
 
 public slots:
 };

@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 
     //DataIO::IPCSharedMemory ipc(DataIO::IPC_MODE::RECEIVER, 98765);
     //QtConcurrent::run(task,ipc, &w);
-    //w.rtthread->start();
+    w.rtthread->start();
 
 /*
     //std::vector<INT> vec = {1,2,3,4,5};

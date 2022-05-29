@@ -286,20 +286,20 @@ namespace IPCStruct
 //IPC Data 개수
 //IPC Data 출력 type & id & size & byte & data
 template <typename T>
-void mwrite(char *dest, T *src, size_t *index)
+inline void mwrite(char *dest, T *src, size_t *index)
 {
     memcpy(dest + (*index), src, sizeof(T));
     *index += sizeof(T);
 }
 
-void mwrite(char *dest, char *src, size_t n, size_t *index)
+inline void mwrite(char *dest, char *src, size_t n, size_t *index)
 {
     memcpy(dest + (*index), src, n);
     *index += n;
 }
 
 template <typename T>
-T mread(char *src, size_t *index)
+inline T mread(char *src, size_t *index)
 {
     T ret;
     memcpy(&ret,src+(*index), sizeof(T));
@@ -346,7 +346,7 @@ inline std::vector<T> vectorCompos(char* data, char* id, int size, size_t *index
     return vec;
 }
 
-IPCData encodeIPCData(std::vector<IPCDataStruct>& vecs)
+inline IPCData encodeIPCData(std::vector<IPCDataStruct>& vecs)
 {
     IPCData ipc_data;
     int number = vecs.size();
@@ -371,7 +371,7 @@ IPCData encodeIPCData(std::vector<IPCDataStruct>& vecs)
 }
 
 
-std::vector<IPCDataStruct> decodeIPCData(IPCData& ipc_data, VectorContainer& container)
+inline std::vector<IPCDataStruct> decodeIPCData(IPCData& ipc_data, VectorContainer& container)
 {
     std::vector<IPCDataStruct> ret;
     char* data = ipc_data.getData();
