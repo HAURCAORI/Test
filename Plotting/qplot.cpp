@@ -121,10 +121,13 @@ void qplot::setDataSet(rtplot::DataSet dataset, rtplot::DataType type)
     updateImage();
 }
 
+void qplot::updatePlot() {
+    plot.updatePlot();
+    updateImage();
+}
+
 void qplot::updateDataSet(std::vector<rtplot::DataStruct> rds)
 {
     std::cout << QThread::currentThread() << std::endl;
-    //plot.updateDataSet(rds);
-    //plot.updatePlot();
-    //updateImage();
+    plot.updateDataSet(&rds);
 }

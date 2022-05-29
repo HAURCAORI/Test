@@ -30,7 +30,7 @@ private slots:
     void Mouse_Down();
     void Mouse_Up();
     void Mouse_left();
-    void Update_Image(std::vector<rtplot::DataStruct>&,QString);
+    void Update_Image(QString);
 
 private:
     Ui::MainWindow *ui;

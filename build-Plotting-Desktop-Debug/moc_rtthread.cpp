@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_RTThread_t {
-    QByteArrayData data[4];
-    char stringdata0[56];
+    QByteArrayData data[3];
+    char stringdata0[23];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -33,12 +33,10 @@ static const qt_meta_stringdata_RTThread_t qt_meta_stringdata_RTThread = {
     {
 QT_MOC_LITERAL(0, 0, 8), // "RTThread"
 QT_MOC_LITERAL(1, 9, 12), // "Update_Image"
-QT_MOC_LITERAL(2, 22, 0), // ""
-QT_MOC_LITERAL(3, 23, 32) // "std::vector<rtplot::DataStruct>&"
+QT_MOC_LITERAL(2, 22, 0) // ""
 
     },
-    "RTThread\0Update_Image\0\0"
-    "std::vector<rtplot::DataStruct>&"
+    "RTThread\0Update_Image\0"
 };
 #undef QT_MOC_LITERAL
 
@@ -56,10 +54,10 @@ static const uint qt_meta_data_RTThread[] = {
        1,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    2,   19,    2, 0x06 /* Public */,
+       1,    1,   19,    2, 0x06 /* Public */,
 
  // signals: parameters
-    QMetaType::Void, 0x80000000 | 3, QMetaType::QString,    2,    2,
+    QMetaType::Void, QMetaType::QString,    2,
 
        0        // eod
 };
@@ -70,13 +68,13 @@ void RTThread::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
         RTThread *_t = static_cast<RTThread *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->Update_Image((*reinterpret_cast< std::vector<rtplot::DataStruct>(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2]))); break;
+        case 0: _t->Update_Image((*reinterpret_cast< QString(*)>(_a[1]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
         int *result = reinterpret_cast<int *>(_a[0]);
         {
-            typedef void (RTThread::*_t)(std::vector<rtplot::DataStruct> & , QString );
+            typedef void (RTThread::*_t)(QString );
             if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&RTThread::Update_Image)) {
                 *result = 0;
                 return;
@@ -122,9 +120,9 @@ int RTThread::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 }
 
 // SIGNAL 0
-void RTThread::Update_Image(std::vector<rtplot::DataStruct> & _t1, QString _t2)
+void RTThread::Update_Image(QString _t1)
 {
-    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)) };
+    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 0, _a);
 }
 QT_WARNING_POP

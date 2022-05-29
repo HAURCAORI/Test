@@ -10,9 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setEvent(ui->view1);
 
     rtthread = new RTThread(this);
-    qRegisterMetaType<std::vector<rtplot::DataStruct>>("std::vector<rtplot::DataStruct>");
-    //qRegisterMetaType<std::vector<rtplot::DataStruct>>("std::vector<rtplot::DataStruct>&");
-    QObject::connect(rtthread, SIGNAL(Update_Image(std::vector<rtplot::DataStruct>&,QString)),this,SLOT(Update_Image(std::vector<rtplot::DataStruct>&,QString)),Qt::QueuedConnection);
+    QObject::connect(rtthread, SIGNAL(Update_Image(QString)),this,SLOT(Update_Image(QString)),Qt::QueuedConnection);
 
 }
 
@@ -57,6 +55,6 @@ void MainWindow::Mouse_left()
 
 }
 
-void MainWindow::Update_Image(std::vector<rtplot::DataStruct>& rds, QString id){
-    //getViewWidget(id)->updateDataSet(rds);
+void MainWindow::Update_Image(QString id){
+    getViewWidget(id)->updatePlot();
 }

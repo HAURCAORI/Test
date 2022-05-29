@@ -11,20 +11,24 @@
 
 
 int main(){
-    std::vector<FLOAT> vec = {1,2,3};
-    std::vector<DataIO::IPCStruct::IPCDataStruct> vecs;
-    vecs.push_back(DataIO::IPCStruct::IPCDataStruct("signal",DataIO::IPCStruct::IPCDataType::SINGLE_FLOAT, &vec, vec.size(),sizeof(FLOAT)));
-    DataIO::IPCData d = DataIO::IPCStruct::encodeIPCData(vecs);
+    
 
     DataIO::IPCSharedMemory ipc(DataIO::IPC_MODE::SENDER, 98765);
     
     
     for(int i = 0; i < 10; i++) {
+        std::vector<FLOAT> vec;
+        vec.push_back(i);
+        vec.push_back(i+1);
+        vec.push_back(i+2);
+        std::vector<DataIO::IPCStruct::IPCDataStruct> vecs;
+        vecs.push_back(DataIO::IPCStruct::IPCDataStruct("signal",DataIO::IPCStruct::IPCDataType::SINGLE_FLOAT, &vec, vec.size(),sizeof(FLOAT)));
+        DataIO::IPCData d = DataIO::IPCStruct::encodeIPCData(vecs);
         ipc.sendData(d);
         std::cout << i << std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(2));
     }
-    
+    vec.push_back(i);
     //DataIO::IPCStruct::decodeIPCData(d);
     /*
     std::vector<TYPE> strs;

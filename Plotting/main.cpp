@@ -86,6 +86,7 @@ int main(int argc, char *argv[])
     aa.push_back(rtplot::DataStruct("A",rtplot::DataType::SINGLE_FLOAT,&vec,vec.size(),sizeof(FLOAT)));
     w.getViewWidget("view1")->setDataSet(ds,rtplot::DataType::SINGLE_FLOAT);
     //w.getViewWidget("view1")->updateDataSet(&aa);
+    w.rtthread->qp = w.getViewWidget("view1");
     w.rtthread->start();
 
     /*

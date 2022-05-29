@@ -63,7 +63,8 @@ private:
     std::map<std::string, std::vector<FLOAT>> m_vec_f;
 public:
     VectorContainer() {}
-    std::vector<FLOAT>* add(std::string id, std::vector<FLOAT>&& vec) { return &(m_vec_f.emplace(std::make_pair(id,vec)).first->second);}
+    std::vector<FLOAT>* add(std::string id, std::vector<FLOAT>&& vec) { m_vec_f.erase(id);
+        return &(m_vec_f.emplace(std::make_pair(id,vec)).first->second);}
     
     std::vector<FLOAT>* get(std::string id) { return &(m_vec_f.find(id)->second); }
 };

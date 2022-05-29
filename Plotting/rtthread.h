@@ -1,6 +1,7 @@
 #include <QThread>
 #include "../include/DataIPC.h"
 #include "plotstruct.h"
+#include "qplot.h"
 #ifndef RTTHREAD_H
 #define RTTHREAD_H
 
@@ -12,9 +13,9 @@ private:
     void run();
 public:
     explicit RTThread(QObject *parent = 0);
-
+    qplot *qp;
 signals:
-    void Update_Image(std::vector<rtplot::DataStruct>&,QString);
+    void Update_Image(QString);
 };
 
 #endif // RTTHREAD_H
