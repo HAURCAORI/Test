@@ -1,4 +1,5 @@
 #pragma once
+
 #include <stdio.h>
 #include <pthread.h>
 #include <sys/shm.h>
@@ -7,6 +8,8 @@
 #include <cstring>
 
 #include <sys/time.h>
+
+#include "IPCStruct.h"
 
 #ifndef _DATA_IPC_H
 #define _DATA_IPC_H
@@ -23,11 +26,9 @@
 #define SEND_TIMEOUT 0x08
 #define IPC_DESTROY 0X80
 
-#define IPC_BUFFER_SIZE 6
-
-typedef int INT;
-typedef double FLOAT;
-typedef std::string STRING;
+//Option
+#define IPC_BUFFER_SIZE 1024 //byte
+#define TIME_OUT 5 //sec
 
 namespace DataIO {
 //DataIPC
@@ -39,9 +40,7 @@ class IPCData {
 
     public:
     IPCData() {}
-    IPCData(unsigned int size) : m_size(size) {
-        alloc(size);
-    }
+    IPCData(unsigned int size) : m_size(size) { alloc(size); }
     IPCData(const IPCData& rhs) {
         if(rhs.m_data != nullptr) {
             m_data = new char[rhs.m_size];
@@ -59,10 +58,7 @@ class IPCData {
         }
         return *this;
     }
-    IPCData(IPCData&& rhs) : m_data(rhs.m_data), m_size(rhs.m_size) {
-        rhs.m_data = nullptr;
-        rhs.m_size = 0;
-    }
+    IPCData(IPCData&& rhs) : m_data(rhs.m_data), m_size(rhs.m_size) { rhs.m_data = nullptr; rhs.m_size = 0; }
 
     IPCData& operator=(IPCData&& rhs) noexcept {
         if(this != &rhs) {
@@ -76,15 +72,9 @@ class IPCData {
         return *this;
     }
 
-    ~IPCData() {
-        free();
-    }
+    ~IPCData() { free(); }
     
-    void alloc(unsigned int sz) {
-        free();
-        m_data = new char[sz];
-        m_size = sz;
-    }
+    void alloc(unsigned int sz) { free(); m_data = new char[sz]; m_size = sz; }
 
     void free() {
         if(m_data != nullptr) { delete[] m_data; }
@@ -118,7 +108,7 @@ struct shared_data {
     SharedFlag flag;
     char data[IPC_BUFFER_SIZE];
 };
-class DataIPC {
+class IPCSharedMemory {
     private:
     bool ipc_success = false;
     bool ipc_destroy = false;
@@ -132,7 +122,7 @@ class DataIPC {
 
     inline struct shared_data* sharedData() { return (struct shared_data *)memory_segment; }
 
-    DataIPC(IPC_MODE ipc_mode, key_t key) : ipc_mode(ipc_mode), key(key) {
+    IPCSharedMemory(IPC_MODE ipc_mode, key_t key) : ipc_mode(ipc_mode), key(key) {
         if ((shmid = shmget(key, sizeof(shared_data), IPC_CREAT | 0666)) < 0) {
             printf("shmget failed\n");
             ipc_success = false;
@@ -164,7 +154,7 @@ class DataIPC {
         ipc_success = true;
     }
 
-    ~DataIPC() {
+    ~IPCSharedMemory() {
         ipc_destroy = true;
         if(!ipc_success) { return; }
         shared_data* sd = sharedData();
@@ -182,19 +172,20 @@ class DataIPC {
     }
 
     bool sendData(IPCData& ipc_data) {
+        
         if(!ipc_success) { return false; }
-        unsigned int size = ipc_data.getSize();
+        int size = ipc_data.getSize();
         shared_data* sd = sharedData();
         sd->size = size;
-        unsigned int i = 0;
-        for(; i <= (size - sd->buffer); i+= sd->buffer) {
+        int i = 0;
+        for(i = 0; i <= (size - (int) sd->buffer); i+= sd->buffer) {
             pthread_mutex_lock(&(sd->shm_mutex));
             sd->flag = SEND_DATA;
             sd->sequence_number = sequence_number;
             ++sequence_number;
             if(memcpy(sd->data+i, (ipc_data.getData()+i), sd->buffer) == NULL) {
                 printf("IPC Send Error\r\n");
-                sd->flag |= SEND_ERROR;
+                sd->flag = SEND_ERROR | SEND_DATA;
                 pthread_cond_signal(&(sd->shm_cond));
                 pthread_mutex_unlock(&(sd->shm_mutex));
                 return false;
@@ -204,25 +195,24 @@ class DataIPC {
             pthread_cond_signal(&(sd->shm_cond));
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
+        pthread_mutex_lock(&(sd->shm_mutex));
         sd->flag |= SEND_SUCCESS;
         if(i < size) {
-            pthread_mutex_lock(&(sd->shm_mutex));
             sd->flag |= SEND_DATA;
             sd->sequence_number = sequence_number;
             sd->buffer = (size-i);
             ++sequence_number;
             if(memcpy(sd->data+i, (ipc_data.getData()+i), (size-i)) == NULL) {
                 printf("IPC Send Error\r\n");
-                sd->flag |= SEND_ERROR;
-                pthread_cond_signal(&(sd->shm_cond));
+                sd->flag = SEND_ERROR | SEND_DATA;
                 pthread_mutex_unlock(&(sd->shm_mutex));
+                pthread_cond_signal(&(sd->shm_cond));
                 return false;
             };
             sd->index = i;
-            pthread_mutex_unlock(&(sd->shm_mutex));
-            pthread_cond_signal(&(sd->shm_cond));
         }
-        
+        pthread_mutex_unlock(&(sd->shm_mutex));
+        pthread_cond_signal(&(sd->shm_cond));
         
         printf("IPC Send Success\r\n");
         return true;
@@ -241,20 +231,20 @@ class DataIPC {
             result.alloc(sd->size);
             
             unsigned int packet = 0;
-            
             bool valid = true;
             struct timespec wait_time = {0, 0};
             while(packet < total_packet) {
-                //std::cout << packet << "/" << total_packet << std::endl;
-                wait_time.tv_sec = time(NULL) + 2;
+                wait_time.tv_sec = time(NULL) + TIME_OUT;
 
                 if(pthread_cond_timedwait(&(sd->shm_cond),&(sd->shm_mutex),&wait_time) != 0) {
                     if((sd->flag & IPC_DESTROY) == IPC_DESTROY) { ipc_destroy = true; valid = false; break; }
                     continue;
                 }
+                result.setFlag(sd->flag);
+
                 if((sd->flag & SEND_ERROR) == SEND_ERROR) { valid = false; break; }
 
-                if(sd->index < packet) {
+                if(sd->index < packet) { //새로운 패킷을 받을 경우
                     total_packet = sd->size / sd->buffer;
                     if(sd->size % sd->buffer != 0) ++total_packet;
                     result.alloc(sd->size);
@@ -262,23 +252,22 @@ class DataIPC {
                 }
                 
                 if(memcpy((result.getData() + sd->index), sd->data+sd->index, sd->buffer) == NULL) { valid = false; break; }
-                result.setFlag(sd->flag);
+                
 
                 ++packet;
                 if((sd->flag & SEND_SUCCESS) == SEND_SUCCESS) {
-                    pthread_mutex_unlock(&(sd->shm_mutex));
                     break;
                 }
-                pthread_mutex_unlock(&(sd->shm_mutex));
             }
-            
+
             if(!valid) {
                 result.setFlag(sd->flag);
                 pthread_mutex_unlock(&(sd->shm_mutex));
                 result.free();
                 return result;
             }
-            result.setFlag(result.getFlag() | SEND_SUCCESS);
+            pthread_mutex_unlock(&(sd->shm_mutex));
+            //result.setFlag(result.getFlag() | SEND_SUCCESS);
         }
         return result;
     }
@@ -291,54 +280,8 @@ class DataIPC {
 
 namespace IPCStruct
 {
-
-template<typename T, typename U>
-struct Pair {
-    T first;
-    U second;
-};
-
-typedef Pair<FLOAT,FLOAT> FloatFloat;
-typedef Pair<STRING,FLOAT> StringFloat;
-typedef Pair<STRING,INT> StringInt;
-
-template<typename T>
-inline std::string getType() {
-    if(typeid(T) == typeid(INT)) { return "int"; }
-    else if(typeid(T) == typeid(FLOAT)) { return "float"; }
-    else if(typeid(T) == typeid(STRING)) { return "string"; }
-    else return typeid(T).name();
-}
-
-enum class IPCDataType :char {
-    SINGLE_INT = 0x01,
-    SINGLE_FLOAT = 0x02,
-    SINGLE_STRING = 0x03,
-    PAIR_STRING_INT = 0x04,
-    PAIR_STRING_FLOAT = 0x05,
-    PAIR_FLOAT_FLOAT = 0x06
-};
-
-class IPCDataStruct {
-private:
-    std::string name; //범례에 표시되는 값
-    IPCDataType type;
-    void* data; //데이터 포인터
-    int m_size;
-    int type_size;
-public:
-    IPCDataStruct(std::string name, IPCDataType type, void* data, size_t size, int type_size) : name(name), type(type), data(data), m_size(size), type_size(type_size) {}
-    std::string getName() { return name; }
-    IPCDataType getType() { return type; }
-    const void* getData(){ return data; }
-    int size() { return m_size; }
-    int typeSize() { return type_size; }
-};
-
-
 //총 구조
 //IPC Data 개수
-
 //IPC Data 출력 type & id & size & byte & data
 template <typename T>
 void mwrite(char *dest, T *src, size_t *index)
@@ -362,14 +305,9 @@ T mread(char *src, size_t *index)
     return ret;
 }
 
-inline int getIPCDataSize(IPCDataStruct data)
-{
-    return (1 + 20 + 4 + 1 + data.size() * data.typeSize());
-}
-
 template<typename T>
 inline void vectorWrite(std::vector<T>* vec, char *dest, size_t *index) {
-    int size = vec->size();
+    size_t size = vec->size();
     char byte = sizeof(T);
     mwrite(dest, &size, index);
     mwrite(dest, &byte, index);
@@ -379,13 +317,13 @@ inline void vectorWrite(std::vector<T>* vec, char *dest, size_t *index) {
     }
 }
 
-inline void vectorDecompos(IPCDataStruct &data_struct, std::string s_id, char *dest, size_t *index)
+inline void vectorDecompos(IPCDataStruct &data_struct, char *dest, size_t *index)
 {
     char data_type = static_cast<char>(data_struct.getType());
     mwrite(dest, &data_type, index);
-    char id[20];
-    strcpy(id, s_id.c_str());
-    mwrite(dest, id, 20, index);
+    char id[IPC_STRUCT_STRING_SIZE];
+    strcpy(id, data_struct.getName().c_str());
+    mwrite(dest, id, IPC_STRUCT_STRING_SIZE, index);
 
     if(data_struct.getType() == IPCDataType::SINGLE_FLOAT) {
         std::vector<float>* vec = (std::vector<float>*) data_struct.getData();
@@ -396,14 +334,23 @@ inline void vectorDecompos(IPCDataStruct &data_struct, std::string s_id, char *d
     }
 }
 
+template<typename T>
+inline IPCDataStruct vectorCompos(char* data, char* id, int size, size_t *index) {
+    std::vector<T> vec;
+    for(int i = 0; i < size; i++) {
+        vec.push_back(mread<T>(data, index));
+    }
+    return IPCDataStruct(id,IPCDataType::SINGLE_FLOAT, &vec, vec.size(),sizeof(T));
+}
+
 IPCData encodeIPCData(std::vector<IPCDataStruct>& vecs)
 {
     IPCData ipc_data;
     int number = vecs.size();
-    int ipc_data_size = 4;
+    int ipc_data_size = sizeof(number);
     for (int i = 0; i < number; i++)
     {
-        ipc_data_size += getIPCDataSize(vecs[i]);
+        ipc_data_size += vecs[i].getIPCDataSize();
     }
     std::cout << "total size : " << ipc_data_size << std::endl;
     char *data = new char[ipc_data_size];
@@ -412,11 +359,8 @@ IPCData encodeIPCData(std::vector<IPCDataStruct>& vecs)
     size_t index = 0;
     mwrite(data, &number, &index);    //4 number
     //vector 대입
-    for (auto it = vecs.begin(); it != vecs.end(); ++it)
-    {
-        vectorDecompos(*it, "single", data, &index);
-    }
-    //std::cout << index;
+    for (auto it = vecs.begin(); it != vecs.end(); ++it) { vectorDecompos(*it, data, &index); }
+
     ipc_data.alloc(ipc_data_size);
     ipc_data.setData(data,ipc_data_size);
     delete[] data;
@@ -433,17 +377,14 @@ std::vector<IPCDataStruct> decodeIPCData(IPCData& ipc_data)
     for (int i = 0; i < number; i++)
     {
         char type = mread<char>(data, &index);
-        char id[20];
-        memcpy(&id,data + (index), 20);
-        index += 20;
+        char id[IPC_STRUCT_STRING_SIZE];
+        memcpy(&id,data + (index), IPC_STRUCT_STRING_SIZE);
+        index += IPC_STRUCT_STRING_SIZE;
+
         int size = mread<int>(data, &index);
         char byte = mread<char>(data, &index);
         if(static_cast<IPCDataType>(type) == IPCDataType::SINGLE_FLOAT) {
-            std::vector<float> vec;
-            for(int j = 0; j < size; j++) {
-                vec.push_back(mread<float>(data, &index));
-            }
-            ret.push_back(IPCDataStruct(id,IPCDataType::SINGLE_FLOAT, &vec, vec.size(),sizeof(float)));
+            ret.push_back(vectorCompos<float>(data, id, size,&index));
         }
     }
     std::cout << "total read size : " << index << std::endl;

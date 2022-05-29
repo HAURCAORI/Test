@@ -16,15 +16,14 @@ int main(){
     vecs.push_back(DataIO::IPCStruct::IPCDataStruct("signal",DataIO::IPCStruct::IPCDataType::SINGLE_FLOAT, &vec, vec.size(),sizeof(float)));
     DataIO::IPCData d = DataIO::IPCStruct::encodeIPCData(vecs);
 
-    DataIO::DataIPC ipc(DataIO::IPC_MODE::SENDER, 98765);
-    /*
+    DataIO::IPCSharedMemory ipc(DataIO::IPC_MODE::SENDER, 987653);
+    
     for(int i = 0; i < 5; i++) {
-
         ipc.sendData(d);
         std::cout << i << std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(2));
     }
-    */
+    
 
     DataIO::IPCStruct::decodeIPCData(d);
     /*
