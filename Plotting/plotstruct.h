@@ -55,7 +55,6 @@ public:
     int typeSize() { return type_size; }
 };
 
-
 }
 
 #endif // PLOTSTRUCT_H

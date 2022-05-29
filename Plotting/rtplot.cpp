@@ -195,7 +195,6 @@ void rtplot::drawPlot() {
             m_title_font.Draw(m_title_view,m_title, Point((m_title_size.width-tfm.x)/2, (m_title_size.height-tfm.y)/2),color_text);
         }
     }
-
     //좌표 축
     double height_per_value = (double) m_plot_view.height/(y_axis.max_value - y_axis.min_value);
     double width_per_value = (double) m_plot_view.width/(x_axis.max_value - x_axis.min_value);

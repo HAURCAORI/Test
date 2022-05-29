@@ -32,6 +32,7 @@ int main(){
         std::string str = "abc" + i;
         strs.push_back(str);
     }
+    
 
     TYPE* d = &strs[0];
     size_t size = strs.size();

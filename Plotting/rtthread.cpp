@@ -11,7 +11,6 @@ void RTThread::run()
 {
     while(ipc.valid()) {
         DataIO::IPCData d(ipc.receiveData());
-
         if((d.getFlag() & IPC_DESTROY) == IPC_DESTROY) {
             std::cout << "destroy" << std::endl;
             break;
@@ -20,17 +19,21 @@ void RTThread::run()
             if((d.getFlag() & SEND_SUCCESS) == SEND_SUCCESS) {
                 std::vector<DataIO::IPCStruct::IPCDataStruct> ds = DataIO::IPCStruct::decodeIPCData(d,vec_container);
                 std::vector<rtplot::DataStruct> rds(ds.begin(), ds.end());
-                emit Update_Image(&rds,"view1");
+
+                emit Update_Image(rds,"view1");
+
                 /*
                 for(auto it = rds.begin(); it != rds.end(); ++it) {
 
                     //plot->updateImage();
                     //plot->updateDataSet();
                     //rtplot::DataStruct temp(*it);
-                    std::cout << it->getName() << std::endl;
+                    std::cout << it->size() << std::endl;
+
                     //rds.push_back(temp);
                 }
-*/
+                */
+
 
             } else if((d.getFlag() & SEND_ERROR) == SEND_ERROR) {
                 std::cout << "error" << std::endl;

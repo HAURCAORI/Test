@@ -14,7 +14,7 @@ public:
     explicit RTThread(QObject *parent = 0);
 
 signals:
-    void Update_Image(std::vector<rtplot::DataStruct>*,QString);
+    void Update_Image(std::vector<rtplot::DataStruct>,QString);
 };
 
 #endif // RTTHREAD_H

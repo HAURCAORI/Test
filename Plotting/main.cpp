@@ -14,6 +14,8 @@ struct shared_data {
 };
 
 
+
+
 /*
 static DataIO::IPCStruct::VectorContainer vec_container;
 
@@ -62,28 +64,29 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
     w.getViewWidget("view1")->init();
-    rtplot::DataSet ds;
-    w.getViewWidget("view1")->setDataSet(ds,rtplot::DataType::SINGLE_FLOAT);
 
     //DataIO::IPCSharedMemory ipc(DataIO::IPC_MODE::RECEIVER, 98765);
     //QtConcurrent::run(task,ipc, &w);
-    w.rtthread->start();
 
-/*
+
+    rtplot::DataSet ds;
     //std::vector<INT> vec = {1,2,3,4,5};
     std::vector<FLOAT> vec = {1,2,3,4,5.1,4.2,1.3};
     std::vector<STRING> vec2 = {"a","ab","abc","abcd","abcde"};
     std::vector<FloatFloat> vec3 = {{1,2},{3,4},{5,6}};
     std::vector<StringFloat> vec4 = {{"A",2},{"b",4},{"C",6}};
-    rtplot::DataSet ds;
 
-    ds.addData("single", &vec);
-    ds.addData("single2", &vec);
+    //ds.addData("single", &vec);
+    //ds.addData("single2", &vec);
     //ds.addData("b", &vec2);
     //ds.addData("c", &vec3);
     //ds.addData("d", &vec4);
     //ds.printAll();
-
+    std::vector<rtplot::DataStruct> aa;
+    aa.push_back(rtplot::DataStruct("A",rtplot::DataType::SINGLE_FLOAT,&vec,vec.size(),sizeof(FLOAT)));
+    w.getViewWidget("view1")->setDataSet(ds,rtplot::DataType::SINGLE_FLOAT);
+    //w.getViewWidget("view1")->updateDataSet(&aa);
+    w.rtthread->start();
 
     /*
     View view1(800, 600, FORMAT);

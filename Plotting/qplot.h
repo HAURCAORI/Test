@@ -43,7 +43,7 @@ public:
     void init();
     void setDataSet(rtplot::DataSet dataset, rtplot::DataType type);
     rtplot::DataSet* getDataSet() { return plot.getDataSet(); }
-    void updateDataSet(std::vector<rtplot::DataStruct>* rds);
+    void updateDataSet(std::vector<rtplot::DataStruct> rds);
     const View* view = nullptr;
     int x,y;
 signals:

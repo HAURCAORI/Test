@@ -1,5 +1,7 @@
 #include "qplot.h"
 
+#include <QThread>
+
 qplot::qplot(QWidget *parent) : QLabel(parent)
 {
 
@@ -119,9 +121,10 @@ void qplot::setDataSet(rtplot::DataSet dataset, rtplot::DataType type)
     updateImage();
 }
 
-void qplot::updateDataSet(std::vector<rtplot::DataStruct>* rds)
+void qplot::updateDataSet(std::vector<rtplot::DataStruct> rds)
 {
-    plot.updateDataSet(rds);
+    std::cout << QThread::currentThread() << std::endl;
+    //plot.updateDataSet(rds);
     //plot.updatePlot();
     //updateImage();
 }
