@@ -22,7 +22,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainWindow_t {
     QByteArrayData data[7];
-    char stringdata0[88];
+    char stringdata0[89];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -37,12 +37,12 @@ QT_MOC_LITERAL(2, 22, 0), // ""
 QT_MOC_LITERAL(3, 23, 8), // "Mouse_Up"
 QT_MOC_LITERAL(4, 32, 10), // "Mouse_left"
 QT_MOC_LITERAL(5, 43, 12), // "Update_Image"
-QT_MOC_LITERAL(6, 56, 31) // "std::vector<rtplot::DataStruct>"
+QT_MOC_LITERAL(6, 56, 32) // "std::vector<rtplot::DataStruct>&"
 
     },
     "MainWindow\0Mouse_Down\0\0Mouse_Up\0"
     "Mouse_left\0Update_Image\0"
-    "std::vector<rtplot::DataStruct>"
+    "std::vector<rtplot::DataStruct>&"
 };
 #undef QT_MOC_LITERAL
 
