@@ -5,6 +5,8 @@
 #ifndef RTPLOT_H
 #define RTPLOT_H
 
+
+
 template<typename T>
 inline void printVector(const std::vector<T> vec) {
     std::cout << getType<T>() << ":\t";
@@ -34,6 +36,7 @@ private:
 public:
     DataSet() : name("new dataset") {}
     DataSet(std::string& name) : name(name) {}
+    DataSet(std::vector<DataStruct>& datas) : datas(datas) {}
 
     void addData(std::string name, std::vector<INT>* data){ datas.push_back(DataStruct(name,DataType::SINGLE_INT, data,data->size(),sizeof(INT))); }
     void addData(std::string name, std::vector<FLOAT>* data){ datas.push_back(DataStruct(name,DataType::SINGLE_FLOAT, data,data->size(),sizeof(FLOAT))); }
@@ -45,6 +48,8 @@ public:
     bool deleteData(std::string name);
     bool deleteData(unsigned int index);
     void deleteAll() { datas.clear(); }
+
+    void updateData(std::vector<DataStruct>* vec);
 
     std::vector<DataStruct>* getDatas() { return &datas; }
     DataStruct* getData(std::string name);
@@ -295,7 +300,8 @@ public:
     void scaleOrigin(Gradation* axis, FLOAT pivet);
     void resize(size_t width, size_t height);
     void setDataSet(DataSet dataset, DataType type);
-
+    DataSet* getDataSet() { return &m_dataset; }
+    void updateDataSet(std::vector<DataStruct>* vec) { m_dataset.updateData(vec); }
 };
 }
 

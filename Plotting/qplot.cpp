@@ -99,7 +99,7 @@ void qplot::leaveEvent(QEvent *event)
 
 void qplot::updateImage()
 {
-    if(!view) { return; }
+    if(view == nullptr) { return; }
     int bytes_per_line = view->width * CHANNEL;
     QImage image( view->data, view->width, view->height, bytes_per_line, FORMATQT );
     this->setPixmap(QPixmap::fromImage(image));
@@ -117,4 +117,12 @@ void qplot::setDataSet(rtplot::DataSet dataset, rtplot::DataType type)
     plot.setDataSet(dataset,type);
     plot.updatePlot();
     updateImage();
+}
+
+void qplot::updateDataSet()
+{
+    //plot.updateDataSet(rds);
+    //plot.updatePlot();
+    emit Update_Image(this);
+    //updateImage();
 }

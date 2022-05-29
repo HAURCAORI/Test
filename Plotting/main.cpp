@@ -6,7 +6,6 @@
 #include <QtConcurrent/qtconcurrentrun.h>
 #include <thread>
 #include <future>
-#include "../include/DataIPC.h"
 
 struct shared_data {
     pthread_mutex_t lock;
@@ -14,37 +13,61 @@ struct shared_data {
     int data;
 };
 
-void task(DataIO::DataIPC& ipc) {
-    try {
+
+/*
+static DataIO::IPCStruct::VectorContainer vec_container;
+
+void task(DataIO::IPCSharedMemory& ipc, MainWindow* mw) {
+
     while(ipc.valid()) {
-        std::cout << "a" << std::endl;
         DataIO::IPCData d(ipc.receiveData());
 
-        if((d.getFlag() & SEND_SUCCESS) == SEND_SUCCESS) {
-            //rtplot::DataStruct ds = DataIO::IPCStruct::decodeIPCData(d);
-
-        } else if((d.getFlag() & IPC_DESTROY) == IPC_DESTROY) {
+        if((d.getFlag() & IPC_DESTROY) == IPC_DESTROY) {
             std::cout << "destroy" << std::endl;
             break;
-        } else  {
+        }
+        else if((d.getFlag() & SEND_DATA) == SEND_DATA) {
+            if((d.getFlag() & SEND_SUCCESS) == SEND_SUCCESS) {
+                std::vector<DataIO::IPCStruct::IPCDataStruct> ds = DataIO::IPCStruct::decodeIPCData(d,vec_container);
+                std::vector<rtplot::DataStruct> rds(ds.begin(), ds.end());
+
+                for(auto it = rds.begin(); it != rds.end(); ++it) {
+                    //emit Update_Image(mw->getViewWidget("view1"));
+                    //plot->updateImage();
+                    //plot->updateDataSet();
+                    //rtplot::DataStruct temp(*it);
+                    std::cout << it->getName() << std::endl;
+                    //rds.push_back(temp);
+                }
+
+
+
+
+            } else if((d.getFlag() & SEND_ERROR) == SEND_ERROR) {
+                std::cout << "error" << std::endl;
+            }
+        } else {
             std::cout << "fail" << std::endl;
         }
 
-    }
-    } catch(std::exception e) {
-        std::cout << "Exception" << std::endl;
+
     }
     std::cout << "invalid" << std::endl;
 }
+*/
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
     w.show();
+    w.getViewWidget("view1")->init();
+    rtplot::DataSet ds;
+    w.getViewWidget("view1")->setDataSet(ds,rtplot::DataType::SINGLE_FLOAT);
 
-    DataIO::DataIPC ipc(DataIO::IPC_MODE::RECEIVER, 98765);
-    QtConcurrent::run(task,ipc);
+    //DataIO::IPCSharedMemory ipc(DataIO::IPC_MODE::RECEIVER, 98765);
+    //QtConcurrent::run(task,ipc, &w);
+    //w.rtthread->start();
 
 /*
     //std::vector<INT> vec = {1,2,3,4,5};
@@ -87,8 +110,7 @@ int main(int argc, char *argv[])
     Overlay(view1,100,100,view2);
 */
 
-    //w.getViewWidget("view1")->init();
-    //w.getViewWidget("view1")->setDataSet(ds,rtplot::DataType::SINGLE_FLOAT);
+
 /*
     rtplot::rtplot plot = rtplot::rtplot(500,400);
     rtplot::rtplot plot1(std::move(plot));

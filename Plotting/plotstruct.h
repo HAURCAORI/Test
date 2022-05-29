@@ -1,8 +1,11 @@
+#include "../include/IPCStruct.h"
 #ifndef PLOTSTRUCT_H
 #define PLOTSTRUCT_H
+
 typedef int INT;
 typedef double FLOAT;
 typedef std::string STRING;
+
 
 template<typename T, typename U>
 struct Pair {
@@ -36,16 +39,18 @@ enum class DataType :char {
 
 class DataStruct {
 private:
-    std::string name; //범례에 표시되는 값
     DataType type;
-    void* data; //데이터 포인터
+    std::string name; //범례에 표시되는 값
     int m_size;
     int type_size;
+    void* data = nullptr; //데이터 포인터
 public:
-     DataStruct(std::string name, DataType type, void* data, size_t size, int type_size) : name(name), type(type), data(data), m_size(size), type_size(type_size) {}
+    DataStruct(std::string name, DataType type, void* data, size_t size, int type_size) : type(type), name(name), m_size(size), type_size(type_size),data(data)  {}
+    DataStruct(DataIO::IPCStruct::IPCDataStruct& ipc) : type((DataType)ipc.getType()), name(ipc.getName()), m_size(ipc.size()), type_size(ipc.typeSize()),data(ipc.getData())  {}
     std::string getName() { return name; }
     DataType getType() { return type; }
-    const void* getData(){ return data; }
+    void* getData(){ return data; }
+    void setData(void* src) { data = src; }
     int size() { return m_size; }
     int typeSize() { return type_size; }
 };

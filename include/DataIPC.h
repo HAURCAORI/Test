@@ -8,7 +8,6 @@
 #include <cstring>
 
 #include <sys/time.h>
-
 #include "IPCStruct.h"
 
 #ifndef _DATA_IPC_H
@@ -31,6 +30,7 @@
 #define TIME_OUT 5 //sec
 
 namespace DataIO {
+
 //DataIPC
 class IPCData {
     private:
@@ -177,8 +177,10 @@ class IPCSharedMemory {
         int size = ipc_data.getSize();
         shared_data* sd = sharedData();
         sd->size = size;
+        sd->flag = 0x00;
+        sd->buffer = IPC_BUFFER_SIZE;
         int i = 0;
-        for(i = 0; i <= (size - (int) sd->buffer); i+= sd->buffer) {
+        for(; i <= (size - (int) sd->buffer); i+= sd->buffer) {
             pthread_mutex_lock(&(sd->shm_mutex));
             sd->flag = SEND_DATA;
             sd->sequence_number = sequence_number;
@@ -193,7 +195,7 @@ class IPCSharedMemory {
             sd->index = i;
             pthread_mutex_unlock(&(sd->shm_mutex));
             pthread_cond_signal(&(sd->shm_cond));
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            //std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         pthread_mutex_lock(&(sd->shm_mutex));
         sd->flag |= SEND_SUCCESS;
@@ -214,7 +216,6 @@ class IPCSharedMemory {
         pthread_mutex_unlock(&(sd->shm_mutex));
         pthread_cond_signal(&(sd->shm_cond));
         
-        printf("IPC Send Success\r\n");
         return true;
     }
 
@@ -224,6 +225,7 @@ class IPCSharedMemory {
         if(ipc_mode != IPC_MODE::RECEIVER) { return result; }
         shared_data* sd = sharedData();
         result.setFlag(sd->flag);
+        
         if((result.getFlag() & SEND_DATA) == SEND_DATA) {
             pthread_mutex_lock(&(sd->shm_mutex));
             unsigned int total_packet = sd->size / sd->buffer;
@@ -307,7 +309,7 @@ T mread(char *src, size_t *index)
 
 template<typename T>
 inline void vectorWrite(std::vector<T>* vec, char *dest, size_t *index) {
-    size_t size = vec->size();
+    int size = vec->size();
     char byte = sizeof(T);
     mwrite(dest, &size, index);
     mwrite(dest, &byte, index);
@@ -326,21 +328,22 @@ inline void vectorDecompos(IPCDataStruct &data_struct, char *dest, size_t *index
     mwrite(dest, id, IPC_STRUCT_STRING_SIZE, index);
 
     if(data_struct.getType() == IPCDataType::SINGLE_FLOAT) {
-        std::vector<float>* vec = (std::vector<float>*) data_struct.getData();
+        std::vector<FLOAT>* vec = (std::vector<FLOAT>*) data_struct.getData();
         vectorWrite(vec,dest,index);
     } else if(data_struct.getType() == IPCDataType::SINGLE_INT) {
-        std::vector<int>* vec = (std::vector<int>*) data_struct.getData();
+        std::vector<INT>* vec = (std::vector<INT>*) data_struct.getData();
         vectorWrite(vec,dest,index);
     }
 }
 
 template<typename T>
-inline IPCDataStruct vectorCompos(char* data, char* id, int size, size_t *index) {
+inline std::vector<T> vectorCompos(char* data, char* id, int size, size_t *index) {
     std::vector<T> vec;
     for(int i = 0; i < size; i++) {
-        vec.push_back(mread<T>(data, index));
+        T d = mread<T>(data, index);
+        vec.push_back(d);
     }
-    return IPCDataStruct(id,IPCDataType::SINGLE_FLOAT, &vec, vec.size(),sizeof(T));
+    return vec;
 }
 
 IPCData encodeIPCData(std::vector<IPCDataStruct>& vecs)
@@ -352,7 +355,7 @@ IPCData encodeIPCData(std::vector<IPCDataStruct>& vecs)
     {
         ipc_data_size += vecs[i].getIPCDataSize();
     }
-    std::cout << "total size : " << ipc_data_size << std::endl;
+    //std::cout << "total size : " << ipc_data_size << std::endl;
     char *data = new char[ipc_data_size];
     
     //헤더 부분
@@ -367,7 +370,8 @@ IPCData encodeIPCData(std::vector<IPCDataStruct>& vecs)
     return ipc_data;
 }
 
-std::vector<IPCDataStruct> decodeIPCData(IPCData& ipc_data)
+
+std::vector<IPCDataStruct> decodeIPCData(IPCData& ipc_data, VectorContainer& container)
 {
     std::vector<IPCDataStruct> ret;
     char* data = ipc_data.getData();
@@ -378,16 +382,18 @@ std::vector<IPCDataStruct> decodeIPCData(IPCData& ipc_data)
     {
         char type = mread<char>(data, &index);
         char id[IPC_STRUCT_STRING_SIZE];
+        
         memcpy(&id,data + (index), IPC_STRUCT_STRING_SIZE);
         index += IPC_STRUCT_STRING_SIZE;
-
+        std::string sid(id);
+        
         int size = mread<int>(data, &index);
         char byte = mread<char>(data, &index);
         if(static_cast<IPCDataType>(type) == IPCDataType::SINGLE_FLOAT) {
-            ret.push_back(vectorCompos<float>(data, id, size,&index));
+            ret.push_back(IPCDataStruct(sid,IPCDataType::SINGLE_FLOAT, container.add(sid, vectorCompos<FLOAT>(data, id, size,&index)), size ,sizeof(FLOAT)));
         }
     }
-    std::cout << "total read size : " << index << std::endl;
+    //std::cout << "total read size : " << index << std::endl;
 
     delete[] data;
     return ret;

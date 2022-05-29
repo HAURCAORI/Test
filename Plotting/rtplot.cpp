@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <sstream>
 
+
 //자리수 구함
 int getDigit(FLOAT value) {
     if(value == 0.0) { return 0; }
@@ -53,6 +54,24 @@ bool DataSet::deleteData(unsigned int index) {
         return true;
     }
     return false;
+}
+
+void DataSet::updateData(std::vector<DataStruct>* vec)
+{
+    for(auto it = vec->begin(); it != vec->end(); ++it ){
+        std::string target = it->getName();
+        bool exist = false;
+        for(auto itt = datas.begin(); itt != datas.end(); ++itt) {
+            if(itt->getName() == target) {
+                exist = true;
+                itt->setData(it->getData());
+                return;
+            }
+        }
+        if(exist == false) {
+            datas.push_back(*it);
+        }
+    }
 }
 
 DataStruct* DataSet::getData(std::string name) {

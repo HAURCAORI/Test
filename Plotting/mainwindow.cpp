@@ -8,6 +8,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     setEvent(ui->view1);
+
+    //rtthread = new RTThread(this);
+    //QObject::connect(rtthread, SIGNAL(Send()),this,SLOT(Receive()),Qt::DirectConnection);
+
 }
 
 MainWindow::~MainWindow()
@@ -33,6 +37,7 @@ void MainWindow::setEvent(QLabel* target) {
     connect(target, SIGNAL(Mouse_Down()),this,SLOT(Mouse_Down()));
     connect(target, SIGNAL(Mouse_Up()),this,SLOT(Mouse_Up()));
     connect(target, SIGNAL(Mouse_Left()),this,SLOT(Mouse_left()));
+
 }
 
 void MainWindow::Mouse_Down()
@@ -48,4 +53,13 @@ void MainWindow::Mouse_Up()
 void MainWindow::Mouse_left()
 {
 
+}
+
+void MainWindow::Update_Image(qplot* plot){
+
+}
+
+void MainWindow::Receive()
+{
+    std::cout <<"a" << std::endl;
 }

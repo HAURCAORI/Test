@@ -27,7 +27,8 @@ SOURCES += \
         mainwindow.cpp \
     drawing.cpp \
     rtplot.cpp \
-    qplot.cpp
+    qplot.cpp \
+    rtthread.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -35,7 +36,9 @@ HEADERS += \
     rtplot.h \
     qplot.h \
     plotstruct.h \
-    ../include/DataIPC.h
+    ../include/DataIPC.h \
+    ../include/IPCStruct.h \
+    rtthread.h
 
 FORMS += \
         mainwindow.ui

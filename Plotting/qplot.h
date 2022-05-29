@@ -42,13 +42,16 @@ public:
     void updateImage();
     void init();
     void setDataSet(rtplot::DataSet dataset, rtplot::DataType type);
-    const View* view;
+    rtplot::DataSet* getDataSet() { return plot.getDataSet(); }
+    void updateDataSet();
+    const View* view = nullptr;
     int x,y;
 signals:
     void Mouse_Down();
     void Mouse_Up();
     void Mouse_Pos();
     void Mouse_Left();
+    void Update_Image(qplot*);
 
 public slots:
 };

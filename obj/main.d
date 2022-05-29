@@ -175,4 +175,6 @@ obj/main.o: src/main.cpp /usr/include/stdc-predef.h include/main.h \
  /usr/include/x86_64-linux-gnu/bits/ipctypes.h \
  /usr/include/x86_64-linux-gnu/bits/ipc.h \
  /usr/include/x86_64-linux-gnu/bits/shm.h /usr/include/c++/7/stdlib.h \
- /usr/include/x86_64-linux-gnu/sys/time.h include/IPCStruct.h
+ /usr/include/x86_64-linux-gnu/sys/time.h include/IPCStruct.h \
+ /usr/include/c++/7/map /usr/include/c++/7/bits/stl_tree.h \
+ /usr/include/c++/7/bits/stl_map.h /usr/include/c++/7/bits/stl_multimap.h
