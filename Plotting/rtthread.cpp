@@ -19,9 +19,10 @@ void RTThread::run()
             if((d.getFlag() & SEND_SUCCESS) == SEND_SUCCESS) {
                 std::vector<DataIO::IPCStruct::IPCDataStruct> ds = DataIO::IPCStruct::decodeIPCData(d,vec_container);
                 std::vector<rtplot::DataStruct> rds(ds.begin(), ds.end());
-                qp->updateDataSet(rds);
-                emit Update_Image("view1");
+                qp->updateDataSet(&rds);
 
+                emit Update_Image("view1");
+                std::cout << "signal" << std::endl;
                 /*
                 for(auto it = rds.begin(); it != rds.end(); ++it) {
 

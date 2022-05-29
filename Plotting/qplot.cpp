@@ -126,8 +126,7 @@ void qplot::updatePlot() {
     updateImage();
 }
 
-void qplot::updateDataSet(std::vector<rtplot::DataStruct> rds)
+void qplot::updateDataSet(std::vector<rtplot::DataStruct>* rds)
 {
-    std::cout << QThread::currentThread() << std::endl;
-    plot.updateDataSet(&rds);
+    plot.updateDataSet(rds);
 }

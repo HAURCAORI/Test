@@ -28,7 +28,7 @@ int main(){
         std::cout << i << std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(2));
     }
-    vec.push_back(i);
+
     //DataIO::IPCStruct::decodeIPCData(d);
     /*
     std::vector<TYPE> strs;

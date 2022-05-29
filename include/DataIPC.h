@@ -395,7 +395,7 @@ inline std::vector<IPCDataStruct> decodeIPCData(IPCData& ipc_data, VectorContain
     }
     //std::cout << "total read size : " << index << std::endl;
 
-    delete[] data;
+    //delete[] data;
     return ret;
 }
 } // namespace IPCStruct
