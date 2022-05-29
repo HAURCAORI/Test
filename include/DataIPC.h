@@ -99,6 +99,7 @@ enum class IPC_MODE {
 };
 
 struct shared_data {
+    bool valid = false;
     pthread_mutex_t shm_mutex;
     pthread_cond_t shm_cond;
     SequenceNumber sequence_number;
@@ -148,8 +149,15 @@ class IPCSharedMemory {
             pthread_cond_init(&(sd->shm_cond), &attrcond);
             
             sequence_number = ( (double) (rand()/32767) * (__UINT32_MAX__));
+            sd->valid = true;
             sd->sequence_number = sequence_number;
             sd->buffer = IPC_BUFFER_SIZE;
+        } else if(ipc_mode == IPC_MODE::RECEIVER) {
+            if(sharedData()->valid == false) {
+                printf("Can't Connect Sender.\n");
+                ipc_success = false;
+                return;
+            }
         }
         ipc_success = true;
     }
@@ -159,6 +167,7 @@ class IPCSharedMemory {
         if(!ipc_success) { return; }
         shared_data* sd = sharedData();
         pthread_mutex_lock(&(sd->shm_mutex));
+        sd->valid = false;
         sd->flag = IPC_DESTROY;
         pthread_cond_signal(&(sd->shm_cond));
         pthread_mutex_unlock(&(sd->shm_mutex));

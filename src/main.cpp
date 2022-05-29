@@ -13,7 +13,7 @@
 int main(){
     
 
-    DataIO::IPCSharedMemory ipc(DataIO::IPC_MODE::SENDER, 98765);
+    DataIO::IPCSharedMemory ipc(DataIO::IPC_MODE::SENDER, 987654);
     
     
     for(int i = 0; i < 10; i++) {

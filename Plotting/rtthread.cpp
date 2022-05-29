@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-RTThread::RTThread(QObject *paret) : ipc(DataIO::IPC_MODE::RECEIVER, 98765)
+RTThread::RTThread(QObject *paret) : ipc(DataIO::IPC_MODE::RECEIVER, 987654)
 {
 
 }
