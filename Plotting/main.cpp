@@ -7,13 +7,6 @@
 #include <thread>
 #include <future>
 
-struct shared_data {
-    pthread_mutex_t lock;
-    pthread_cond_t cond;
-    int data;
-};
-
-
 
 
 /*

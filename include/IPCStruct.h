@@ -10,6 +10,7 @@ typedef double FLOAT;
 typedef std::string STRING;
 
 #define IPC_STRUCT_STRING_SIZE 20
+#define DEFULAT_IPC_KEY 98765
 
 namespace DataIO {
 namespace IPCStruct {

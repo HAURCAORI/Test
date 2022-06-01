@@ -42,6 +42,7 @@ class IPCData {
     IPCData() {}
     IPCData(unsigned int size) : m_size(size) { alloc(size); }
     IPCData(const IPCData& rhs) {
+        free();
         if(rhs.m_data != nullptr) {
             m_data = new char[rhs.m_size];
             memcpy(m_data,rhs.m_data,rhs.m_size);
@@ -50,6 +51,7 @@ class IPCData {
         }
     }
     IPCData& operator=(const IPCData& rhs) {
+        free();
         if(rhs.m_data != nullptr) {
             m_data = new char[rhs.m_size];
             memcpy(m_data,rhs.m_data,rhs.m_size);
@@ -99,7 +101,7 @@ enum class IPC_MODE {
 };
 
 struct shared_data {
-    bool valid = false;
+    bool valid = false; //유효성 판단
     pthread_mutex_t shm_mutex;
     pthread_cond_t shm_cond;
     SequenceNumber sequence_number;
@@ -125,13 +127,13 @@ class IPCSharedMemory {
 
     IPCSharedMemory(IPC_MODE ipc_mode, key_t key) : ipc_mode(ipc_mode), key(key) {
         if ((shmid = shmget(key, sizeof(shared_data), IPC_CREAT | 0666)) < 0) {
-            printf("shmget failed\n");
+            printf("[IPC] shmget Failed.\n");
             ipc_success = false;
             return;
         }
 
         if ((memory_segment = shmat(shmid, NULL, 0)) == (void *)-1) {
-            printf("shmat failed\n");
+            printf("[IPC] shmat Failed.\n");
             ipc_success = false;
             return;
         }
@@ -154,7 +156,7 @@ class IPCSharedMemory {
             sd->buffer = IPC_BUFFER_SIZE;
         } else if(ipc_mode == IPC_MODE::RECEIVER) {
             if(sharedData()->valid == false) {
-                printf("Can't Connect Sender.\n");
+                printf("[IPC] Can't Connect Sender.\n");
                 ipc_success = false;
                 return;
             }
@@ -165,38 +167,36 @@ class IPCSharedMemory {
     ~IPCSharedMemory() {
         ipc_destroy = true;
         if(!ipc_success) { return; }
-        shared_data* sd = sharedData();
-        pthread_mutex_lock(&(sd->shm_mutex));
-        sd->valid = false;
-        sd->flag = IPC_DESTROY;
-        pthread_cond_signal(&(sd->shm_cond));
-        pthread_mutex_unlock(&(sd->shm_mutex));
 
         if(ipc_mode == IPC_MODE::SENDER) { 
+            shared_data* sd = sharedData();
+            pthread_mutex_lock(&(sd->shm_mutex));
+            sd->valid = false;
+            sd->flag = IPC_DESTROY;
+            pthread_cond_signal(&(sd->shm_cond));
+            pthread_mutex_unlock(&(sd->shm_mutex));
             if (-1 == shmctl(shmid, IPC_RMID, 0)){
-                printf("Failed to Shared Memory Detach.\n");
+                printf("[IPC] Failed to Shared Memory Detach.\n");
             }
-            printf("Detach Shared Memory.\n");
+            printf("[IPC] Detach Shared Memory : Success.\n");
         }
     }
 
     bool sendData(IPCData& ipc_data) {
-        
         if(!ipc_success) { return false; }
         int size = ipc_data.getSize();
         shared_data* sd = sharedData();
         sd->size = size;
-        sd->flag = 0x00;
         sd->buffer = IPC_BUFFER_SIZE;
         int i = 0;
-        for(; i <= (size - (int) sd->buffer); i+= sd->buffer) {
+        for(; i < (size - IPC_BUFFER_SIZE); i+= IPC_BUFFER_SIZE) {
             pthread_mutex_lock(&(sd->shm_mutex));
             sd->flag = SEND_DATA;
             sd->sequence_number = sequence_number;
             ++sequence_number;
-            if(memcpy(sd->data+i, (ipc_data.getData()+i), sd->buffer) == NULL) {
-                printf("IPC Send Error\r\n");
-                sd->flag = SEND_ERROR | SEND_DATA;
+            if(memcpy(sd->data+i, (ipc_data.getData()+i), IPC_BUFFER_SIZE) == NULL) {
+                printf("[IPC] Send Error.\n");
+                sd->flag = SEND_DATA | SEND_ERROR;
                 pthread_cond_signal(&(sd->shm_cond));
                 pthread_mutex_unlock(&(sd->shm_mutex));
                 return false;
@@ -204,18 +204,17 @@ class IPCSharedMemory {
             sd->index = i;
             pthread_mutex_unlock(&(sd->shm_mutex));
             pthread_cond_signal(&(sd->shm_cond));
-            //std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            //std::this_thread::sleep_for(std::chrono::milliseconds(6000));
         }
         pthread_mutex_lock(&(sd->shm_mutex));
-        sd->flag |= SEND_SUCCESS;
+        sd->flag = SEND_DATA | SEND_SUCCESS;
         if(i < size) {
-            sd->flag |= SEND_DATA;
             sd->sequence_number = sequence_number;
             sd->buffer = (size-i);
             ++sequence_number;
             if(memcpy(sd->data+i, (ipc_data.getData()+i), (size-i)) == NULL) {
-                printf("IPC Send Error\r\n");
-                sd->flag = SEND_ERROR | SEND_DATA;
+                printf("[IPC] Send Error.\n");
+                sd->flag = SEND_DATA | SEND_ERROR;
                 pthread_mutex_unlock(&(sd->shm_mutex));
                 pthread_cond_signal(&(sd->shm_cond));
                 return false;
@@ -232,16 +231,19 @@ class IPCSharedMemory {
         IPCData result;
         if(!ipc_success) { return result; }
         if(ipc_mode != IPC_MODE::RECEIVER) { return result; }
+        
         shared_data* sd = sharedData();
+        pthread_mutex_lock(&(sd->shm_mutex));
+
         result.setFlag(sd->flag);
         
         if((result.getFlag() & SEND_DATA) == SEND_DATA) {
-            pthread_mutex_lock(&(sd->shm_mutex));
             unsigned int total_packet = sd->size / sd->buffer;
             if(sd->size % sd->buffer != 0) ++total_packet;
             result.alloc(sd->size);
             
             unsigned int packet = 0;
+            SequenceNumber fsqn = 0;
             bool valid = true;
             struct timespec wait_time = {0, 0};
             while(packet < total_packet) {
@@ -252,18 +254,18 @@ class IPCSharedMemory {
                     continue;
                 }
                 result.setFlag(sd->flag);
-
+                if(packet == 0) { fsqn = sd->sequence_number; }
                 if((sd->flag & SEND_ERROR) == SEND_ERROR) { valid = false; break; }
 
-                if(sd->index < packet) { //새로운 패킷을 받을 경우
+                if(sd->sequence_number - fsqn + 2 > total_packet && sd->index == 0) { //새로운 패킷을 받을 경우
                     total_packet = sd->size / sd->buffer;
                     if(sd->size % sd->buffer != 0) ++total_packet;
                     result.alloc(sd->size);
                     packet = 0;
+                    fsqn = sd->sequence_number;
                 }
                 
                 if(memcpy((result.getData() + sd->index), sd->data+sd->index, sd->buffer) == NULL) { valid = false; break; }
-                
 
                 ++packet;
                 if((sd->flag & SEND_SUCCESS) == SEND_SUCCESS) {
@@ -272,14 +274,13 @@ class IPCSharedMemory {
             }
 
             if(!valid) {
-                result.setFlag(sd->flag);
                 pthread_mutex_unlock(&(sd->shm_mutex));
                 result.free();
                 return result;
             }
-            pthread_mutex_unlock(&(sd->shm_mutex));
             //result.setFlag(result.getFlag() | SEND_SUCCESS);
         }
+        pthread_mutex_unlock(&(sd->shm_mutex));
         return result;
     }
 
