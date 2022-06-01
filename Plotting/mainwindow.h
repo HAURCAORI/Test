@@ -24,7 +24,9 @@ public:
     qplot* getViewWidget(QString id);
     void setImage(QLabel* widget, const View* view);
     void setEvent(QLabel* target);
-    RTThread* rtthread;
+    inline void EnableThread(qplot* target) { rtthread->EnableThread(target); }
+    inline void DisableThread(qplot* target) { rtthread->DisableThread(target); }
+    inline void startThread() { rtthread->start();}
 
 private slots:
     void Mouse_Down();
@@ -34,7 +36,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-
+    RTThread* rtthread;
 };
 
 #endif // MAINWINDOW_H

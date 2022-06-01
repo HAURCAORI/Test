@@ -8,6 +8,7 @@
 typedef int INT;
 typedef double FLOAT;
 typedef std::string STRING;
+typedef unsigned int Target;
 
 #define IPC_STRUCT_STRING_SIZE 20
 #define DEFULAT_IPC_KEY 98765

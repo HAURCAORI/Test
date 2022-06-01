@@ -1,8 +1,14 @@
 #include "qplot.h"
 
 #include <QThread>
+#include "rtthread.h"
 
 qplot::qplot(QWidget *parent) : QLabel(parent)
+{
+
+}
+
+qplot::~qplot()
 {
 
 }

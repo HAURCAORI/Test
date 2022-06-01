@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-RTThread::RTThread(QObject *paret) : ipc(DataIO::IPC_MODE::RECEIVER, 987654)
+RTThread::RTThread(QObject *paret) : ipc(DataIO::IPC_MODE::RECEIVER, DEFULAT_IPC_KEY)
 {
 
 }
@@ -19,9 +19,11 @@ void RTThread::run()
             if((d.getFlag() & SEND_SUCCESS) == SEND_SUCCESS) {
                 std::vector<DataIO::IPCStruct::IPCDataStruct> ds = DataIO::IPCStruct::decodeIPCData(d,vec_container);
                 std::vector<rtplot::DataStruct> rds(ds.begin(), ds.end());
-                qp->updateDataSet(&rds);
-
-                emit Update_Image("view1");
+                Target target = d.getTarget();
+                if(target < vec_qplot.size()) {
+                    vec_qplot[target].qp->updateDataSet(&rds);
+                    emit Update_Image(vec_qplot[target].objectname);
+                }
                 std::cout << "signal" << std::endl;
                 /*
                 for(auto it = rds.begin(); it != rds.end(); ++it) {

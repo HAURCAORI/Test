@@ -37,6 +37,7 @@ class IPCData {
     char* m_data = nullptr;
     unsigned int m_size = 0;
     SharedFlag m_flag = 0x00;
+    Target m_id;
 
     public:
     IPCData() {}
@@ -76,9 +77,9 @@ class IPCData {
 
     ~IPCData() { free(); }
     
-    void alloc(unsigned int sz) { free(); m_data = new char[sz]; m_size = sz; }
+    inline void alloc(unsigned int sz) { free(); m_data = new char[sz]; m_size = sz; }
 
-    void free() {
+    inline void free() {
         if(m_data != nullptr) { delete[] m_data; }
         m_data = nullptr;
         m_size = 0;
@@ -86,13 +87,16 @@ class IPCData {
 
     inline char* getData() { return m_data; }
     inline unsigned int getSize() { return m_size;}
-    void setData(char* rhs, unsigned int sz) {
+    inline void setData(char* rhs, unsigned int sz) {
         if(sz > m_size) sz = m_size;
         memcpy(m_data,rhs,sz);
     }
 
-    void setFlag(SharedFlag flag) { m_flag = flag; }
-    SharedFlag getFlag() { return m_flag; }
+    inline void setTarget(Target id) { m_id = id;}
+    inline Target getTarget() { return m_id;}
+
+    inline void setFlag(SharedFlag flag) { m_flag = flag; }
+    inline SharedFlag getFlag() { return m_flag; }
 };
 
 enum class IPC_MODE {
@@ -105,6 +109,7 @@ struct shared_data {
     pthread_mutex_t shm_mutex;
     pthread_cond_t shm_cond;
     SequenceNumber sequence_number;
+    Target id;
     unsigned int buffer;
     unsigned int size = 0;
     unsigned int index = 0;
@@ -182,7 +187,7 @@ class IPCSharedMemory {
         }
     }
 
-    bool sendData(IPCData& ipc_data) {
+    bool sendData(IPCData& ipc_data, Target id) {
         if(!ipc_success) { return false; }
         int size = ipc_data.getSize();
         shared_data* sd = sharedData();
@@ -192,6 +197,7 @@ class IPCSharedMemory {
         for(; i < (size - IPC_BUFFER_SIZE); i+= IPC_BUFFER_SIZE) {
             pthread_mutex_lock(&(sd->shm_mutex));
             sd->flag = SEND_DATA;
+            sd->id = id;
             sd->sequence_number = sequence_number;
             ++sequence_number;
             if(memcpy(sd->data+i, (ipc_data.getData()+i), IPC_BUFFER_SIZE) == NULL) {
@@ -209,6 +215,7 @@ class IPCSharedMemory {
         pthread_mutex_lock(&(sd->shm_mutex));
         sd->flag = SEND_DATA | SEND_SUCCESS;
         if(i < size) {
+            sd->id = id;
             sd->sequence_number = sequence_number;
             sd->buffer = (size-i);
             ++sequence_number;
@@ -234,7 +241,7 @@ class IPCSharedMemory {
         
         shared_data* sd = sharedData();
         pthread_mutex_lock(&(sd->shm_mutex));
-
+        result.setTarget(sd->id);
         result.setFlag(sd->flag);
         
         if((result.getFlag() & SEND_DATA) == SEND_DATA) {
@@ -253,6 +260,7 @@ class IPCSharedMemory {
                     if((sd->flag & IPC_DESTROY) == IPC_DESTROY) { ipc_destroy = true; valid = false; break; }
                     continue;
                 }
+                result.setTarget(sd->id);
                 result.setFlag(sd->flag);
                 if(packet == 0) { fsqn = sd->sequence_number; }
                 if((sd->flag & SEND_ERROR) == SEND_ERROR) { valid = false; break; }

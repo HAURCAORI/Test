@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
     w.getViewWidget("view1")->init();
-
+    w.EnableThread(w.getViewWidget("view1"));
     //DataIO::IPCSharedMemory ipc(DataIO::IPC_MODE::RECEIVER, 98765);
     //QtConcurrent::run(task,ipc, &w);
 
@@ -79,8 +79,7 @@ int main(int argc, char *argv[])
     aa.push_back(rtplot::DataStruct("A",rtplot::DataType::SINGLE_FLOAT,&vec,vec.size(),sizeof(FLOAT)));
     w.getViewWidget("view1")->setDataSet(ds,rtplot::DataType::SINGLE_FLOAT);
     //w.getViewWidget("view1")->updateDataSet(&aa);
-    w.rtthread->qp = w.getViewWidget("view1");
-    w.rtthread->start();
+    w.startThread();
 
     /*
     View view1(800, 600, FORMAT);

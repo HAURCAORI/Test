@@ -13,7 +13,7 @@
 int main(){
     
 
-    DataIO::IPCSharedMemory ipc(DataIO::IPC_MODE::SENDER, 987654);
+    DataIO::IPCSharedMemory ipc(DataIO::IPC_MODE::SENDER, DEFULAT_IPC_KEY);
     
     
     for(int i = 0; i < 10; i++) {
@@ -24,7 +24,7 @@ int main(){
         std::vector<DataIO::IPCStruct::IPCDataStruct> vecs;
         vecs.push_back(DataIO::IPCStruct::IPCDataStruct("signal",DataIO::IPCStruct::IPCDataType::SINGLE_FLOAT, &vec, vec.size(),sizeof(FLOAT)));
         DataIO::IPCData d = DataIO::IPCStruct::encodeIPCData(vecs);
-        ipc.sendData(d);
+        ipc.sendData(d,0);
         std::cout << i << std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(2));
     }

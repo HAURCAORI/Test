@@ -25,14 +25,16 @@ private:
     bool is_mouse_left = false;
     bool is_mouse_right = false;
     inline bool inArea(int x, int y, Size size, Location location) {
-        if(x >= location.x && x < location.x + size.width && y >= location.y && y < location.y + size.height) {
+        if(x >= (int) location.x && x < (int) (location.x + size.width) && y >= (int) location.y && y < (int) (location.y + size.height)) {
             return true;
         }
         return false;
     }
     rtplot::rtplot plot;
+
 public:
     explicit qplot(QWidget *parent = nullptr);
+    ~qplot();
 
     void mouseMoveEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
@@ -45,6 +47,7 @@ public:
     rtplot::DataSet* getDataSet() { return plot.getDataSet(); }
     void updatePlot();
     void updateDataSet(std::vector<rtplot::DataStruct>* rds);
+
     const View* view = nullptr;
     int x,y;
 signals:
