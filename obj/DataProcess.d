@@ -154,15 +154,27 @@ obj/DataProcess.o: src/DataProcess.cpp /usr/include/stdc-predef.h \
  /usr/include/c++/7/bits/invoke.h /usr/include/c++/7/ext/aligned_buffer.h \
  /usr/include/c++/7/bits/hashtable.h \
  /usr/include/c++/7/bits/hashtable_policy.h \
- /usr/include/c++/7/bits/unordered_set.h include/Threading.h \
+ /usr/include/c++/7/bits/unordered_set.h include/Logging.h \
+ include/DataIPC.h /usr/include/x86_64-linux-gnu/sys/shm.h \
+ /usr/include/x86_64-linux-gnu/sys/ipc.h \
+ /usr/include/x86_64-linux-gnu/bits/ipctypes.h \
+ /usr/include/x86_64-linux-gnu/bits/ipc.h \
+ /usr/include/x86_64-linux-gnu/bits/shm.h /usr/include/c++/7/stdlib.h \
+ /usr/include/c++/7/cstring /usr/include/string.h /usr/include/strings.h \
+ /usr/include/x86_64-linux-gnu/bits/strings_fortified.h \
+ /usr/include/x86_64-linux-gnu/bits/string_fortified.h \
+ /usr/include/x86_64-linux-gnu/sys/time.h include/IPCStruct.h \
+ /usr/include/c++/7/map /usr/include/c++/7/bits/stl_tree.h \
+ /usr/include/c++/7/bits/stl_map.h /usr/include/c++/7/bits/stl_multimap.h \
+ /usr/include/c++/7/mutex /usr/include/c++/7/bits/std_mutex.h \
  /usr/include/c++/7/condition_variable \
- /usr/include/c++/7/bits/std_mutex.h /usr/include/c++/7/ext/concurrence.h \
+ /usr/include/c++/7/ext/concurrence.h \
  /usr/include/c++/7/bits/unique_ptr.h \
  /usr/include/c++/7/bits/shared_ptr.h \
  /usr/include/c++/7/bits/shared_ptr_base.h \
  /usr/include/c++/7/bits/allocated_ptr.h \
- /usr/include/c++/7/bits/refwrap.h /usr/include/c++/7/future \
- /usr/include/c++/7/mutex /usr/include/c++/7/thread \
+ /usr/include/c++/7/bits/refwrap.h include/Threading.h \
+ /usr/include/c++/7/future /usr/include/c++/7/thread \
  /usr/include/c++/7/memory /usr/include/c++/7/bits/stl_tempbuf.h \
  /usr/include/c++/7/bits/stl_raw_storage_iter.h \
  /usr/include/c++/7/bits/shared_ptr_atomic.h \
@@ -174,9 +186,6 @@ obj/DataProcess.o: src/DataProcess.cpp /usr/include/stdc-predef.h \
  /usr/include/c++/7/deque /usr/include/c++/7/bits/stl_deque.h \
  /usr/include/c++/7/bits/deque.tcc /usr/include/c++/7/bits/stl_heap.h \
  /usr/include/c++/7/bits/stl_queue.h include/Monitoring.h \
- /usr/include/c++/7/stdlib.h /usr/include/string.h /usr/include/strings.h \
- /usr/include/x86_64-linux-gnu/bits/strings_fortified.h \
- /usr/include/x86_64-linux-gnu/bits/string_fortified.h \
  /usr/include/x86_64-linux-gnu/sys/sysinfo.h /usr/include/linux/kernel.h \
  /usr/include/linux/sysinfo.h /usr/include/linux/types.h \
  /usr/include/x86_64-linux-gnu/asm/types.h \
@@ -186,16 +195,8 @@ obj/DataProcess.o: src/DataProcess.cpp /usr/include/stdc-predef.h \
  /usr/include/linux/stddef.h \
  /usr/include/x86_64-linux-gnu/asm/posix_types.h \
  /usr/include/x86_64-linux-gnu/asm/posix_types_64.h \
- /usr/include/asm-generic/posix_types.h include/Logging.h \
- include/DataIPC.h /usr/include/x86_64-linux-gnu/sys/shm.h \
- /usr/include/x86_64-linux-gnu/sys/ipc.h \
- /usr/include/x86_64-linux-gnu/bits/ipctypes.h \
- /usr/include/x86_64-linux-gnu/bits/ipc.h \
- /usr/include/x86_64-linux-gnu/bits/shm.h /usr/include/c++/7/cstring \
- /usr/include/x86_64-linux-gnu/sys/time.h include/IPCStruct.h \
- /usr/include/c++/7/map /usr/include/c++/7/bits/stl_tree.h \
- /usr/include/c++/7/bits/stl_map.h /usr/include/c++/7/bits/stl_multimap.h \
- /usr/include/c++/7/math.h /usr/include/c++/7/cmath /usr/include/math.h \
+ /usr/include/asm-generic/posix_types.h /usr/include/c++/7/math.h \
+ /usr/include/c++/7/cmath /usr/include/math.h \
  /usr/include/x86_64-linux-gnu/bits/math-vector.h \
  /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
  /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \

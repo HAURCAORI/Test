@@ -2,6 +2,7 @@
 
 #include "Calculate.h"
 #include "DataIO.h"
+#include "Logging.h"
 
 #include <iostream>
 #include <time.h>
@@ -11,6 +12,7 @@
 #define END_CHRONO std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - begin).count() << "[ms]" << std::endl;
 
 DataIO::IOManager* m_IOManager();
+Logging* m_Logging();
 
 void initProcess();
 

@@ -1,6 +1,7 @@
 #include "Logging.h"
 #include <thread>
 #include <iostream>
+
 Logging::~Logging() {
     is_run = false;
     std::cout << "[Logging] Stop Logging." << std::endl;

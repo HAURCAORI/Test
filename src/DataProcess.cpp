@@ -1,6 +1,5 @@
 #include "DataProcess.h"
 #include "Threading.h"
-#include "Logging.h"
 
 #include <math.h>
 
@@ -121,9 +120,9 @@ void Load(const DataStruct* ds, Signal signal, Neuron *prev, unsigned int i, uns
     if(i == 0 && j == 0 && k == 0) {
         m_Logging()->addData(0,(FLOAT) std::chrono::duration_cast<std::chrono::milliseconds>(current_time - time_point).count());
     }
-    //if(i == 4 && j == 0 && k == 0) {
-    //    m_Logging()->addData(1,(FLOAT) std::chrono::duration_cast<std::chrono::milliseconds>(current_time - time_point).count());
-    //}
+    if(i == 4 && j == 0 && k == 0) {
+        //m_Logging()->addData(1,(FLOAT) std::chrono::duration_cast<std::chrono::milliseconds>(current_time - time_point).count());
+    }
     //std::this_thread::sleep_for(std::chrono::milliseconds(100));
     //printf("%f task[%d][%d][%d]\r\n", m_Monitoring()->getMemoryUsage() ,i,j,k);
 
