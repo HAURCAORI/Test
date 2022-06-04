@@ -325,6 +325,7 @@ public:
     void scalePlot(Gradation* axis, FLOAT pivet, int delta);
     void scaleOrigin(Gradation* axis, FLOAT pivet);
     void resize(size_t width, size_t height);
+    void autoAxis(FLOAT min, FLOAT max);
     void setDataSet(DataSet dataset, DataType type);
     DataSet* getDataSet() { return &m_dataset; }
     void updateDataSet(std::vector<DataStruct>* vec) { m_dataset.updateData(vec); }

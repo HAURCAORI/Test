@@ -403,6 +403,16 @@ void rtplot::scaleOrigin(Gradation *axis, FLOAT pivet) {
     updatePlot();
 }
 
+void rtplot::autoAxis(FLOAT min, FLOAT max)
+{
+    x_axis.min_value = min;
+    x_axis.max_value = max;
+    x_axis.major_tick = 10;
+    x_axis.major_interval = (x_axis.max_value-x_axis.min_value)/x_axis.major_tick;
+    x_axis.minor_tick = 20;
+    x_axis.minor_interval = (x_axis.max_value-x_axis.min_value)/x_axis.minor_tick;
+}
+
 void rtplot::setDataSet(DataSet dataset, DataType type)
 {
     m_dataset = dataset;

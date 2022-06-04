@@ -79,6 +79,8 @@ void qplot::mouseReleaseEvent(QMouseEvent *event) {
 void qplot::mouseDoubleClickEvent(QMouseEvent *event)
 {
     if(event->buttons() == Qt::LeftButton) {
+        update = (update) ? false: true;
+
         if(inArea(x0, y0, plot.plotSize(),plot.plotLocation())) {
             plot.moveOrigin(plot.xAxis());
             plot.moveOrigin(plot.yAxis());
@@ -134,5 +136,18 @@ void qplot::updatePlot() {
 
 void qplot::updateDataSet(std::vector<rtplot::DataStruct>* rds)
 {
+    FLOAT min = 0;
+    FLOAT max = 10;
+    for(auto it = rds->begin(); it != rds->end(); it++) {
+        if(it->getType() == rtplot::DataType::SINGLE_FLOAT) {
+            auto vec = static_cast<std::vector<FLOAT>*>(it->getData());
+            min = vec->front();
+            FLOAT temp = vec->back();
+            if(temp > max) max = temp;
+            break;
+        }
+    }
+    plot.autoAxis(min,max);
+
     plot.updateDataSet(rds);
 }

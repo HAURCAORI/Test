@@ -1,6 +1,6 @@
 #DIMENSION {10,10,10}
-#DEFAULT type(d1) / specificity(d1) / direction(1+) / weight(0.5)
-#DEFINE_DATA Back type(d1) / specificity(d1) / direction(1-)
+#DEFAULT type(d1) / specificity(d1) / direction(1+) / weight(1)
+#DEFINE_DATA Back type(d1) / specificity(d1) / direction(1-) / weight(1)
 #DEFINE UPDOWN 1+|1-
 
 #Function fun(x,y,z) { x+y+z }
@@ -14,12 +14,12 @@ $PAGE 0
 [1,0,0] => threshold(0.8)
 [2,0,0] => threshold(0.8)
 [3,0,0] => threshold(0.8)
-[4,0,0] == type(d1) / specificity(d1) / direction(2+)
+[4,0,0] == type(d1) / specificity(d1) / direction(2+) / weight(1)
 [4,1,0] == Back
 [3,1,0] == Back
 [2,1,0] == Back
 [1,1,0] == Back
-[0,1,0] == type(d1) / specificity(d1)
+[0,1,0] == type(d1) / specificity(d1) / direction(2-) / weight(1)
 
 //[1~2,10~15,0~3] => 
 //[*,1,1] => direction(UPDOWN)

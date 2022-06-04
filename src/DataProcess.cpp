@@ -19,6 +19,7 @@ Logging* m_Logging() {
     return &lgi;
 }
 
+static TIMESTAMP time_point = Now();
 
 /*
 static std::vector<void*> MemoryMap;
@@ -99,9 +100,7 @@ void Load(const DataStruct* ds, Signal signal, Neuron *prev, unsigned int i, uns
         }
         return;
     }
-    //printf("%f",signal.value);
 
-    m_Logging()->addData(0,signal.value);
     //timeline.emplace_back(TimeLine {{i,j,k}, current_time});
     auto time_difference = std::chrono::duration_cast<std::chrono::microseconds>(current_time - temp->timestamp).count();
     if(time_difference > SUSTAIN_TIME) {temp->value *= 1.0f - ((float) (time_difference-SUSTAIN_TIME) / DECAY_TIME); }
@@ -118,8 +117,14 @@ void Load(const DataStruct* ds, Signal signal, Neuron *prev, unsigned int i, uns
     } else {
         signal.value = (signal.value < 0) ? -(signal.value) : (signal.value);
     }
-
     
+    if(i == 0 && j == 0 && k == 0) {
+        m_Logging()->addData(0,(FLOAT) std::chrono::duration_cast<std::chrono::milliseconds>(current_time - time_point).count());
+    }
+    //if(i == 4 && j == 0 && k == 0) {
+    //    m_Logging()->addData(1,(FLOAT) std::chrono::duration_cast<std::chrono::milliseconds>(current_time - time_point).count());
+    //}
+    //std::this_thread::sleep_for(std::chrono::milliseconds(100));
     //printf("%f task[%d][%d][%d]\r\n", m_Monitoring()->getMemoryUsage() ,i,j,k);
 
     if(m_Monitoring()->getMemoryUsage() > 0.95) { return; }

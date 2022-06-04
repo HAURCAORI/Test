@@ -3,6 +3,7 @@
 #include <iostream>
 Logging::~Logging() {
     is_run = false;
+    std::cout << "[Logging] Stop Logging." << std::endl;
 }
 
 void Logging::createSet(std::string name, IPCType type) {
@@ -20,22 +21,33 @@ void Logging::createSet(std::string name, IPCType type) {
 }
 void Logging::addData(unsigned int index, FLOAT value) {
     if(!exist(index)) return;
+    if(value - recent_value <= 1) { return; }
     std::vector<FLOAT>* vec = static_cast<std::vector<FLOAT>*>(m_container[index].getData());
-    vec->emplace_back(value);
+    if(vec->size() > 100) { clear(index);}
+    
+    std::unique_lock<std::mutex> lock(m_mutex);
+    vec->push_back(value);
     ++(*(m_container[index].sizePtr()));
+    lock.unlock();
+    recent_value = value;
 }
 void Logging::clear(unsigned int index) {
     if(!exist(index)) return;
     std::vector<FLOAT>* vec = static_cast<std::vector<FLOAT>*>(m_container[index].getData());
+    std::unique_lock<std::mutex> lock(m_mutex);
     vec->clear();
     *(m_container[index].sizePtr()) = 0;
+    lock.unlock();
 }
 
 void Logging::sendIPC() {
     while(is_run){
-        DataIO::IPCData d = DataIO::IPCStruct::encodeIPCData(m_container);
-        //ipc.sendData(d,0);
-
+        {
+            std::unique_lock<std::mutex> lock(m_mutex);
+            DataIO::IPCData d = DataIO::IPCStruct::encodeIPCData(m_container);
+            ipc.sendData(d,0);
+            lock.unlock();
+        }
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 }

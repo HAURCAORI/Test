@@ -24,6 +24,7 @@ private:
     bool is_press = false;
     bool is_mouse_left = false;
     bool is_mouse_right = false;
+
     inline bool inArea(int x, int y, Size size, Location location) {
         if(x >= (int) location.x && x < (int) (location.x + size.width) && y >= (int) location.y && y < (int) (location.y + size.height)) {
             return true;
@@ -50,6 +51,7 @@ public:
 
     const View* view = nullptr;
     int x,y;
+    bool update = true;
 signals:
     void Mouse_Down();
     void Mouse_Up();
