@@ -55,9 +55,10 @@ public:
     std::string getName() { return name; }
     IPCDataType getType() { return type; }
     void* getData(){ return data; }
-    int size() { return m_size; }
-    int typeSize() { return type_size; }
-    int getIPCDataSize() { return (1 + IPC_STRUCT_STRING_SIZE + 4 + 1 + m_size * type_size); }
+    inline int size() { return m_size; }
+    inline int* sizePtr() { return &m_size; }
+    inline int typeSize() { return type_size; }
+    inline int getIPCDataSize() { return (1 + IPC_STRUCT_STRING_SIZE + 4 + 1 + m_size * type_size); }
 };
 
 class VectorContainer {

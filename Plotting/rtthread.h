@@ -23,6 +23,7 @@ struct findThreadObject {
 class RTThread : public QThread{
     Q_OBJECT
 private:
+    bool is_running = false;
     DataIO::IPCSharedMemory ipc;
     DataIO::IPCStruct::VectorContainer vec_container;
 

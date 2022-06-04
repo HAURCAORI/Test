@@ -187,8 +187,33 @@ class IPCSharedMemory {
         }
     }
 
+    bool connect() {
+        if(ipc_mode != IPC_MODE::RECEIVER) { return false; }
+        if ((shmid = shmget(key, sizeof(shared_data), IPC_CREAT | 0666)) < 0) {
+            printf("[IPC] shmget Failed.\n");
+            ipc_success = false;
+            return false;
+        }
+
+        if ((memory_segment = shmat(shmid, NULL, 0)) == (void *)-1) {
+            printf("[IPC] shmat Failed.\n");
+            ipc_success = false;
+            return false;
+        }
+        {
+            if(sharedData()->valid == false) {
+                printf("[IPC] Can't Connect Sender.\n");
+                ipc_success = false;
+                return false;
+            }
+        }
+        ipc_success = true;
+        return true;
+    }
+
     bool sendData(IPCData& ipc_data, Target id) {
         if(!ipc_success) { return false; }
+        if(ipc_data.getData() == nullptr) { return false; }
         int size = ipc_data.getSize();
         shared_data* sd = sharedData();
         sd->size = size;

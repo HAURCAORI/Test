@@ -12,6 +12,8 @@
 
 DataIO::IOManager* m_IOManager();
 
+void initProcess();
+
 void Log();
 void TLoad(const DataStruct* ds, Signal signal, Neuron* prev, unsigned int i, unsigned int j, unsigned int k);
 void Load(const DataStruct* ds, Signal signal, Neuron* prev, unsigned int i, unsigned int j, unsigned int k);

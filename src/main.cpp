@@ -12,10 +12,8 @@
 
 int main(){
     
-
+/*
     DataIO::IPCSharedMemory ipc(DataIO::IPC_MODE::SENDER, DEFULAT_IPC_KEY);
-    
-    
     for(int i = 0; i < 10; i++) {
         std::vector<FLOAT> vec;
         vec.push_back(i);
@@ -23,53 +21,18 @@ int main(){
         vec.push_back(i+2);
         std::vector<DataIO::IPCStruct::IPCDataStruct> vecs;
         vecs.push_back(DataIO::IPCStruct::IPCDataStruct("signal",DataIO::IPCStruct::IPCDataType::SINGLE_FLOAT, &vec, vec.size(),sizeof(FLOAT)));
+        vecs.push_back(DataIO::IPCStruct::IPCDataStruct("signal2",DataIO::IPCStruct::IPCDataType::SINGLE_FLOAT, &vec, vec.size(),sizeof(FLOAT)));
         DataIO::IPCData d = DataIO::IPCStruct::encodeIPCData(vecs);
         ipc.sendData(d,0);
         std::cout << i << std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(2));
     }
-
-    //DataIO::IPCStruct::decodeIPCData(d);
-    /*
-    std::vector<TYPE> strs;
-    for(int i = 0; i < 10; i++) {
-        std::string str = "abc" + i;
-        strs.push_back(str);
-    }
-    
-
-    TYPE* d = &strs[0];
-    size_t size = strs.size();
-    char* vp = (char*) d;
-    
-    size_t res_size = sizeof(TYPE)*size;
-    std::cout << size << "/" << res_size << std::endl;
-    char* res = new char(res_size);
-    size_t buffer = 10;
-    size_t i = 0;
-    for(; i < res_size; i += buffer) {
-        memcpy(res+i,vp,buffer);
-    }
-    if(i < res_size) {
-        memcpy(res+i,vp,res_size - i);
-    }
-
-    TYPE* rd =(TYPE*) vp;
-    std::cout << "[result]" << std::endl; 
-    for(int i = 0; i < size; i ++) {
-        std::cout << *(rd+i) << std::endl;
-    }
-
-
-    delete(res);
     */
 
-   
-
-    /*
-    if(!Mapping::Mapping()) { return 0; }
+    //if(!Mapping::Mapping()) { return 0; }
     
     m_IOManager()->loadPage(0);
+    initProcess();
 
     //const DataStruct* ds = (m_IOManager()->getDataStruct(0));
     //Neuron* temp = (ds->data_area);//Point(0,0,0);
@@ -77,7 +40,8 @@ int main(){
 
     Signal signal = {1.0f, 0xff,std::chrono::steady_clock::now() };
     
-    for(int i = 0; i < 5; i++) {
+    for(int i = 0; i < 1; i++) {
+        std::cout << i << std::endl;
         TLoad(m_IOManager()->getDataStruct(0), signal,nullptr, 0,0,0);
     }
     
@@ -85,10 +49,9 @@ int main(){
 
     std::this_thread::sleep_for(std::chrono::seconds(2));
     std::cout << "Escape" << std::endl;
-    Log();
+    //Log();
     //m_IOManager()->unloadPage(0);
-    
-    */
+
     
     /*
     cout << dio.createPage(0);

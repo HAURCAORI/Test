@@ -1,5 +1,6 @@
 #include "DataProcess.h"
 #include "Threading.h"
+#include "Logging.h"
 
 #include <math.h>
 
@@ -12,6 +13,12 @@ static DataIO::IOManager iom;
 DataIO::IOManager* m_IOManager() {
     return &iom;
 }
+
+static Logging lgi;
+Logging* m_Logging() {
+    return &lgi;
+}
+
 
 /*
 static std::vector<void*> MemoryMap;
@@ -32,12 +39,19 @@ void ThreadPool::ThreadPool::EnqueueJob(Args&&... args) {
   cv_job_q_.notify_one();
 }
 
+void initProcess() {
+    m_Logging()->createSet("signal",IPCType::SINGLE_FLOAT);
+    m_Logging()->run();
+}
+
+
 struct TimeLine {
     std::vector<unsigned int> id;
     TIMESTAMP timestamp;
 };
 
 static TIMESTAMP start_time = Now();
+
 
 //Thread pool 생성
 ThreadPool::ThreadPool pool(5);
@@ -86,7 +100,9 @@ void Load(const DataStruct* ds, Signal signal, Neuron *prev, unsigned int i, uns
         return;
     }
     //printf("%f",signal.value);
-    timeline.emplace_back(TimeLine {{i,j,k}, current_time});
+
+    m_Logging()->addData(0,signal.value);
+    //timeline.emplace_back(TimeLine {{i,j,k}, current_time});
     auto time_difference = std::chrono::duration_cast<std::chrono::microseconds>(current_time - temp->timestamp).count();
     if(time_difference > SUSTAIN_TIME) {temp->value *= 1.0f - ((float) (time_difference-SUSTAIN_TIME) / DECAY_TIME); }
     if(time_difference > MAX_TIME_DIFFERENCE) { time_difference = MAX_TIME_DIFFERENCE; }
