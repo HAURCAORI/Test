@@ -41,6 +41,7 @@ void ThreadPool::ThreadPool::EnqueueJob(Args&&... args) {
 
 void initProcess() {
     m_Logging()->createSet("signal",IPCType::SINGLE_FLOAT);
+    m_Logging()->createSet("signal1",IPCType::SINGLE_FLOAT);
     m_Logging()->run();
 }
 
@@ -119,8 +120,9 @@ void Load(const DataStruct* ds, Signal signal, Neuron *prev, unsigned int i, uns
     
     if(i == 0 && j == 0 && k == 0) {
         m_Logging()->addData(0,(FLOAT) std::chrono::duration_cast<std::chrono::milliseconds>(current_time - time_point).count());
+        m_Logging()->addData(1,(FLOAT) std::chrono::duration_cast<std::chrono::milliseconds>(current_time - time_point).count());
     }
-    if(i == 4 && j == 0 && k == 0) {
+    else if(i == 2 && j == 0 && k == 0) {
         //m_Logging()->addData(1,(FLOAT) std::chrono::duration_cast<std::chrono::milliseconds>(current_time - time_point).count());
     }
     //std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -133,10 +135,9 @@ void Load(const DataStruct* ds, Signal signal, Neuron *prev, unsigned int i, uns
             pool.EnqueueJob(ds, signal, temp, i + dir_i[offset], j + dir_j[offset], k + dir_k[offset]);
         } 
     }
-    return;
+
     if(quotient == 1) { return; }
     for(int iter = 1; iter < quotient; ++iter) {
-        //Signal nsignal = signal;
         signal.timestamp = current_time + std::chrono::microseconds((int) ((float) time_difference/quotient)*iter);
 
         for(int offset = 0; offset < 6; ++offset) {

@@ -1,5 +1,5 @@
 #DIMENSION {10,10,10}
-#DEFAULT type(d1) / specificity(d1) / direction(1+) / weight(0.9)
+#DEFAULT type(d1) / specificity(d1) / direction(1+) / weight(1)
 #DEFINE_DATA Back type(d1) / specificity(d1) / direction(1-) / weight(1)
 #DEFINE UPDOWN 1+|1-
 
@@ -10,11 +10,11 @@
 //3 : exec : 0
 
 $PAGE 0
-[0,0,0] => threshold(0.1)
-[1,0,0] == type(d1) / specificity(d1) / direction(1-) / weight(0.9) / threshold(0.1)
-[2,0,0] => threshold(0.8)
-[3,0,0] => threshold(0.8)
-[4,0,0] == type(d1) / specificity(d1) / direction(2+) / weight(1)
+[0,0,0] => threshold(1)
+[1,0,0] == type(d1) / threshold(0.2) / specificity(d1) / weight(1) / direction(1+)
+[2,0,0] => threshold(0.5)
+//[3,0,0] => threshold(1)
+//[4,0,0] == type(d1) / threshold(0.2) / specificity(d1) / weight(1)
 [4,1,0] == Back
 [3,1,0] == Back
 [2,1,0] == Back
