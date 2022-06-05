@@ -41,10 +41,10 @@ int main(){
     Signal signal = {1.0f, 0xff,std::chrono::steady_clock::now() };
     
     for(int i = 0; i < 100; i++) {
-        std::cout << i << std::endl;
+        std::cout << "Try : " <<i << std::endl;
         //m_Logging()->clear(0);
         TLoad(m_IOManager()->getDataStruct(0), signal,nullptr, 0,0,0);
-        std::this_thread::sleep_for(std::chrono::seconds(3));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
     
     

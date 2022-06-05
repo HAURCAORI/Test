@@ -5,8 +5,10 @@
 
 #define MAX_QUOTIENT 5
 #define MAX_TIME_DIFFERENCE 2000
-#define SUSTAIN_TIME 10000.0f
-#define DECAY_TIME 5000.0f
+#define SUSTAIN_TIME 2000.0f
+#define DECAY_TIME 1000.0f
+
+#define Check(a,x,y,z) if(i == x && j == y && k == z) {m_Logging()->addData(a,(FLOAT) std::chrono::duration_cast<std::chrono::milliseconds>(current_time - time_point).count());}
 
 static DataIO::IOManager iom;
 DataIO::IOManager* m_IOManager() {
@@ -100,13 +102,19 @@ void Load(const DataStruct* ds, Signal signal, Neuron *prev, unsigned int i, uns
         }
         return;
     }
-
     //timeline.emplace_back(TimeLine {{i,j,k}, current_time});
     auto time_difference = std::chrono::duration_cast<std::chrono::microseconds>(current_time - temp->timestamp).count();
-    if(time_difference > SUSTAIN_TIME) {temp->value *= 1.0f - ((float) (time_difference-SUSTAIN_TIME) / DECAY_TIME); }
-    if(time_difference > MAX_TIME_DIFFERENCE) { time_difference = MAX_TIME_DIFFERENCE; }
-    if(temp->value < 0) { temp->value = 0.0f; }
+    if(time_difference < DECAY_TIME) {
+        temp->value *= ((float) (DECAY_TIME-time_difference) / DECAY_TIME); 
+    } else {
+        temp->value = 0.0f;
+    }
+    temp->timestamp = current_time;
+    if(time_difference > MAX_TIME_DIFFERENCE) { time_difference = MAX_TIME_DIFFERENCE; } //토닉
+    //if(temp->value < 0) { temp->value = 0.0f; }
     temp->value += signal.value;
+    
+    
     if(temp->value < temp->threshold) { return; }
     int quotient = (int)(temp->value / temp->threshold);
     if(quotient > MAX_QUOTIENT) { quotient = MAX_QUOTIENT; }
@@ -118,16 +126,13 @@ void Load(const DataStruct* ds, Signal signal, Neuron *prev, unsigned int i, uns
         signal.value = (signal.value < 0) ? -(signal.value) : (signal.value);
     }
     
-    if(i == 0 && j == 0 && k == 0) {
-        m_Logging()->addData(0,(FLOAT) std::chrono::duration_cast<std::chrono::milliseconds>(current_time - time_point).count());
-        m_Logging()->addData(1,(FLOAT) std::chrono::duration_cast<std::chrono::milliseconds>(current_time - time_point).count());
-    }
-    else if(i == 2 && j == 0 && k == 0) {
-        //m_Logging()->addData(1,(FLOAT) std::chrono::duration_cast<std::chrono::milliseconds>(current_time - time_point).count());
-    }
-    //std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    //printf("%f task[%d][%d][%d]\r\n", m_Monitoring()->getMemoryUsage() ,i,j,k);
+    Check(0,0,0,0);
+    Check(1,1,1,0);
 
+    //std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    //if(i==1 && j==1) {
+      //  printf("task[%d][%d][%d] : %f / %f\r\n",i,j,k,temp->value, signal.value);
+    //}
     if(m_Monitoring()->getMemoryUsage() > 0.95) { return; }
 
     for(int offset = 0; offset < 6; ++offset) {
@@ -135,11 +140,10 @@ void Load(const DataStruct* ds, Signal signal, Neuron *prev, unsigned int i, uns
             pool.EnqueueJob(ds, signal, temp, i + dir_i[offset], j + dir_j[offset], k + dir_k[offset]);
         } 
     }
-
     if(quotient == 1) { return; }
+
     for(int iter = 1; iter < quotient; ++iter) {
         signal.timestamp = current_time + std::chrono::microseconds((int) ((float) time_difference/quotient)*iter);
-
         for(int offset = 0; offset < 6; ++offset) {
             if(((temp->direction >> offset) & 1) == 1) {
                 pool.EnqueueJob(ds, signal, temp, i + dir_i[offset], j + dir_j[offset], k + dir_k[offset]);

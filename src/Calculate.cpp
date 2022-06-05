@@ -15,10 +15,10 @@ std::random_device rd;
 // Mersenne twister PRNG, initialized with seed from previous random device instance
 std::mt19937 gen(rd()); 
 
-float threshold_mean = 0.6;
-float threshold_stddev = 0.1;
-float weight_mean = 0.8;
-float weight_stddev = 0.2;
+float threshold_mean = 0.5;
+float threshold_stddev = 0.3;
+float weight_mean = 0.5;
+float weight_stddev = 0.3;
 
 
 float random_float()
@@ -32,13 +32,15 @@ float random_float()
 float random_threshold()
 {
     std::normal_distribution<float> dist(threshold_mean, threshold_stddev);
-    return dist(gen);
+    float temp = dist(gen);
+    return (temp > 1) ? 1 : temp;
 }
 
 float random_weight()
 {
     std::normal_distribution<float> dist(weight_mean, weight_stddev);
-    return dist(gen);
+    float temp = dist(gen);
+    return (temp > 1) ? 1 : temp;
 }
 
 

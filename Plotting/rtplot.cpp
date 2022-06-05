@@ -181,9 +181,9 @@ void rtplot::drawData()
                 double ty = (*it - y_axis.min_value)*height_per_value;
                 if(principal_axis == 'x') tx = delta * i + delta/2;
                 if(principal_axis == 'y') ty = delta * i + delta/2;
-                Location tl = origin_plot(tx,ty);
-                //Simd::DrawingLine(m_plot_view,origin_plot(tx,ty+delta/2-1),origin_plot(tx,ty-delta/2+1),Color(0,0,255));
-                Simd::DrawRectangle(m_plot_view,tl.x-1,tl.y-1,tl.x+1,tl.y+1, Color(0,0,255));
+                //Location tl = origin_plot(tx,ty);
+                Simd::DrawingLine(m_plot_view,origin_plot(tx,ty+delta/2-1),origin_plot(tx,ty-delta/2+1),Color(0,0,255));
+                //Simd::DrawRectangle(m_plot_view,tl.x-1,tl.y-1,tl.x+1,tl.y+1, Color(0,0,255));
 
             }
         }

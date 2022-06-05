@@ -22,13 +22,11 @@ void Logging::createSet(std::string name, IPCType type) {
 }
 void Logging::addData(unsigned int index, FLOAT value) {
     if(!exist(index)) return;
-    
     std::vector<FLOAT>* vec = static_cast<std::vector<FLOAT>*>(m_container[index].getData());
     if(vec->size() > 100) { clear(index);}
     std::unique_lock<std::mutex> lock(m_mutex);
     vec->push_back(value);
     *(m_container[index].sizePtr()) = vec->size();
-
     lock.unlock();
     recent_value = value;
     
