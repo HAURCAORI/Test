@@ -24,8 +24,22 @@ void RTThread::run()
 
                         std::vector<DataIO::IPCStruct::IPCDataStruct> ds = DataIO::IPCStruct::decodeIPCData(d,vec_container);
                         std::vector<rtplot::DataStruct> rds(ds.begin(), ds.end());
+
+/*
+                        for(auto it = rds.begin(); it != rds.end(); ++it) {
+                            auto temp = static_cast<std::vector<FLOAT>*> (it->getData());
+                            std::cout << "size : " << temp->size() << std::endl;
+
+                            for(auto i = temp->begin(); i != temp->end(); ++i) {
+                                std::cout << *i << " ";
+                            }
+                            std::cout << std::endl;
+
+                        }
+                    */
+
                         if(target < vec_qplot.size()) {
-                            //vec_qplot[target].qp->updateDataSet(&rds);
+                            vec_qplot[target].qp->updateDataSet(&rds);
                             emit Update_Image(vec_qplot[target].objectname);
                         }
 

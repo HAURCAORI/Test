@@ -61,18 +61,25 @@ bool DataSet::deleteData(unsigned int index) {
 void DataSet::updateData(std::vector<DataStruct>* vec)
 {
     for(auto it = vec->begin(); it != vec->end(); ++it ){
-        std::string target = it->getName();
+        //std::string target = it->getName();
         bool exist = false;
+
+
         for(auto itt = datas.begin(); itt != datas.end(); ++itt) {
-            if(itt->getName() == target) {
+            if(itt->getName() == it->getName()) {
                 exist = true;
                 itt->setData(it->getData());
-                return;
+                *(itt->sizePtr()) = it->size();
+                break;
             }
         }
+
         if(exist == false) {
             datas.push_back(*it);
         }
+
+
+
     }
 }
 
@@ -149,6 +156,7 @@ void rtplot::drawData()
             }
         }
     } else if (type == DataType::SINGLE_FLOAT) {
+
         std::vector<DataStruct> valid_data;
 
         for(auto it = m_dataset.getDatas()->begin(); it != m_dataset.getDatas()->end(); ++it) {
@@ -163,9 +171,12 @@ void rtplot::drawData()
         } else {
             delta = (double) m_plot_view.height/valid_data.size();
         }
+
         for(size_t i = 0; i < valid_data.size(); i++) {
-            const std::vector<FLOAT>* d = (const std::vector<FLOAT>*) (valid_data[i].getData());
+            std::vector<FLOAT>* d = static_cast<std::vector<FLOAT>*>(valid_data[i].getData());
+
             for(auto it = d->begin(); it != d->end(); ++it) {
+
                 double tx = (*it - x_axis.min_value)*width_per_value;
                 double ty = (*it - y_axis.min_value)*height_per_value;
                 if(principal_axis == 'x') tx = delta * i + delta/2;
@@ -173,6 +184,7 @@ void rtplot::drawData()
                 Location tl = origin_plot(tx,ty);
                 //Simd::DrawingLine(m_plot_view,origin_plot(tx,ty+delta/2-1),origin_plot(tx,ty-delta/2+1),Color(0,0,255));
                 Simd::DrawRectangle(m_plot_view,tl.x-1,tl.y-1,tl.x+1,tl.y+1, Color(0,0,255));
+
             }
         }
     }

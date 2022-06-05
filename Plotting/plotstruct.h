@@ -52,6 +52,7 @@ public:
     void* getData(){ return data; }
     void setData(void* src) { data = src; }
     int size() { return m_size; }
+    int* sizePtr() { return &m_size; }
     int typeSize() { return type_size; }
 };
 
